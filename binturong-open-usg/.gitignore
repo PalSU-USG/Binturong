@@ -3,6 +3,8 @@ dist / media
 node_modules
 .DS_Store
 .env
+.env.cloud
+.env.test
 .next
 next-env.d.ts
 .vercel

@@ -1,5 +1,9 @@
 # Payload Website Template
 
+For Binturong's current local setup, migrations, and test database, follow
+[the local development guide](../docs/local-development.md). The template
+instructions below are inherited reference material.
+
 This is the official [Payload Website Template](https://github.com/payloadcms/payload/blob/3.x/templates/website). Use it to power websites, blogs, or portfolios from small to enterprise. This repo includes a fully-working backend, enterprise-grade admin panel, and a beautifully designed, production-ready website.
 
 This template is right for you if you are working on:

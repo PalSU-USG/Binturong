@@ -77,10 +77,11 @@ task explicitly migrates package managers. The scripts and Docker/Playwright set
 include pnpm assumptions. Check that mismatch before installing or invoking those paths;
 keep the existing lockfile rather than creating a competing one.
 
-`src/payload.config.ts` uses PostgreSQL, while `.env.example` defaults to a MongoDB URL.
-Use a PostgreSQL `DATABASE_URL` for this adapter. Check the target without printing its
-credentials. Template README and container instructions require verification against the
-active configuration before use.
+`src/payload.config.ts` uses PostgreSQL with automatic schema push disabled. Apply
+reviewed Payload migrations before starting against an empty database. Follow
+[local setup](../docs/local-development.md) for environment separation and hosted baseline
+adoption. Check connection targets without printing credentials. Template README and
+container instructions require verification against active configuration before use.
 
 | Check            | Command                    | When needed                                            |
 | ---------------- | -------------------------- | ------------------------------------------------------ |
@@ -90,11 +91,11 @@ active configuration before use.
 | Browser          | `npm run test:e2e`         | Public pages, admin, preview, or interactive workflows |
 | Production build | `npm run build`            | Routing, rendering, config, or build behavior          |
 
-Vitest uses `tests/int/**/*.int.spec.ts` and loads `.env`. Playwright uses `tests/e2e/`,
-loads `.env`, and starts `pnpm dev` on port 3000 with server reuse enabled. Confirm both
-the database and any reused server target a disposable test environment. Do not assume
-`test.env` is loaded automatically. Admin helpers create/delete test users; the seed
-endpoint clears collections and globals. Never run them against valuable data.
+The npm test scripts load `.env.test`. Both runners require the local `binturong_test`
+database on port 55322 and reject other targets before initializing Payload. Playwright
+starts `npm run dev` on port 3000 with server reuse disabled. Admin helpers create/delete
+synthetic test users; the seed endpoint clears collections and globals. Never run them
+against valuable data.
 
 The current tests are template smoke tests, not evidence of role isolation, RLS, retry
 safety, or production readiness. Add focused regression cases for changed behavior and
