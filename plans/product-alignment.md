@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                |
-| 2: execution              | In progress: Task 1                    | Four-role policy and migration; subsequent tasks remain pending                |
+| 2: execution              | In progress: Task 2                    | Four-role policy and migration; subsequent tasks remain pending                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,37 +15,53 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Approved: [domain/publication spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
-  and [account/access plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-  This is foundation slice 1a. New domain records, storage, and public UI follow later.
-- Task 1 approved by independent review at `f7e9dbf`. Base `a7700b4`;
-  branch `Hawksprey420/access-role-schema`; checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-role-schema`.
-  Task 2 starts only from the reviewed Task 1 commit in its own worktree.
-- Planning remains `feat/domain-publication` at `a7700b4`. Separate integration
-  checkout: `C:/Users/Hawksprey/orca/workspaces/Binturong/access-integration`.
-  No task has been merged, pushed, or deployed.
-- Task 1 adds four roles, editor/active defaults, server-controlled role/status,
-  generated types/migration, and compatible seed/test callers. Existing account
-  credentials and IDs are preserved; no account is automatically promoted.
-  Account management and publication enforcement remain Tasks 2-5.
-- RED observed for missing policy and schema defaults; field-guard removal makes
-  the persisted-state regression fail. Current `npm run test:int`: **14/14**;
-  `npm exec -- tsc --noEmit --incremental false`: **pass**. Targeted ESLint:
-  **0 errors, 4 generated-migration unused-argument warnings**.
-- Migration applied to local branch/test/fresh disposable databases; repeated
-  application is a no-op. Existing row/credential fingerprints match. Never run
-  its down migration over valuable role data; recover with backup/forward correction.
-- Backend integration uses Node instead of jsdom: jsdom's cross-realm byte arrays
-  broke real JWT signing. Runtime code and dependency versions are unchanged.
-- Preflight at `6d6368c`: 10 integration + 4 Chromium tests, types, build pass.
-  Full lint retains 5 inherited errors/8 warnings. Build/browser checks have not
-  been rerun after Task 1; complete-slice verification belongs to Task 6.
-- Ignored branch environment uses local `binturong_domain`; tests are guarded to
-  `binturong_test` on 55322. Main development mirror, cloud, and Bintanong untouched.
-  Private backups/logs remain outside Git; ignored task ledger retains RED evidence.
-- Root owner `src/payload-types.ts` remains byte-identical to the private original.
-  Only task-generated types are part of this diff. No dependency/lockfile changes.
+**Owner requested stopping for usage on 20 October 2026. Resume here; do not repeat setup.**
+
+- Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
+  and [six-task plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
+  Current slice: 1a accounts/access. Tasks 3-6 and later domain/storage/UI slices pending.
+- Task 1 committed `f7e9dbf`, independently approved (14 integration tests, types,
+  changed lint: 0 errors/4 generated warnings). Review recorded at `1683fd5`.
+- Task 2 **in progress, uncommitted, not reviewed for acceptance**. Base `1683fd5`;
+  branch `Hawksprey420/access-accounts`; active checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-accounts`.
+  Dependencies, ignored branch/test environments and copied media live here.
+  Planning and completed Task 1 checkouts remain clean; integration is untouched.
+- Implemented in the dirty task checkout: fresh account checks, scoped reads,
+  role/status/credential-field guards, serialized CRUD, last-super-admin protection,
+  session clearing/disabled login denial, trusted local fixture provisioning.
+  Existing e2e user helper and schema-default fixtures use that provisioner.
+- Observed RED then GREEN: account/schema focused tests **8/8**. Atomic tests
+  **5/5**: actual advisory-lock waits during demotion/deletion, actor recheck,
+  post-write failure rollback/retry, native first-register with zero users inside
+  a rolled-back transaction, and rejection without a transaction.
+- Early independent source review found native auth writes whole stale user objects
+  outside collection hooks, password-recovery incompatibility, and overbroad unlock.
+  Runtime RED reproduced all three. Narrow recovery handling and constrained unlock
+  are added; auth regressions now **5/5**, including real GraphQL, password recovery,
+  and barrier-controlled disable/demotion during native login.
+- Custom Payload migration `20261019_180133_auth_authority_guard` rejects actual
+  role/status changes without the current backend's account advisory lock. Native
+  auth keeps unchanged fields or fails instead of restoring stale authority. It is
+  applied **only to binturong_test** so far. Branch/fresh/repeat proof remains pending.
+  Lock encoding: [PostgreSQL 17 pg_locks](https://www.postgresql.org/docs/17/view-pg-locks.html).
+- Bootstrap test is intentionally RED: `tests/int/account-bootstrap.int.spec.ts`
+  imports the not-yet-created `src/collections/Users/bootstrap.ts`. CLI script and
+  package command are also absent. Do not claim the full suite or current types pass.
+  Its final test still needs a real promotion/rollback assertion, not an idempotent no-op.
+- Latest full-suite/types/build/browser results belong to Task 1/preflight, not this
+  dirty Task 2 tree. After bootstrap: rerun all integration, types and targeted lint;
+  prove fresh/upgrade/repeat migrations, review bypass mutations and generated artifacts,
+  commit coherent work and request independent Task 2 review. No deployment readiness.
+- All listed dirty app files belong to Task 2: Users config/hooks/provisioner,
+  activeAccount, auth-guard migration/index/snapshot, accessFixtures/seedUser,
+  role-schema and four account test files, and Vitest serialization. No owner files
+  were imported. Integration tests share binturong_test, so files now run serially.
+- Detailed RED/GREEN logs and rulings: ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
+  Original snapshot/migration evidence is private at
+  `C:/Users/HAWKSP~2/AppData/Local/Temp/binturong-setup-6KIh17`.
+- Main owner generated types remain preserved; main database mirror, cloud and
+  Bintanong unchanged. No merge, push, production migration or real bootstrap performed.
 
 ## Sources and reconnaissance snapshot
 
@@ -256,6 +272,6 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Create the Task 2 account-management worktree from the reviewed Task 1 range.
-Independent review reran integration (14/14), types, targeted lint and diff checks;
-migration logs were inspected, not rerun. Task 1 alone is not deployable access control.
+In `access-accounts`, implement the approved local-only bootstrap service and CLI
+against the existing RED bootstrap test; correct its rollback assertion, then finish
+Task 2 verification and independent review. Preserve all existing dirty task files.
