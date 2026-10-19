@@ -1,6 +1,6 @@
 # Domain and publication foundations
 
-Status: revised for review. This defines intended behavior; implementation has not started.
+Status: approved by the user. This defines intended behavior; implementation has not started.
 
 ## At a glance
 

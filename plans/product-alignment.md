@@ -5,7 +5,7 @@
 | Phase                     | State                                  | Deliverable                                                                    |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Written spec awaiting review           | Resolve domain contracts and write coherent implementation slices              |
+| 1: specification and plan | Spec approved; first plan for review   | Resolve domain contracts and write coherent implementation slices              |
 | 2: execution              | Not started                            | Implement only after the applicable planning workflow permits it               |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
@@ -24,8 +24,8 @@ changed. The current checkpoint below records later Phase 1 progress.
 - Verification ran with the preserved owner `src/payload-types.ts` changes present.
   They remain uncommitted and byte-identical to the original owner state. An isolated
   implementation must regenerate/check its own derived types before runtime changes.
-- The user approved the domain/publication foundation in conversation. Written spec
-  review is next; no product implementation has started.
+- The user approved the revised written spec, including super-admin, after `a15f35d`.
+  No product implementation has started. The first execution plan is ready for review.
 - Active worktree: `.worktrees/domain-publication`, branch `feat/domain-publication`,
   created from `062ca84`. This is documentation-only work: runtime environments and
   dependencies were not installed/copied and no database/browser tests were rerun here.
@@ -52,6 +52,13 @@ changed. The current checkpoint below records later Phase 1 progress.
   active super-admin. This is documentation only; account roles are unchanged.
 - Revision checks: Prettier, local links, contract/role consistency, placeholder
   scan, and diff whitespace passed. App tests/build were not rerun for prose edits.
+- [Account/access plan](../docs/superpowers/plans/2026-10-20-access-foundations.md)
+  covers the existing CMS before new domain records. Six dependent tasks use native
+  execution and independent branch review. Domain, storage, and public UI remain
+  separate plans; the roadmap gives their dependency order.
+- Plan self-review checked scope coverage, task interfaces, five failure cases,
+  and length. Prettier, links, placeholder scan, and diff checks passed. Execution
+  has not started; app tests/build were not rerun for this documentation change.
 
 ## Sources and reconnaissance snapshot
 
@@ -262,9 +269,8 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Review the written domain/publication spec. After user approval, write the
-implementation plan; do not reopen the already-settled ownership, role hierarchy,
-foundation design, or worktree consent.
+Review the account/access implementation plan. After approval, execute its first
+task in the existing worktree; preserve the approved spec and worktree consent.
 
 ## Phase 1 working brief
 
@@ -312,5 +318,5 @@ and role/publication behavior remain parity requirements. Ports, origins, secret
 and mail destinations may differ. The existing 14 config differences and platform/
 security/storage gaps remain reconciliation work, not an accepted final mirror.
 
-The next artifact is the written architectural spec, followed by its review and
-the implementation plan. Phase 2 has not started.
+The written spec is approved. The account/access plan is ready for review;
+product Phase 2 has not started. The data-copy setup is recorded separately.
