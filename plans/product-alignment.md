@@ -18,7 +18,7 @@ changed. The current checkpoint below records subsequent approved execution.
 - Approved: [domain/publication spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [account/access plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
   This is foundation slice 1a. New domain records, storage, and public UI follow later.
-- Task 1 implementation is verified, awaiting independent review. Base `a7700b4`;
+- Task 1 approved by independent review at `f7e9dbf`. Base `a7700b4`;
   branch `Hawksprey420/access-role-schema`; checkout
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-role-schema`.
   Task 2 starts only from the reviewed Task 1 commit in its own worktree.
@@ -256,5 +256,6 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Commit the verified Task 1 unit, request independent specification/evidence/compatibility
-review against `a7700b4..HEAD`, and resolve blockers before starting Task 2.
+Create the Task 2 account-management worktree from the reviewed Task 1 range.
+Independent review reran integration (14/14), types, targeted lint and diff checks;
+migration logs were inspected, not rerun. Task 1 alone is not deployable access control.
