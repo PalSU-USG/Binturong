@@ -5,7 +5,7 @@
 | Phase                     | State                                  | Deliverable                                                                    |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Written spec awaiting review           | Resolve domain contracts and write coherent implementation slices              |
+| 1: specification and plan | Spec approved; first plan for review    | Resolve domain contracts and write coherent implementation slices              |
 | 2: execution              | Not started                            | Implement only after the applicable planning workflow permits it               |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
@@ -24,8 +24,8 @@ changed. The checkpoint below records later work.
 - Verification ran with the preserved owner `src/payload-types.ts` changes present.
   They remain uncommitted and byte-identical to the original owner state. An isolated
   implementation must regenerate/check its own derived types before runtime changes.
-- The user approved the domain/publication foundation in conversation. Written spec
-  review is next; no product implementation has started.
+- The user approved the revised written spec, including super-admin, after `a15f35d`.
+  No product implementation has started; the first execution plan is ready for review.
 - Spec committed at `4f54953` on `feat/domain-publication` in the isolated
   `.worktrees/domain-publication` checkout. Its current
   [written spec](../.worktrees/domain-publication/docs/superpowers/specs/2026-10-19-domain-publication-design.md)
@@ -43,6 +43,11 @@ changed. The checkpoint below records later work.
 - Revised spec committed at `a15f35d` on `feat/domain-publication`, about 43% shorter.
   Formatting, links, contract/role consistency, and diff checks passed. No app tests,
   schema changes, or account updates were needed. Next: review the revised spec.
+- Spec approval and the [account/access implementation plan](../.worktrees/domain-publication/docs/superpowers/plans/2026-10-20-access-foundations.md)
+  are committed at `7354f75` in the existing worktree. Six dependent tasks use native
+  execution and independent branch review. The roadmap covers later domain/storage/UI
+  slices. Plan self-review, formatting, local links, and diff checks passed; no runtime
+  changes or test/build reruns. Next: review the implementation plan before execution.
 
 ## Sources and reconnaissance snapshot
 
@@ -253,9 +258,8 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Review the written domain/publication spec in the isolated worktree. After user
-approval, write the implementation plan; preserve the settled ownership, role
-hierarchy, foundation design, and worktree consent.
+Review the account/access implementation plan. After approval, execute its first
+task in the existing worktree; preserve the approved spec and worktree consent.
 
 ## Phase 1 working brief
 
@@ -291,5 +295,5 @@ User authorized worktrees for execution. Reuse that consent when implementation
 starts; first preserve/carry the required uncommitted setup baseline deliberately.
 Do not create a worktree from HEAD and assume the current setup is present there.
 
-The written spec is ready for review. Its implementation plan follows approval;
+The written spec is approved. The account/access plan is ready for review;
 product Phase 2 has not started. The data-copy setup is recorded separately.
