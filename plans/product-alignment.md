@@ -46,6 +46,12 @@ changed. The current checkpoint below records later Phase 1 progress.
 - Main setup evidence is committed at `e14f87c`; the initial written spec at
   `4f54953`. This branch's follow-up records the user's full CMS credential-copy
   decision. Independent final transfer review found no documentation blockers.
+- Latest request: simplify the spec and add super-admin. The revised spec uses
+  shorter wording and one role table. Proposed scope: admins manage editors and
+  publishers; super-admins manage admin/super-admin accounts. Preserve the last
+  active super-admin. This is documentation only; account roles are unchanged.
+- Revision checks: Prettier, local links, contract/role consistency, placeholder
+  scan, and diff whitespace passed. App tests/build were not rerun for prose edits.
 
 ## Sources and reconnaissance snapshot
 
@@ -286,10 +292,9 @@ not add tenant memberships, CSG logins, or claim tenant isolation in v1. A later
 tenant feature needs explicit membership, scope, and effective-role tests; an
 organization relationship alone does not provide isolation.
 
-User decision: administrators inherit publishing authority. Use the capability
-hierarchy admin > publisher > editor; publishers also prepare records, and only
-administrators manage accounts and role assignments. The Discord analogy explains
-inheritance; a customizable role/permission builder is outside this slice.
+User decisions: administrators inherit publishing authority; add a super-admin role.
+Use super-admin > admin > publisher > editor. The written spec defines account
+management and last-super-admin protection. A custom permission builder stays deferred.
 
 User authorized worktrees for execution. Reuse that consent when implementation
 starts; first preserve/carry the required uncommitted setup baseline deliberately.
