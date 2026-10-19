@@ -71,6 +71,36 @@ identify the exact unpublished range, create a recovery ref, preserve dirty work
 and compare file trees afterward. Commit conventions do not authorize a push,
 merge, deployment, or history rewrite.
 
+## Task isolation and integration
+
+Apply this workflow to implementation slices, including fixes and follow-up tasks:
+
+1. Name the approved task, its base commit, branch, worktree, affected contracts,
+   and exact verification commands before editing. Keep the current checkpoint compact.
+2. Give each coherent implementation task its own branch/worktree. Use the native
+   worktree manager when available. Branch dependent tasks from their reviewed
+   prerequisite commit; preserve uncommitted work before moving it between checkouts.
+   Keep planning and integration worktrees separate from task implementation.
+3. Implement test first and commit small verified units using the commit rules above.
+   Run tests against an isolated disposable database, never the CMS data mirror.
+   Reuse the dependency baseline; creating a worktree is not permission to upgrade it.
+4. Request independent task review with the task/spec, base-to-head range, and
+   commands/results. The reviewer follows [review and proof](#review-and-proof),
+   reruns the relevant checks, and leaves code unchanged. Record approval or defects;
+   fix blockers with regression coverage before treating the task as accepted.
+5. Use a separate integration branch/worktree for approved task ranges. Inspect the
+   exact incoming commits, preserve compatibility, and verify the combined result.
+   Implementers do not merge or push their own task as a substitute for review.
+   Execute integration/push/deployment only within the user's authorized scope.
+6. Update the active checkpoint with actual commits, review state, evidence, remaining
+   dirty/owner files, and one next action. Keep detailed history in Git or linked
+   evidence; do not duplicate an activity log across multiple status files.
+
+A single agent may implement tasks serially in their own worktrees. Parallel
+workers need genuinely independent file ownership and separate database fixtures;
+do not race schema writers or share destructive seed state. These are Binturong's
+task boundaries, not Bintanong's research phases or source-approval machinery.
+
 ## Pushes
 
 When a push is part of the authorized task:
@@ -157,6 +187,11 @@ deployed state with them when deployment is in scope. Apply the existing task's
 authorization; successful local verification does not itself deploy a change.
 
 ## Reference basis
+
+Rechecked Bintanong at `380551a` on 20 October 2026: its live worktree inventory
+separates implementation, planning, and integration; implementer/reviewer instructions
+require scoped work, real test evidence, and independent task review. The owner's
+direction makes the task-isolation workflow above mandatory for Binturong.
 
 Inspected the local Bintanong checkout at
 `C:/Users/Hawksprey/source/repos/Bintanong`, HEAD `85366d4`, on 17 October 2026.

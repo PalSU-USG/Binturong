@@ -28,8 +28,8 @@ plan does not make the full product or hosted deployment ready.
 | 8              | Public sections                 | Archives, Transparency, Government as views over the approved records.                                                                                                                       |
 | Later          | Integrations                    | Revisit only after foundations work.                                                                                                                                                         |
 
-Use native execution for this tightly coupled slice. Do not run parallel schema
-writers. Obtain independent review before integration. Review later plans at their
+Use native implementation in a separate worktree per task, with independent task
+review and a separate integration worktree. Do not run parallel schema writers. Review later plans at their
 slice boundaries rather than designing every future screen now.
 
 ## Global constraints
@@ -173,6 +173,6 @@ only where role-aware fixtures require it; update `plans/product-alignment.md` a
 ## Handoff
 
 Review this plan before execution. After approval, use native execution in the
-existing worktree, with test-first tasks and an independent branch review. The next
+task worktrees, with test-first tasks, independent task reviews, and a final integration review. The next
 plan is domain/schema foundations; it owns the new formal-record lifecycle and
 files stay disabled until the separate storage slice passes.
