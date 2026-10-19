@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Resolve domain contracts and write coherent implementation slices              |
-| 2: execution              | Task 1 committed; independent review   | Account/access slice 1a; later tasks and product slices pending                |
+| 2: execution              | Paused by owner during Task 2          | Account/access slice 1a; later tasks and product slices pending                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -22,11 +22,16 @@ changed. The checkpoint below records later work.
   commits, and a separate integration checkout. Adapted from inspected Bintanong.
 - Planning anchor: `feat/domain-publication`, `.worktrees/domain-publication`,
   commit `a7700b4`. The approved plan lives in its `docs/superpowers/plans/` folder.
-- Task 1: `Hawksprey420/access-role-schema`, commit `f7e9dbf`, at
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-role-schema`.
-  Four roles, safe schema defaults, generated migration/types and tests committed.
-  Independent specification/evidence/compatibility review is running; account
-  management/publication enforcement are still Tasks 2-5.
+- Task 1 independently approved at `f7e9dbf`; recorded at `1683fd5` on
+  `Hawksprey420/access-role-schema`. No review blockers.
+- Owner requested stopping for usage. Resume Task 2 in
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-accounts`, branch
+  `Hawksprey420/access-accounts`, checkpoint commit `d4583ef` (task base `1683fd5`).
+  Its `plans/product-alignment.md` is the authoritative current task checkpoint.
+- Task 2 implementation is uncommitted and not accepted. Focused account/schema
+  tests passed 8/8, atomic tests 5/5, native-auth tests 5/5. Bootstrap test is RED
+  because its service/CLI do not exist yet; full current suite/types are unverified.
+  Only the disposable test DB received the new authority-guard trigger migration.
 - Task 1 checks: 14 integration tests and type check pass; changed-code lint has
   0 errors/4 generated-migration warnings. Local fresh/upgrade/repeat migrations
   preserve original IDs/credential fingerprints. Tests use `binturong_test` only.
@@ -36,7 +41,7 @@ changed. The checkpoint below records later work.
 - Integration checkout: `Hawksprey420/access-integration`,
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-integration`. No task merged.
   No push, cloud write, or deployment performed. Runtime changes remain isolated.
-- Main remains `dev` at `640edea` before this documentation commit. Owner
+- Main implementation remains unchanged; workflow adoption is `975be18`. Owner
   `binturong-open-usg/src/payload-types.ts` remains uncommitted and byte-identical
   to the original private backup. It is excluded from this commit.
 - Verified CMS mirror and private credential/media-copy evidence remain in the
@@ -251,5 +256,6 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Complete independent Task 1 review, then branch Task 2 from its reviewed commit in
-its own native worktree. The active task checkout owns detailed verification state.
+Resume the `access-accounts` checkpoint: implement local-only super-admin bootstrap
+against its existing RED test, finish Task 2 verification, commit and obtain independent
+review. Preserve all dirty task files. Do not repeat setup or start Task 3 yet.
