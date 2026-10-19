@@ -5,8 +5,8 @@
 | Phase                     | State                                  | Deliverable                                                                    |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Spec approved; first plan for review   | Resolve domain contracts and write coherent implementation slices              |
-| 2: execution              | Not started                            | Implement only after the applicable planning workflow permits it               |
+| 1: specification and plan | Spec and account/access plan approved  | Resolve domain contracts and write coherent implementation slices              |
+| 2: execution              | Task 1 committed; independent review   | Account/access slice 1a; later tasks and product slices pending                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,39 +15,32 @@ changed. The checkpoint below records later work.
 
 ## Current checkpoint
 
-- Verified setup committed at `c8b1a54`; ESLint loading fix at `b151180`.
-- Bintanong workflow rechecked and enforced in `1fac880`; worktree ignore in
-  `f72edf2`. These are local commits; no push, cloud migration, or config push made.
-- Fresh setup verification: `npm test` passed 10 integration and 4 Chromium tests;
-  `tsc --noEmit --incremental false` and production build passed. Changed-code lint
-  has no errors; full lint still has five existing errors and eight warnings.
-- Verification ran with the preserved owner `src/payload-types.ts` changes present.
-  They remain uncommitted and byte-identical to the original owner state. An isolated
-  implementation must regenerate/check its own derived types before runtime changes.
-- The user approved the revised written spec, including super-admin, after `a15f35d`.
-  No product implementation has started; the first execution plan is ready for review.
-- Spec committed at `4f54953` on `feat/domain-publication` in the isolated
-  `.worktrees/domain-publication` checkout. Its current
-  [written spec](../.worktrees/domain-publication/docs/superpowers/specs/2026-10-19-domain-publication-design.md)
-  incorporates independent review of live-surface permissions, version retention,
-  referenced-metadata transitions, and explicit publishing-actor audit fields.
-- The requested cloud-to-local CMS snapshot is verified: 140 rows in 59 tables,
-  including hosted user password verifiers, plus 32 available media files matching
-  recorded sizes. Test data, environment secrets, sessions, and migration history
-  stay separate. See the [setup checkpoint](local-supabase-setup.md) for evidence
-  and limitations. Post-copy production build passed; no cloud write occurred.
-- User requested shorter wording and a super-admin role. The spec in the isolated
-  worktree now defines super-admin > admin > publisher > editor, with super-admins
-  controlling admin/super-admin accounts and last-super-admin protection. This
-  updates the proposed contract only; runtime accounts and permissions are unchanged.
-- Revised spec committed at `a15f35d` on `feat/domain-publication`, about 43% shorter.
-  Formatting, links, contract/role consistency, and diff checks passed. No app tests,
-  schema changes, or account updates were needed. Next: review the revised spec.
-- Spec approval and the [account/access implementation plan](../.worktrees/domain-publication/docs/superpowers/plans/2026-10-20-access-foundations.md)
-  are committed at `7354f75` in the existing worktree. Six dependent tasks use native
-  execution and independent branch review. The roadmap covers later domain/storage/UI
-  slices. Plan self-review, formatting, local links, and diff checks passed; no runtime
-  changes or test/build reruns. Next: review the implementation plan before execution.
+- Spec and six-task account/access plan are approved. Current execution is slice
+  1a; domain records, durable storage, and visual/public surfaces follow afterward.
+- Mandatory [task-isolation workflow](../docs/engineering-workflow.md#task-isolation-and-integration)
+  now applies to implementation: task worktrees, independent review, scoped verified
+  commits, and a separate integration checkout. Adapted from inspected Bintanong.
+- Planning anchor: `feat/domain-publication`, `.worktrees/domain-publication`,
+  commit `a7700b4`. The approved plan lives in its `docs/superpowers/plans/` folder.
+- Task 1: `Hawksprey420/access-role-schema`, commit `f7e9dbf`, at
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-role-schema`.
+  Four roles, safe schema defaults, generated migration/types and tests committed.
+  Independent specification/evidence/compatibility review is running; account
+  management/publication enforcement are still Tasks 2-5.
+- Task 1 checks: 14 integration tests and type check pass; changed-code lint has
+  0 errors/4 generated-migration warnings. Local fresh/upgrade/repeat migrations
+  preserve original IDs/credential fingerprints. Tests use `binturong_test` only.
+- Preflight at `6d6368c`: 10 integration + 4 Chromium tests, types, production build
+  pass. Full lint retains 5 inherited errors/8 warnings. Browser/build checks were
+  not rerun after Task 1; whole-slice proof remains Task 6.
+- Integration checkout: `Hawksprey420/access-integration`,
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-integration`. No task merged.
+  No push, cloud write, or deployment performed. Runtime changes remain isolated.
+- Main remains `dev` at `640edea` before this documentation commit. Owner
+  `binturong-open-usg/src/payload-types.ts` remains uncommitted and byte-identical
+  to the original private backup. It is excluded from this commit.
+- Verified CMS mirror and private credential/media-copy evidence remain in the
+  [setup checkpoint](local-supabase-setup.md). No setup/data copy was repeated.
 
 ## Sources and reconnaissance snapshot
 
@@ -258,42 +251,5 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Review the account/access implementation plan. After approval, execute its first
-task in the existing worktree; preserve the approved spec and worktree consent.
-
-## Phase 1 working brief
-
-The intended outcome and visual direction remain those in the design guide.
-The first architectural spec covers domain and publication foundations. Storage,
-public search, navigation, tokens, shell/home, record patterns, and the derived
-Archives/Transparency/Government views follow as dependent slices.
-
-Carry forward the settled decisions: editors prepare, designated publishers
-publish, administrators manage accounts, official files remain private before
-publication, and Payload owns application migrations. Preserve numeric IDs and
-existing Posts URLs/relationships while refining the Updates presentation.
-
-Approved foundation: separate structured record collections, keep Posts as the
-existing editorial collection initially, and use Payload drafts/versions for
-publication. Editors prepare draft revisions while the published revision remains
-visible; publishers/admins publish or withdraw. Validate metadata and the canonical
-file before publication. Preserve published file bytes through new document
-versions, and gate public file delivery through published-record references.
-
-User decision: USG staff manage all records at launch, including submissions from
-participating CSGs. Leave room for multi-tenancy if later required or justified.
-Model organization/source attribution separately from editorial permission. Do
-not add tenant memberships, CSG logins, or claim tenant isolation in v1. A later
-tenant feature needs explicit membership, scope, and effective-role tests; an
-organization relationship alone does not provide isolation.
-
-User decisions: administrators inherit publishing authority; add a super-admin role.
-Use super-admin > admin > publisher > editor. The written spec defines account
-management and last-super-admin protection. A custom permission builder stays deferred.
-
-User authorized worktrees for execution. Reuse that consent when implementation
-starts; first preserve/carry the required uncommitted setup baseline deliberately.
-Do not create a worktree from HEAD and assume the current setup is present there.
-
-The written spec is approved. The account/access plan is ready for review;
-product Phase 2 has not started. The data-copy setup is recorded separately.
+Complete independent Task 1 review, then branch Task 2 from its reviewed commit in
+its own native worktree. The active task checkout owns detailed verification state.

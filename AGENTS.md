@@ -89,6 +89,11 @@ passing smoke test alone is not completion.
 
 ## Commit, review, and contract workflows
 
+For implementation, follow [task isolation and integration](docs/engineering-workflow.md#task-isolation-and-integration):
+use task-scoped branches/worktrees, independent task review, and a separate integration
+worktree. Record the active task path and verified commit; a planning branch alone is
+not the task-isolation workflow. Preserve existing authorization boundaries for integration.
+
 Before creating, amending, or rewording any commit, apply the
 [commit rules](docs/engineering-workflow.md#commits), including documentation and handoff
 commits. Use the actual staged change to choose its type, scope, and imperative summary.
