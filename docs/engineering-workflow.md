@@ -45,9 +45,16 @@ footer only for an actual breaking change and explain its migration path.
 Do not add AI attribution or generated-by/co-author trailers for agents; preserve
 real authorship and legitimate contributor metadata.
 
-Commit early in small, coherent, verified units when committing is within the
-authorized task. Include the tests, fixtures, generated artifacts, and necessary
-documentation that make each unit work. Keep unrelated cleanup separate.
+For authorized implementation and its documentation, make local commits after
+each small, coherent, verified unit. Do not accumulate completed tasks as an
+uncommitted handoff. Include the tests, fixtures, generated artifacts, and necessary
+documentation that make the unit work. Keep unrelated cleanup separate.
+
+Before ending a material task, record its actual commit, commands/results, remaining
+owner changes, and one next action in the active checkpoint. If work cannot be
+committed, name the concrete blocker and affected files. A pre-existing failure
+outside the change must be reported separately; it neither establishes a green
+suite nor justifies unrelated repairs. Preserve earlier verification with its scope.
 
 Before each commit:
 
@@ -63,6 +70,22 @@ Preserve published history. For authorized history edits, verify fresh remote re
 identify the exact unpublished range, create a recovery ref, preserve dirty work,
 and compare file trees afterward. Commit conventions do not authorize a push,
 merge, deployment, or history rewrite.
+
+## Pushes
+
+When a push is part of the authorized task:
+
+1. Verify the remote URL and destination branch. Fetch the destination's current
+   refs, then inspect ahead/behind counts and every commit that would be sent.
+2. Keep unrelated owner changes and commits outside the outgoing range. If the
+   destination has advanced, reconcile it deliberately and rerun affected checks.
+3. Push the reviewed branch explicitly to the intended remote and branch. Use a
+   normal fast-forward push; a rejection requires fresh inspection, not force.
+4. Verify the remote branch points to the intended commit. Report the commit IDs,
+   verification results, and any uncommitted work remaining locally.
+
+A commit or push does not apply database migrations, approve source content, or
+deploy the application. Treat those as separate operations with their own checks.
 
 ## Contracts and recovery
 
@@ -138,6 +161,12 @@ authorization; successful local verification does not itself deploy a change.
 Inspected the local Bintanong checkout at
 `C:/Users/Hawksprey/source/repos/Bintanong`, HEAD `85366d4`, on 17 October 2026.
 These are provenance references, not dependencies on that checkout being installed:
+
+Rechecked on 19 October 2026 at `380551a`: current `AGENTS.md`, the conventional
+commit skill, implementer/reviewer instructions, and recent commit bodies. The
+applicable requirements remain frequent scoped commits, explicit staging,
+specification/evidence/compatibility review, durable decisions, and truthful test
+reports. Binturong applies them at each task boundary, not only in its documentation.
 
 | Bintanong evidence                                                             | Practice adapted here                                                             |
 | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |

@@ -92,6 +92,10 @@ passing smoke test alone is not completion.
 Before creating, amending, or rewording any commit, apply the
 [commit rules](docs/engineering-workflow.md#commits), including documentation and handoff
 commits. Use the actual staged change to choose its type, scope, and imperative summary.
+Commit verified, coherent work as it completes; before handing off, record actual
+commits, check results, remaining dirty files, and the next action in the task checkpoint.
+For an authorized push, apply the [push procedure](docs/engineering-workflow.md#pushes)
+and verify the destination branch and outgoing commits before sending them.
 
 Before changing API/schema contracts, persistence, or authorization, read
 [contracts and recovery](docs/engineering-workflow.md#contracts-and-recovery).
