@@ -5,7 +5,7 @@
 | Phase                     | State                                  | Deliverable                                                                    |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Spec approved; first plan for review    | Resolve domain contracts and write coherent implementation slices              |
+| 1: specification and plan | Spec approved; first plan for review   | Resolve domain contracts and write coherent implementation slices              |
 | 2: execution              | Not started                            | Implement only after the applicable planning workflow permits it               |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
