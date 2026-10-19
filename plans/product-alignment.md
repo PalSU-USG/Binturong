@@ -5,12 +5,13 @@
 | Phase                     | State                                  | Deliverable                                                                    |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Foundation approved; writing the spec  | Resolve domain contracts and write coherent implementation slices              |
+| 1: specification and plan | Written spec awaiting review           | Resolve domain contracts and write coherent implementation slices              |
 | 2: execution              | Not started                            | Implement only after the applicable planning workflow permits it               |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
-field-level specification or an implementation plan. No application code, database
-state, dependencies, commits, branches, or remote settings changed in this phase.
+field-level specification or an implementation plan. During reconnaissance, no
+application code, database state, dependencies, commits, branches, or remote settings
+changed. The current checkpoint below records later Phase 1 progress.
 
 ## Current checkpoint
 
@@ -25,6 +26,15 @@ state, dependencies, commits, branches, or remote settings changed in this phase
   implementation must regenerate/check its own derived types before runtime changes.
 - The user approved the domain/publication foundation in conversation. Written spec
   review is next; no product implementation has started.
+- Active worktree: `.worktrees/domain-publication`, branch `feat/domain-publication`,
+  created from `062ca84`. This is documentation-only work: runtime environments and
+  dependencies were not installed/copied and no database/browser tests were rerun here.
+- Written spec: [domain/publication design](../docs/superpowers/specs/2026-10-19-domain-publication-design.md).
+  Self-review checks scope, missing definitions, contradictory states, and compatibility.
+- Independent spec review identified live-surface permissions, version retention,
+  and referenced-metadata transitions as gaps. The spec now defines each, including
+  explicit transition audit fields because Payload does not supply a publishing actor.
+  This was a document review, not verification of unimplemented runtime behavior.
 
 ## Sources and reconnaissance snapshot
 
@@ -32,7 +42,7 @@ Primary context: [workspace instructions](../AGENTS.md), [app instructions](../b
 [engineering workflow](../docs/engineering-workflow.md), [design guide](../docs/design.md),
 and [design findings](../docs/design-architecture-findings.md).
 
-- Current checkout: `dev`, HEAD `c9717ed8b5618a82d5b10278ce39baf88a2133d5`.
+- Reconnaissance checkout: `dev`, HEAD `c9717ed8b5618a82d5b10278ce39baf88a2133d5`.
   Git inspection confirms a normal checkout with one worktree.
 - Existing dirty work includes root/app instructions, environment examples and
   ignores, README, lint/test configuration, package scripts, `payload.config.ts`,
@@ -235,9 +245,9 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Write the approved domain/publication foundation as a detailed architectural spec
-in an isolated worktree, self-review it, commit it, and obtain written-spec review
-before producing the implementation plan.
+Review the written domain/publication spec. After user approval, write the
+implementation plan; do not reopen the already-settled ownership, role hierarchy,
+foundation design, or worktree consent.
 
 ## Phase 1 working brief
 
@@ -273,6 +283,15 @@ inheritance; a customizable role/permission builder is outside this slice.
 User authorized worktrees for execution. Reuse that consent when implementation
 starts; first preserve/carry the required uncommitted setup baseline deliberately.
 Do not create a worktree from HEAD and assume the current setup is present there.
+
+User clarified local Supabase must mirror the hosted target for a seamless workflow,
+with existing CMS data and relationships as the immediate priority. The requested
+development snapshot is distinct from the synthetic test database. Local/cloud login
+credential handling is being clarified; no import has been performed. File bytes
+must be verified separately from media rows. Schema/migrations, buckets/access rules,
+and role/publication behavior remain parity requirements. Ports, origins, secrets,
+and mail destinations may differ. The existing 14 config differences and platform/
+security/storage gaps remain reconciliation work, not an accepted final mirror.
 
 The next artifact is the written architectural spec, followed by its review and
 the implementation plan. Phase 2 has not started.
