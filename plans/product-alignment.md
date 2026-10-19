@@ -11,65 +11,41 @@
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
 application code, database state, dependencies, commits, branches, or remote settings
-changed. The current checkpoint below records later Phase 1 progress.
+changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Verified setup committed at `c8b1a54`; ESLint loading fix at `b151180`.
-- Bintanong workflow rechecked and enforced in `1fac880`; worktree ignore in
-  `f72edf2`. These are local commits; no push, cloud migration, or config push made.
-- Fresh setup verification: `npm test` passed 10 integration and 4 Chromium tests;
-  `tsc --noEmit --incremental false` and production build passed. Changed-code lint
-  has no errors; full lint still has five existing errors and eight warnings.
-- Verification ran with the preserved owner `src/payload-types.ts` changes present.
-  They remain uncommitted and byte-identical to the original owner state. An isolated
-  implementation must regenerate/check its own derived types before runtime changes.
-- The user approved the revised written spec, including super-admin, after `a15f35d`.
-  No product implementation has started. The first execution plan is ready for review.
-- Active worktree: `.worktrees/domain-publication`, branch `feat/domain-publication`,
-  created from `062ca84`. This is documentation-only work: runtime environments and
-  dependencies were not installed/copied and no database/browser tests were rerun here.
-- Written spec: [domain/publication design](../docs/superpowers/specs/2026-10-19-domain-publication-design.md).
-  Self-review checks scope, missing definitions, contradictory states, and compatibility.
-- Independent spec review identified live-surface permissions, version retention,
-  and referenced-metadata transitions as gaps. The spec now defines each, including
-  explicit transition audit fields because Payload does not supply a publishing actor.
-  This was a document review, not verification of unimplemented runtime behavior.
-- The subsequent authorized setup copied 140 rows in 59 tables, including CMS users
-  and password verifiers, into local development. Row fingerprints match the cloud
-  snapshot; all 39 sequence states were checked after recovering five excluded
-  counters. All 32 media files match recorded sizes. The test database and owner
-  types were unchanged; the post-copy production build passed. The main checkout's
-  setup checkpoint holds transfer evidence; private exports are not in this branch.
-- Local production HTTP smoke passed for seven published routes/indexes and all
-  32 media files. This is delivery verification, not visual or login verification.
-- Main setup evidence is committed at `e14f87c`; the initial written spec at
-  `4f54953`. This branch's follow-up records the user's full CMS credential-copy
-  decision. Independent final transfer review found no documentation blockers.
-- Latest request: simplify the spec and add super-admin. The revised spec uses
-  shorter wording and one role table. Proposed scope: admins manage editors and
-  publishers; super-admins manage admin/super-admin accounts. Preserve the last
-  active super-admin. This is documentation only; account roles are unchanged.
-- Revision checks: Prettier, local links, contract/role consistency, placeholder
-  scan, and diff whitespace passed. App tests/build were not rerun for prose edits.
-- [Account/access plan](../docs/superpowers/plans/2026-10-20-access-foundations.md)
-  covers the existing CMS before new domain records. Six dependent tasks use native
-  execution and independent branch review. Domain, storage, and public UI remain
-  separate plans; the roadmap gives their dependency order.
-- Plan self-review checked scope coverage, task interfaces, five failure cases,
-  and length. Prettier, links, placeholder scan, and diff checks passed. Execution
-  has not started; app tests/build were not rerun for this documentation change.
-- User approved execution. Preflight now passes 10 existing integration tests,
-  4 browser tests, type checking, and production build in this worktree. Full lint
-  retains 5 inherited errors and 8 warnings. Browser tests use loopback port 3003
-  because an existing server owns 3000; it was preserved. Git Bash helper failures
-  required equivalent Node/PowerShell task bookkeeping in ignored plan scratch.
-- Branch development data is a verified private copy in `binturong_domain`; test
-  data stays in `binturong_test`. Main `postgres`, cloud, and Bintanong are untouched.
-  Dependencies were copied from the installed baseline after a low-memory install
-  attempt; no lockfile/package changes or external module junction remain.
-- Task 1 role policy observed RED→GREEN (2 tests); the schema-default test is RED
-  as expected before migration. No role-schema implementation is claimed yet.
+- Approved: [domain/publication spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
+  and [account/access plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
+  This is foundation slice 1a. New domain records, storage, and public UI follow later.
+- Task 1 implementation is verified, awaiting independent review. Base `a7700b4`;
+  branch `Hawksprey420/access-role-schema`; checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-role-schema`.
+  Task 2 starts only from the reviewed Task 1 commit in its own worktree.
+- Planning remains `feat/domain-publication` at `a7700b4`. Separate integration
+  checkout: `C:/Users/Hawksprey/orca/workspaces/Binturong/access-integration`.
+  No task has been merged, pushed, or deployed.
+- Task 1 adds four roles, editor/active defaults, server-controlled role/status,
+  generated types/migration, and compatible seed/test callers. Existing account
+  credentials and IDs are preserved; no account is automatically promoted.
+  Account management and publication enforcement remain Tasks 2-5.
+- RED observed for missing policy and schema defaults; field-guard removal makes
+  the persisted-state regression fail. Current `npm run test:int`: **14/14**;
+  `npm exec -- tsc --noEmit --incremental false`: **pass**. Targeted ESLint:
+  **0 errors, 4 generated-migration unused-argument warnings**.
+- Migration applied to local branch/test/fresh disposable databases; repeated
+  application is a no-op. Existing row/credential fingerprints match. Never run
+  its down migration over valuable role data; recover with backup/forward correction.
+- Backend integration uses Node instead of jsdom: jsdom's cross-realm byte arrays
+  broke real JWT signing. Runtime code and dependency versions are unchanged.
+- Preflight at `6d6368c`: 10 integration + 4 Chromium tests, types, build pass.
+  Full lint retains 5 inherited errors/8 warnings. Build/browser checks have not
+  been rerun after Task 1; complete-slice verification belongs to Task 6.
+- Ignored branch environment uses local `binturong_domain`; tests are guarded to
+  `binturong_test` on 55322. Main development mirror, cloud, and Bintanong untouched.
+  Private backups/logs remain outside Git; ignored task ledger retains RED evidence.
+- Root owner `src/payload-types.ts` remains byte-identical to the private original.
+  Only task-generated types are part of this diff. No dependency/lockfile changes.
 
 ## Sources and reconnaissance snapshot
 
@@ -280,54 +256,5 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Finish Task 1's role fields/migration, verify defaults and upgrade preservation,
-commit it, and proceed through Tasks 2–6 without another approval checkpoint.
-
-## Phase 1 working brief
-
-The intended outcome and visual direction remain those in the design guide.
-The first architectural spec covers domain and publication foundations. Storage,
-public search, navigation, tokens, shell/home, record patterns, and the derived
-Archives/Transparency/Government views follow as dependent slices.
-
-Carry forward the settled decisions: editors prepare, designated publishers
-publish, administrators manage accounts, official files remain private before
-publication, and Payload owns application migrations. Preserve numeric IDs and
-existing Posts URLs/relationships while refining the Updates presentation.
-
-Approved foundation: separate structured record collections, keep Posts as the
-existing editorial collection initially, and use Payload drafts/versions for
-publication. Editors prepare draft revisions while the published revision remains
-visible; publishers/admins publish or withdraw. Validate metadata and the canonical
-file before publication. Preserve published file bytes through new document
-versions, and gate public file delivery through published-record references.
-
-User decision: USG staff manage all records at launch, including submissions from
-participating CSGs. Leave room for multi-tenancy if later required or justified.
-Model organization/source attribution separately from editorial permission. Do
-not add tenant memberships, CSG logins, or claim tenant isolation in v1. A later
-tenant feature needs explicit membership, scope, and effective-role tests; an
-organization relationship alone does not provide isolation.
-
-User decisions: administrators inherit publishing authority; add a super-admin role.
-Use super-admin > admin > publisher > editor. The written spec defines account
-management and last-super-admin protection. A custom permission builder stays deferred.
-
-User authorized worktrees for execution. Reuse that consent when implementation
-starts; first preserve/carry the required uncommitted setup baseline deliberately.
-Do not create a worktree from HEAD and assume the current setup is present there.
-
-User clarified local Supabase must mirror the hosted target for a seamless workflow,
-with existing CMS data and relationships as the immediate priority. The requested
-development snapshot is distinct from the synthetic test database. Local/cloud login
-credentials were explicitly included at the user's request. The requested snapshot
-is now imported; active sessions, runtime state, environment secrets, and migration
-history remain local. File presence and sizes were verified separately from media
-rows; cloud file checksums and real-password login remain unverified.
-Schema/migrations, buckets/access rules,
-and role/publication behavior remain parity requirements. Ports, origins, secrets,
-and mail destinations may differ. The existing 14 config differences and platform/
-security/storage gaps remain reconciliation work, not an accepted final mirror.
-
-The written spec and account/access plan are approved. Product Phase 2 is running;
-the data-copy setup is recorded separately.
+Commit the verified Task 1 unit, request independent specification/evidence/compatibility
+review against `a7700b4..HEAD`, and resolve blockers before starting Task 2.

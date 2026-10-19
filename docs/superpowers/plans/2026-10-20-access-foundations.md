@@ -68,6 +68,8 @@ RED → minimal implementation → GREEN → explicit staged-diff review → com
 **Files:** create `src/access/roles.ts`, `tests/int/roles.int.spec.ts`, `tests/int/role-schema.int.spec.ts`;
 modify `src/collections/Users/index.ts`, `src/payload-types.ts`, `src/migrations/index.ts`;
 add the CLI-generated `access_roles` migration and JSON snapshot in `src/migrations/`.
+Update typed seed/test user creation callers with safe defaults; run backend integration
+tests in Node so real Payload login signing uses one runtime realm.
 
 **Interfaces:** export `UserRole = 'editor' | 'publisher' | 'admin' | 'super_admin'`,
 `hasRole(role: unknown, minimum: UserRole): boolean`, and
@@ -79,9 +81,9 @@ Generated `User` gains required `role` and `disabled` fields.
       `hasRole('editor', 'publisher') === false`, unknown/null/array roles return false;
       `canManageRole('admin', 'admin') === false`, super-admin can manage every known role.
 - [x] Run `npm run test:int -- tests/int/roles.int.spec.ts`; confirm the expected failure before implementation.
-- [ ] Implement the four-value policy. Add role default `editor` and disabled default `false`; protect both fields from self-service writes. Generate types and `npm run payload -- migrate:create access_roles`. Review SQL: backfill existing users to editor before requiring the role; never auto-promote accounts. Preserve credentials and IDs.
-- [ ] Apply only to disposable/local branch databases. Verify fresh migration, populated synthetic upgrade, repeat-run no-op, and unchanged IDs/password verifiers. Re-run the focused tests and `npm exec -- tsc --noEmit --incremental false`.
-- [ ] Review/stage the listed source, test, generated types, and migration files; commit `feat(access): define the four CMS roles`.
+- [x] Implement the four-value policy. Add role default `editor` and disabled default `false`; protect both fields from self-service writes. Generate types and `npm run payload -- migrate:create access_roles`. Review SQL: backfill existing users to editor before requiring the role; never auto-promote accounts. Preserve credentials and IDs.
+- [x] Apply only to disposable/local branch databases. Verify fresh migration, populated synthetic upgrade, repeat-run no-op, and unchanged IDs/password verifiers. Re-run the focused tests and `npm exec -- tsc --noEmit --incremental false`.
+- [x] Review/stage the listed source, test, generated types, and migration files; commit `feat(access): define the four CMS roles`.
 
 ### Task 2: Protect accounts, authentication, and bootstrap
 
