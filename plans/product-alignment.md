@@ -5,12 +5,13 @@
 | Phase                     | State                                  | Deliverable                                                                    |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Foundation approved; writing the spec  | Resolve domain contracts and write coherent implementation slices              |
+| 1: specification and plan | Written spec awaiting review           | Resolve domain contracts and write coherent implementation slices              |
 | 2: execution              | Not started                            | Implement only after the applicable planning workflow permits it               |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
-field-level specification or an implementation plan. No application code, database
-state, dependencies, commits, branches, or remote settings changed in this phase.
+field-level specification or an implementation plan. During reconnaissance, no
+application code, database state, dependencies, commits, branches, or remote settings
+changed. The checkpoint below records later work.
 
 ## Current checkpoint
 
@@ -25,6 +26,16 @@ state, dependencies, commits, branches, or remote settings changed in this phase
   implementation must regenerate/check its own derived types before runtime changes.
 - The user approved the domain/publication foundation in conversation. Written spec
   review is next; no product implementation has started.
+- Spec committed at `4f54953` on `feat/domain-publication` in the isolated
+  `.worktrees/domain-publication` checkout. Its current
+  [written spec](../.worktrees/domain-publication/docs/superpowers/specs/2026-10-19-domain-publication-design.md)
+  incorporates independent review of live-surface permissions, version retention,
+  referenced-metadata transitions, and explicit publishing-actor audit fields.
+- The requested cloud-to-local CMS snapshot is verified: 140 rows in 59 tables,
+  including hosted user password verifiers, plus 32 available media files matching
+  recorded sizes. Test data, environment secrets, sessions, and migration history
+  stay separate. See the [setup checkpoint](local-supabase-setup.md) for evidence
+  and limitations. Post-copy production build passed; no cloud write occurred.
 
 ## Sources and reconnaissance snapshot
 
@@ -32,7 +43,7 @@ Primary context: [workspace instructions](../AGENTS.md), [app instructions](../b
 [engineering workflow](../docs/engineering-workflow.md), [design guide](../docs/design.md),
 and [design findings](../docs/design-architecture-findings.md).
 
-- Current checkout: `dev`, HEAD `c9717ed8b5618a82d5b10278ce39baf88a2133d5`.
+- Reconnaissance checkout: `dev`, HEAD `c9717ed8b5618a82d5b10278ce39baf88a2133d5`.
   Git inspection confirms a normal checkout with one worktree.
 - Existing dirty work includes root/app instructions, environment examples and
   ignores, README, lint/test configuration, package scripts, `payload.config.ts`,
@@ -235,9 +246,9 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Write the approved domain/publication foundation as a detailed architectural spec
-in an isolated worktree, self-review it, commit it, and obtain written-spec review
-before producing the implementation plan.
+Review the written domain/publication spec in the isolated worktree. After user
+approval, write the implementation plan; preserve the settled ownership, role
+hierarchy, foundation design, and worktree consent.
 
 ## Phase 1 working brief
 
@@ -274,5 +285,5 @@ User authorized worktrees for execution. Reuse that consent when implementation
 starts; first preserve/carry the required uncommitted setup baseline deliberately.
 Do not create a worktree from HEAD and assume the current setup is present there.
 
-The next artifact is the written architectural spec, followed by its review and
-the implementation plan. Phase 2 has not started.
+The written spec is ready for review. Its implementation plan follows approval;
+product Phase 2 has not started. The data-copy setup is recorded separately.
