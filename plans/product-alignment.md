@@ -35,6 +35,17 @@ changed. The current checkpoint below records later Phase 1 progress.
   and referenced-metadata transitions as gaps. The spec now defines each, including
   explicit transition audit fields because Payload does not supply a publishing actor.
   This was a document review, not verification of unimplemented runtime behavior.
+- The subsequent authorized setup copied 140 rows in 59 tables, including CMS users
+  and password verifiers, into local development. Row fingerprints match the cloud
+  snapshot; all 39 sequence states were checked after recovering five excluded
+  counters. All 32 media files match recorded sizes. The test database and owner
+  types were unchanged; the post-copy production build passed. The main checkout's
+  setup checkpoint holds transfer evidence; private exports are not in this branch.
+- Local production HTTP smoke passed for seven published routes/indexes and all
+  32 media files. This is delivery verification, not visual or login verification.
+- Main setup evidence is committed at `e14f87c`; the initial written spec at
+  `4f54953`. This branch's follow-up records the user's full CMS credential-copy
+  decision. Independent final transfer review found no documentation blockers.
 
 ## Sources and reconnaissance snapshot
 
@@ -287,8 +298,11 @@ Do not create a worktree from HEAD and assume the current setup is present there
 User clarified local Supabase must mirror the hosted target for a seamless workflow,
 with existing CMS data and relationships as the immediate priority. The requested
 development snapshot is distinct from the synthetic test database. Local/cloud login
-credential handling is being clarified; no import has been performed. File bytes
-must be verified separately from media rows. Schema/migrations, buckets/access rules,
+credentials were explicitly included at the user's request. The requested snapshot
+is now imported; active sessions, runtime state, environment secrets, and migration
+history remain local. File presence and sizes were verified separately from media
+rows; cloud file checksums and real-password login remain unverified.
+Schema/migrations, buckets/access rules,
 and role/publication behavior remain parity requirements. Ports, origins, secrets,
 and mail destinations may differ. The existing 14 config differences and platform/
 security/storage gaps remain reconciliation work, not an accepted final mirror.

@@ -40,6 +40,8 @@ the existing modules, migration baseline, source findings, and verification limi
 - The user's immediate mirroring priority is existing CMS data and relationships,
   including the original media/document bytes where available, rather than an
   empty database with matching tables.
+- The user explicitly chose to include hosted CMS users and password verifiers.
+  Preserve separate environment secrets, runtime sessions, and synthetic test data.
 
 ## Model responsibilities
 
@@ -275,9 +277,11 @@ dashboard edits for the application to work.
 Ports, origins/redirect hosts, environment secrets, mail delivery destinations,
 and test fixtures can differ. Mirror the requested hosted CMS content into local
 development with stable IDs, relationships, version history, and file references.
-Keep that snapshot and any private export outside Git. Local login credential
-handling is an explicit setup choice; development data must never replace the
-dedicated synthetic test database. Required extension/version capabilities and behavior
+Keep that snapshot and any private export outside Git. Include hosted CMS users and
+their stored password verifiers, as explicitly requested; keep active sessions,
+locks, jobs, caches, migration history, and environment secrets separate. This is
+a development snapshot, not continuous synchronization. Development data must never
+replace the dedicated synthetic test database. Required extension/version capabilities and behavior
 must match; record and test platform version differences before claiming parity.
 
 The current 14 config differences, missing buckets, grants/RLS differences, and
