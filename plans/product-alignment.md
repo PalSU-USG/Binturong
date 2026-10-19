@@ -36,6 +36,13 @@ changed. The checkpoint below records later work.
   recorded sizes. Test data, environment secrets, sessions, and migration history
   stay separate. See the [setup checkpoint](local-supabase-setup.md) for evidence
   and limitations. Post-copy production build passed; no cloud write occurred.
+- User requested shorter wording and a super-admin role. The spec in the isolated
+  worktree now defines super-admin > admin > publisher > editor, with super-admins
+  controlling admin/super-admin accounts and last-super-admin protection. This
+  updates the proposed contract only; runtime accounts and permissions are unchanged.
+- Revised spec committed at `a15f35d` on `feat/domain-publication`, about 43% shorter.
+  Formatting, links, contract/role consistency, and diff checks passed. No app tests,
+  schema changes, or account updates were needed. Next: review the revised spec.
 
 ## Sources and reconnaissance snapshot
 
@@ -276,10 +283,9 @@ not add tenant memberships, CSG logins, or claim tenant isolation in v1. A later
 tenant feature needs explicit membership, scope, and effective-role tests; an
 organization relationship alone does not provide isolation.
 
-User decision: administrators inherit publishing authority. Use the capability
-hierarchy admin > publisher > editor; publishers also prepare records, and only
-administrators manage accounts and role assignments. The Discord analogy explains
-inheritance; a customizable role/permission builder is outside this slice.
+User decisions: administrators inherit publishing authority; add a super-admin role.
+Use super-admin > admin > publisher > editor. The written spec defines account
+management and last-super-admin protection. A custom permission builder stays deferred.
 
 User authorized worktrees for execution. Reuse that consent when implementation
 starts; first preserve/carry the required uncommitted setup baseline deliberately.
