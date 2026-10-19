@@ -5,8 +5,8 @@
 | Phase                     | State                                  | Deliverable                                                                    |
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Spec approved; first plan for review   | Resolve domain contracts and write coherent implementation slices              |
-| 2: execution              | Not started                            | Implement only after the applicable planning workflow permits it               |
+| 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                |
+| 2: execution              | In progress: Task 1                    | Four-role policy and migration; subsequent tasks remain pending                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -59,6 +59,17 @@ changed. The current checkpoint below records later Phase 1 progress.
 - Plan self-review checked scope coverage, task interfaces, five failure cases,
   and length. Prettier, links, placeholder scan, and diff checks passed. Execution
   has not started; app tests/build were not rerun for this documentation change.
+- User approved execution. Preflight now passes 10 existing integration tests,
+  4 browser tests, type checking, and production build in this worktree. Full lint
+  retains 5 inherited errors and 8 warnings. Browser tests use loopback port 3003
+  because an existing server owns 3000; it was preserved. Git Bash helper failures
+  required equivalent Node/PowerShell task bookkeeping in ignored plan scratch.
+- Branch development data is a verified private copy in `binturong_domain`; test
+  data stays in `binturong_test`. Main `postgres`, cloud, and Bintanong are untouched.
+  Dependencies were copied from the installed baseline after a low-memory install
+  attempt; no lockfile/package changes or external module junction remain.
+- Task 1 role policy observed RED→GREEN (2 tests); the schema-default test is RED
+  as expected before migration. No role-schema implementation is claimed yet.
 
 ## Sources and reconnaissance snapshot
 
@@ -269,8 +280,8 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Review the account/access implementation plan. After approval, execute its first
-task in the existing worktree; preserve the approved spec and worktree consent.
+Finish Task 1's role fields/migration, verify defaults and upgrade preservation,
+commit it, and proceed through Tasks 2–6 without another approval checkpoint.
 
 ## Phase 1 working brief
 
@@ -318,5 +329,5 @@ and role/publication behavior remain parity requirements. Ports, origins, secret
 and mail destinations may differ. The existing 14 config differences and platform/
 security/storage gaps remain reconciliation work, not an accepted final mirror.
 
-The written spec is approved. The account/access plan is ready for review;
-product Phase 2 has not started. The data-copy setup is recorded separately.
+The written spec and account/access plan are approved. Product Phase 2 is running;
+the data-copy setup is recorded separately.

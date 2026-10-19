@@ -93,9 +93,9 @@ container instructions require verification against active configuration before 
 
 The npm test scripts load `.env.test`. Both runners require the local `binturong_test`
 database on port 55322 and reject other targets before initializing Payload. Playwright
-starts `npm run dev` on port 3000 with server reuse disabled. Admin helpers create/delete
-synthetic test users; the seed endpoint clears collections and globals. Never run them
-against valuable data.
+starts its own `npm run dev` on loopback port 3003 with server reuse disabled.
+Admin helpers create/delete synthetic test users; the seed endpoint clears collections
+and globals. Never run them against valuable data.
 
 The current tests are template smoke tests, not evidence of role isolation, RLS, retry
 safety, or production readiness. Add focused regression cases for changed behavior and

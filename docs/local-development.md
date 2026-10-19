@@ -72,8 +72,8 @@ npm test
 
 Both test runners load `.env.test` and reject hosted URLs, the development
 database, other ports, and connection-string query overrides. Playwright starts
-its own server on port 3000 and refuses to reuse an existing server. Admin tests
-create and delete synthetic users in the test database.
+its own server on loopback port 3003 and refuses to reuse an existing server.
+Admin tests create and delete synthetic users in the test database.
 
 ## Hosted project and baseline adoption
 

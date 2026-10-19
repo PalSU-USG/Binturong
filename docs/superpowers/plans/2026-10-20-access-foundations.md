@@ -55,17 +55,17 @@ These cases need explicit tests, beyond ordinary allow/deny checks:
 
 ## Before execution
 
-- [ ] Verify branch `feat/domain-publication`, clean worktree, approved spec, and main owner changes.
-- [ ] Install the existing lockfile with `npm ci` only if this worktree lacks dependencies. Do not copy generated owner files or reinstall the main checkout.
-- [ ] Prepare ignored worktree environments: development uses a separate local `binturong_domain` database on port 55322; tests retain guarded `binturong_test`. Use private backups and the verified local snapshot for the development copy. Keep main `postgres`, cloud, and Bintanong untouched.
-- [ ] Run the unchanged tests/type check/build once here; record inherited lint failures separately. Never run tests against the CMS snapshot. Update this plan's checkboxes and the task checkpoint as work completes.
+- [x] Verify branch `feat/domain-publication`, clean worktree, approved spec, and main owner changes.
+- [x] Prepare dependencies from the existing lockfile. `npm ci` was stopped under low host memory; a real copy of the installed baseline replaced it. No package/lockfile changes or external dependency junction remain.
+- [x] Prepare ignored worktree environments: development uses a separate local `binturong_domain` database on port 55322; tests retain guarded `binturong_test`. Use private backups and the verified local snapshot for the development copy. Keep main `postgres`, cloud, and Bintanong untouched.
+- [x] Run the unchanged tests/type check/build once here; record inherited lint failures separately. Never run tests against the CMS snapshot. Update this plan's checkboxes and the task checkpoint as work completes.
 
 All file paths below are relative to `binturong-open-usg/`. Each task follows
 RED → minimal implementation → GREEN → explicit staged-diff review → commit.
 
 ### Task 1: Define roles and add safe schema defaults
 
-**Files:** create `src/access/roles.ts`, `tests/int/roles.int.spec.ts`;
+**Files:** create `src/access/roles.ts`, `tests/int/roles.int.spec.ts`, `tests/int/role-schema.int.spec.ts`;
 modify `src/collections/Users/index.ts`, `src/payload-types.ts`, `src/migrations/index.ts`;
 add the CLI-generated `access_roles` migration and JSON snapshot in `src/migrations/`.
 
@@ -74,11 +74,11 @@ add the CLI-generated `access_roles` migration and JSON snapshot in `src/migrati
 `canManageRole(actor: unknown, target: unknown): boolean` from `roles.ts`.
 Generated `User` gains required `role` and `disabled` fields.
 
-- [ ] Write `inherits_roles_and_rejects_unknown_values` and observe RED:
+- [x] Write `inherits_roles_and_rejects_unknown_values` and observe RED:
       `hasRole('super_admin', 'publisher') === true`,
       `hasRole('editor', 'publisher') === false`, unknown/null/array roles return false;
       `canManageRole('admin', 'admin') === false`, super-admin can manage every known role.
-- [ ] Run `npm run test:int -- tests/int/roles.int.spec.ts`; confirm the expected failure before implementation.
+- [x] Run `npm run test:int -- tests/int/roles.int.spec.ts`; confirm the expected failure before implementation.
 - [ ] Implement the four-value policy. Add role default `editor` and disabled default `false`; protect both fields from self-service writes. Generate types and `npm run payload -- migrate:create access_roles`. Review SQL: backfill existing users to editor before requiring the role; never auto-promote accounts. Preserve credentials and IDs.
 - [ ] Apply only to disposable/local branch databases. Verify fresh migration, populated synthetic upgrade, repeat-run no-op, and unchanged IDs/password verifiers. Re-run the focused tests and `npm exec -- tsc --noEmit --incremental false`.
 - [ ] Review/stage the listed source, test, generated types, and migration files; commit `feat(access): define the four CMS roles`.
