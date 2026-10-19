@@ -7,6 +7,11 @@ Next.js, React, TypeScript, and PostgreSQL. Read its [app instructions](binturon
 before changing the app. The current implementation still contains Payload template
 content; establish the requested product behavior before treating that content as a requirement.
 
+For UI, layout, Figma, accessibility, or design-system work, read the operational
+[design guide](docs/design.md) and use
+[design architecture findings](docs/design-architecture-findings.md) for the rationale and
+recorded design decisions behind it.
+
 Use the user's requirements, relevant project documentation, executable configuration,
 schemas, and tests to establish intent and actual behavior. Report disagreements explicitly.
 The app README contains inherited template instructions that can disagree with the code.
@@ -103,6 +108,7 @@ actual identity model, database roles, and connection behavior.
 
 | Task                                                                      | Read before implementation                                                                                                                                       |
 | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI/UX, layout, Figma, accessibility, or design-system work                | [Design guide](docs/design.md), then [design findings](docs/design-architecture-findings.md) for rationale; inspect linked Figma sources directly when available |
 | Payload collections, hooks, access, API, or admin                         | [Payload skill](binturong-open-usg/.agents/skills/payload/SKILL.md) and its relevant `reference/` file                                                           |
 | PostgreSQL schema, migrations, SQL, indexes, RLS, or database performance | [Postgres skill](.agents/skills/supabase-postgres-best-practices/SKILL.md)                                                                                       |
 | Supabase services, clients, CLI, or MCP                                   | [Supabase skill](.agents/skills/supabase/SKILL.md); verify current documentation and relevant changelog entries                                                  |
