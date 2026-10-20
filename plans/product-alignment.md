@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                |
-| 2: execution              | In progress: Task 2                    | Four-role policy and migration; subsequent tasks remain pending                |
+| 2: execution              | Task 2 accepted; Task 3 next           | Four-role policy and migration; subsequent tasks remain pending                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -21,7 +21,7 @@ changed. The current checkpoint below records subsequent approved execution.
 - Task 1 independently approved at `f7e9dbf`, recorded at `1683fd5`.
   Task 2 base `1683fd5`, branch `Hawksprey420/access-accounts`, active checkout
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-accounts`.
-- Task 2 account CRUD/auth/bootstrap implemented; independent acceptance review pending. No real account selected/promoted. Bootstrap requires
+- Task 2 account CRUD/auth/bootstrap committed at `b36830b` and independently approved. No real account selected/promoted. Bootstrap requires
   an existing nominated local account, defaults to transactional rollback, permits
   explicit apply, and makes an exact repeat a no-op. Public bootstrap is denied.
 - Guards reload actor/target authority under the current Payload transaction's
@@ -34,17 +34,19 @@ changed. The current checkpoint below records subsequent approved execution.
   revision increments; clients cannot read/write it. Password recovery/reset and
   normal login remain native Payload operations.
 - Final `npm run test:int`: **36/36 pass**. Type checking and changed-code ESLint
-  pass with **0 errors/warnings**. Focused auth tests pass all seven cases. Browser smoke
-  initially timed out during cold admin compilation (1 pass/1 fail/2 skipped); a
-  serial rerun is pending. Production build has not yet been rerun for Task 2.
+  pass with **0 errors/warnings**. Focused auth tests pass all seven cases. Browser smoke initially
+  hit the 30s cold-setup timeout twice. With only setup budget120s, serial Chromium
+  passes **4/4**. Production build and sitemap generation pass.
 - Last-super-admin mutation made its test fail with HTTP 200 instead of 409;
   source restored byte-for-byte before the final run. Other RED/GREEN evidence
   and commands live in ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
 - Final migration upgrade/repeat checks passed on branch/test/fresh local databases.
   Original rows and credential fingerprints are preserved (excluding the new default0
   revision field). No main-data-mirror or cloud writes. Applied migrations retained.
-- Preflight build/browser passed at `6d6368c`; they have not yet been rerun for
-  Task 2. Full lint baseline retains five inherited errors/eight warnings.
+- Fresh reviewer independently reran **36/36 integration**, types, targeted ESLint
+  (0 errors/warnings), and diff checks against `1683fd5..b36830b`; no blockers.
+  Browser/build and migration/mutation evidence were inspected, not independently rerun.
+  Full lint baseline retains five inherited errors/eight warnings.
   This account task does not secure publication/search/jobs: Tasks 3-5 own those.
 - Native CLI shutdown explicitly exits only after transaction cleanup and
   `payload.destroy()`: installed Postgres connect retains a pool client, so awaiting
@@ -262,5 +264,6 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Finish Task 2 validation, commit the coherent account-management unit, then obtain
-independent review before branching Task 3. Keep integration/push separate.
+Create the Task 3 publishing worktree from this accepted account range. Transfer
+ignored runtime assets only after all checks stop; preserve Task 2 clean. Implement
+Task 3 tests first, then publication guards. No integration/push authorized.
