@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Resolve domain contracts and write coherent implementation slices              |
-| 2: execution              | In progress: Task 5                    | Account/access slice 1a; operational task in independent review                |
+| 2: execution              | In progress: Task 6                    | Accounts/access final verification and review                                 |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,29 +15,26 @@ changed. The checkpoint below records later work.
 
 ## Current checkpoint
 
-- Execution resumed at the owner's request. Slice1a accounts/access continues;
-  formal domain records, storage and public design surfaces remain later slices.
-- Task1 roles/schema accepted at `f7e9dbf` (review `1683fd5`); Task2 accounts/auth
-  accepted at `b36830b` (review/smoke `3adc97d`); Task3 editorial permissions
-  accepted at `e932995` (review checkpoint `035daa9`); Task4 public queries/search
-  accepted at `5f66d37` plus recovery `2df8a48` (review `39377c3`). No real account promoted.
-- Active Task5: `Hawksprey420/access-operations`, base `39377c3`, checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-operations`.
+- Approved Slice1a accounts/access continues; domain records, storage and public
+  design surfaces remain later slices. Setup/data mirror were not repeated.
+- Tasks1–4 independently accepted. Task5 `f387f6b` was reviewed; its one P2 partial
+  receipt defect was corrected in `5f30dab` after a native regression failed first.
+  Correction full88 integration/types/changed lint/build pass. No real account promoted.
+- Active Task6: `Hawksprey420/access-verification`, base `5f30dab`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-verification`.
   Its `plans/product-alignment.md` is the authoritative current task checkpoint.
-  Implementation `f387f6b` passes88 integration tests, types/changed lint and build;
-  independent operational review is underway. This does not complete the slice.
-- Follow that checkpoint's exact next action. Task6 still owns whole-slice
-  browser/cache verification. Do not repeat completed
-  setup, migrations or the CMS data mirror merely to resume this task.
+  Next: actual production-cache withdrawal race and role-aware browser flows,
+  remaining verification and independent whole-slice review. Slice1a is not complete.
+- Session write access is restored. The prepared receipt patch is now represented
+  by the verified task commit; the temporary unapplied patch artifact is removed.
 - Mandatory workflow: separate task branches/worktrees, scoped verified commits,
-  independent task review and a separate `access-integration` checkout. Runtime
-  changes remain outside `dev`; no merge, push, cloud write or deployment performed.
-- This checkout contains coordinator documentation only. Owner generated types
-  remain uncommitted and unchanged, SHA256
+  independent review and separate `access-integration` checkout. Runtime changes
+  remain outside `dev`; no merge, push, cloud write or deployment performed.
+- Owner generated types remain uncommitted and unchanged, SHA256
   `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
   Test writes use disposable `binturong_test`, never the local CMS snapshot.
-- [Setup checkpoint](local-supabase-setup.md) retains private credential/media-copy
-  evidence and platform differences; no data copy was repeated during this work.
+- [Setup checkpoint](local-supabase-setup.md) retains credential/media-copy evidence
+  and platform differences. Follow the task checkpoint rather than repeating setup.
 
 ## Sources and reconnaissance snapshot
 
