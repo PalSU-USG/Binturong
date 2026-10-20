@@ -90,21 +90,25 @@ Generated `User` gains required `role` and `disabled` fields.
 **Files:** create `src/access/activeAccount.ts`, `src/collections/Users/hooks/protectAccounts.ts`,
 `src/collections/Users/bootstrap.ts`, `scripts/bootstrap-super-admin.ts`,
 `tests/helpers/accessFixtures.ts`, `tests/int/accounts.int.spec.ts`;
-modify Users config, `package.json`, and `tests/helpers/seedUser.ts`.
+modify Users config, `package.json`, generated types/migrations, and affected typed user
+fixtures/seed callers. Native-auth concurrency regressions live in `account-auth.int.spec.ts`;
+transaction/bootstrap checks use `account-atomicity.int.spec.ts` and `account-bootstrap.int.spec.ts`.
+The hidden `authRevision` and migration-owned trigger reject stale native account
+snapshots after role/status/password changes, including disable/re-enable.
 
 **Interfaces:** `getActiveAccount(req: PayloadRequest): Promise<Pick<User, 'id' | 'role' | 'disabled'> | null>`;
 `protectAccounts` exports native before-operation/change/delete hooks;
 `bootstrapSuperAdmin(req: PayloadRequest, userID: number): Promise<void>` is CLI-only.
 `createAccessFixtures(payload: Payload): Promise<{ users: Record<UserRole, User>; tokens: Record<UserRole, string> }>` returns synthetic accounts and login tokens.
 
-- [ ] Add failing tests: self-profile succeeds; role/status injection fails; admins cannot create/promote/edit/delete admin peers or super-admins; super-admin management succeeds; unknown roles and disabled users are denied. Exercise the actual first-register operation, including GraphQL and an empty test database.
-- [ ] Run `npm run test:int -- tests/int/accounts.int.spec.ts` and record RED.
-- [ ] Implement fresh account lookup and protected field/target checks. Block unauthenticated account creation even when the native first-register path internally uses `overrideAccess: true`. Only the CLI bootstrap/test provisioner gets a server-held request marker; request bodies/query/context cannot grant it. Keep ordinary users' reads self-only and admin queries limited to manageable accounts. Preserve safe author-name projection.
-- [ ] Keep native session authentication (`useSessions: true`), deny disabled/unknown-role logins, clear sessions on disabling, and reject refresh for disabled accounts. Installed JWT auth already reloads the user and checks session IDs; verify that behavior with real tokens instead of building another auth system.
-- [ ] Serialize account role/status/deletion checks using `pg_advisory_xact_lock(20261020, 1)` on **the current Payload adapter transaction**. Re-read actor, target, and active super-admin count under that lock. Fail if no transaction exists; do not use a separate pool connection. Reject bulk user update/delete until they can preserve these checks. Test two concurrent demotions/deletions with observable lock waits, injected failure rollback, and a subsequent successful write.
-- [ ] Add `npm run bootstrap:super-admin -- --user-id <reviewed-id>` with dry-run default and explicit `--apply`. Restrict it to the prepared local branch/test databases, promote only an existing active nominated account, serialize it with the same lock, and make exact repeats harmless. The CLI owns its transaction; hooks join it. Missing/invalid IDs, disabled accounts, nonlocal targets, or attempts to bypass normal account management after bootstrap fail. Do not nominate a real account without the owner's selection.
-- [ ] Run the focused tests, including old-token login/refresh checks. Update synthetic admin fixtures explicitly; cleanup must not bypass last-super-admin protection except through the isolated test provisioner.
-- [ ] Review/stage only this task's files; commit `feat(access): protect privileged account management`.
+- [x] Add failing tests: self-profile succeeds; role/status injection fails; admins cannot create/promote/edit/delete admin peers or super-admins; super-admin management succeeds; unknown roles and disabled users are denied. Exercise the actual first-register operation, including GraphQL and an empty test database.
+- [x] Run `npm run test:int -- tests/int/accounts.int.spec.ts` and record RED.
+- [x] Implement fresh account lookup and protected field/target checks. Block unauthenticated account creation even when the native first-register path internally uses `overrideAccess: true`. Only the CLI bootstrap/test provisioner gets a server-held request marker; request bodies/query/context cannot grant it. Keep ordinary users' reads self-only and admin queries limited to manageable accounts. Preserve safe author-name projection.
+- [x] Keep native session authentication (`useSessions: true`), deny disabled/unknown-role logins, clear sessions on disabling, and reject refresh for disabled accounts. Installed JWT auth already reloads the user and checks session IDs; verify that behavior with real tokens instead of building another auth system.
+- [x] Serialize account role/status/deletion checks using `pg_advisory_xact_lock(20261020, 1)` on **the current Payload adapter transaction**. Re-read actor, target, and active super-admin count under that lock. Fail if no transaction exists; do not use a separate pool connection. Reject bulk user update/delete until they can preserve these checks. Test two concurrent demotions/deletions with observable lock waits, injected failure rollback, and a subsequent successful write.
+- [x] Add `npm run bootstrap:super-admin -- --user-id <reviewed-id>` with dry-run default and explicit `--apply`. Restrict it to the prepared local branch/test databases, promote only an existing active nominated account, serialize it with the same lock, and make exact repeats harmless. The CLI owns its transaction; hooks join it. Missing/invalid IDs, disabled accounts, nonlocal targets, or attempts to bypass normal account management after bootstrap fail. Do not nominate a real account without the owner's selection.
+- [x] Run the focused tests, including old-token login/refresh checks. Update synthetic admin fixtures explicitly; cleanup must not bypass last-super-admin protection except through the isolated test provisioner.
+- [x] Review/stage only this task's files; commit `feat(access): protect privileged account management`.
 
 ### Task 3: Enforce drafting and publishing permissions
 

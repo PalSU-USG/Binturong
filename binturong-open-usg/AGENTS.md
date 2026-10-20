@@ -27,9 +27,11 @@ explicit migration; a successful type check does not validate existing database 
 
 ## Access and publishing invariants
 
-The current `users` collection authenticates CMS users; there is no role or tenant field.
-The shared `authenticated` helper checks login only. Treat a requirement for finer access
-as a schema and server authorization change, not as an existing admin-role distinction.
+The `users` collection authenticates CMS users with `editor`, `publisher`, `admin`,
+and `super_admin` roles and a protected `disabled` flag. Account access reloads current
+authority and serializes writes in the Payload transaction. There is no tenant field.
+The shared `authenticated` helper still checks login only until the publication task
+replaces its content permissions; account-role completion does not secure every endpoint.
 
 - Anonymous page and post reads must remain limited to published content. Preserve
   preview authentication and the separation between public and draft queries.

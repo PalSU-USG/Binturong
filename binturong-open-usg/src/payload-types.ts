@@ -422,6 +422,7 @@ export interface User {
   name?: string | null;
   role: 'editor' | 'publisher' | 'admin' | 'super_admin';
   disabled: boolean;
+  authRevision: number;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1335,6 +1336,7 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   disabled?: T;
+  authRevision?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

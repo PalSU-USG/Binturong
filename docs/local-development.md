@@ -75,6 +75,31 @@ database, other ports, and connection-string query overrides. Playwright starts
 its own server on loopback port 3003 and refuses to reuse an existing server.
 Admin tests create and delete synthetic users in the test database.
 
+## First local super-admin
+
+The account migration makes existing users active editors; it promotes nobody.
+After the owner nominates an existing active account, run from its task checkout:
+
+```powershell
+npm run bootstrap:super-admin -- --user-id <reviewed-id>
+npm run bootstrap:super-admin -- --user-id <reviewed-id> --apply
+```
+
+The first command validates and rolls back its transaction. The second saves the
+promotion. Both require a local `binturong_domain` or `binturong_test` database on
+port 55322. An existing active super-admin blocks bootstrapping another account;
+repeating the same promotion changes nothing. Later account changes use normal
+super-admin management. Public first-user registration is disabled. No real account
+has been selected or promoted by this implementation.
+
+Apply all reviewed Payload migrations first, including the account authority and
+credential guards. They stop native authentication bookkeeping from restoring stale
+roles, status, password verifiers, or revoked sessions during concurrent account
+changes. The hidden authentication revision advances when those account controls
+change, including a disable followed by re-enabling. Recover
+valuable data using a reviewed backup or forward migration; do not remove these
+guards while running this account implementation.
+
 ## Hosted project and baseline adoption
 
 The inspected hosted project reference is `ntzwpcnsjpijfhrgvvin`. CLI linking

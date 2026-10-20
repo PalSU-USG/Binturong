@@ -15,53 +15,43 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-**Owner requested stopping for usage on 20 October 2026. Resume here; do not repeat setup.**
-
 - Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [six-task plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-  Current slice: 1a accounts/access. Tasks 3-6 and later domain/storage/UI slices pending.
-- Task 1 committed `f7e9dbf`, independently approved (14 integration tests, types,
-  changed lint: 0 errors/4 generated warnings). Review recorded at `1683fd5`.
-- Task 2 **in progress, uncommitted, not reviewed for acceptance**. Base `1683fd5`;
-  branch `Hawksprey420/access-accounts`; active checkout
+  Foundation slice 1a is executing; domain records/storage/public UI remain later slices.
+- Task 1 independently approved at `f7e9dbf`, recorded at `1683fd5`.
+  Task 2 base `1683fd5`, branch `Hawksprey420/access-accounts`, active checkout
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-accounts`.
-  Dependencies, ignored branch/test environments and copied media live here.
-  Planning and completed Task 1 checkouts remain clean; integration is untouched.
-- Implemented in the dirty task checkout: fresh account checks, scoped reads,
-  role/status/credential-field guards, serialized CRUD, last-super-admin protection,
-  session clearing/disabled login denial, trusted local fixture provisioning.
-  Existing e2e user helper and schema-default fixtures use that provisioner.
-- Observed RED then GREEN: account/schema focused tests **8/8**. Atomic tests
-  **5/5**: actual advisory-lock waits during demotion/deletion, actor recheck,
-  post-write failure rollback/retry, native first-register with zero users inside
-  a rolled-back transaction, and rejection without a transaction.
-- Early independent source review found native auth writes whole stale user objects
-  outside collection hooks, password-recovery incompatibility, and overbroad unlock.
-  Runtime RED reproduced all three. Narrow recovery handling and constrained unlock
-  are added; auth regressions now **5/5**, including real GraphQL, password recovery,
-  and barrier-controlled disable/demotion during native login.
-- Custom Payload migration `20261019_180133_auth_authority_guard` rejects actual
-  role/status changes without the current backend's account advisory lock. Native
-  auth keeps unchanged fields or fails instead of restoring stale authority. It is
-  applied **only to binturong_test** so far. Branch/fresh/repeat proof remains pending.
-  Lock encoding: [PostgreSQL 17 pg_locks](https://www.postgresql.org/docs/17/view-pg-locks.html).
-- Bootstrap test is intentionally RED: `tests/int/account-bootstrap.int.spec.ts`
-  imports the not-yet-created `src/collections/Users/bootstrap.ts`. CLI script and
-  package command are also absent. Do not claim the full suite or current types pass.
-  Its final test still needs a real promotion/rollback assertion, not an idempotent no-op.
-- Latest full-suite/types/build/browser results belong to Task 1/preflight, not this
-  dirty Task 2 tree. After bootstrap: rerun all integration, types and targeted lint;
-  prove fresh/upgrade/repeat migrations, review bypass mutations and generated artifacts,
-  commit coherent work and request independent Task 2 review. No deployment readiness.
-- All listed dirty app files belong to Task 2: Users config/hooks/provisioner,
-  activeAccount, auth-guard migration/index/snapshot, accessFixtures/seedUser,
-  role-schema and four account test files, and Vitest serialization. No owner files
-  were imported. Integration tests share binturong_test, so files now run serially.
-- Detailed RED/GREEN logs and rulings: ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
-  Original snapshot/migration evidence is private at
-  `C:/Users/HAWKSP~2/AppData/Local/Temp/binturong-setup-6KIh17`.
-- Main owner generated types remain preserved; main database mirror, cloud and
-  Bintanong unchanged. No merge, push, production migration or real bootstrap performed.
+- Task 2 account CRUD/auth/bootstrap implemented; independent acceptance review pending. No real account selected/promoted. Bootstrap requires
+  an existing nominated local account, defaults to transactional rollback, permits
+  explicit apply, and makes an exact repeat a no-op. Public bootstrap is denied.
+- Guards reload actor/target authority under the current Payload transaction's
+  advisory lock, preserve an active super-admin, block bulk account writes and
+  manipulated credential/session/role/status fields, and revoke disabled sessions.
+- Early independent review led to runtime regressions for native auth snapshot
+  races, password recovery and account unlock. Three additive Payload migrations
+  retain applied history: authority guard, password-verifier guard, then hidden
+  `authRevision` to reject old snapshots after disable/re-enable. The trigger owns
+  revision increments; clients cannot read/write it. Password recovery/reset and
+  normal login remain native Payload operations.
+- Final `npm run test:int`: **36/36 pass**. Type checking and changed-code ESLint
+  pass with **0 errors/warnings**. Focused auth tests pass all seven cases. Browser smoke
+  initially timed out during cold admin compilation (1 pass/1 fail/2 skipped); a
+  serial rerun is pending. Production build has not yet been rerun for Task 2.
+- Last-super-admin mutation made its test fail with HTTP 200 instead of 409;
+  source restored byte-for-byte before the final run. Other RED/GREEN evidence
+  and commands live in ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
+- Final migration upgrade/repeat checks passed on branch/test/fresh local databases.
+  Original rows and credential fingerprints are preserved (excluding the new default0
+  revision field). No main-data-mirror or cloud writes. Applied migrations retained.
+- Preflight build/browser passed at `6d6368c`; they have not yet been rerun for
+  Task 2. Full lint baseline retains five inherited errors/eight warnings.
+  This account task does not secure publication/search/jobs: Tasks 3-5 own those.
+- Native CLI shutdown explicitly exits only after transaction cleanup and
+  `payload.destroy()`: installed Postgres connect retains a pool client, so awaiting
+  `pool.end()` hung. Real CLI subprocess tests cover exit, dry-run, apply and repeat.
+- Main owner generated types remain unchanged. No dependency/lockfile changes,
+  merge, push, real bootstrap, cloud migration or deployment performed.
+  Planning, completed Task 1 and integration worktrees remain separate.
 
 ## Sources and reconnaissance snapshot
 
@@ -272,6 +262,5 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-In `access-accounts`, implement the approved local-only bootstrap service and CLI
-against the existing RED bootstrap test; correct its rollback assertion, then finish
-Task 2 verification and independent review. Preserve all existing dirty task files.
+Finish Task 2 validation, commit the coherent account-management unit, then obtain
+independent review before branching Task 3. Keep integration/push separate.

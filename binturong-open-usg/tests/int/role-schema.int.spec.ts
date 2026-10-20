@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { getPayload, handleEndpoints, type Payload } from 'payload'
+import { createLocalReq, getPayload, handleEndpoints, type Payload } from 'payload'
 
 import config from '@/payload.config'
 import type { User } from '@/payload-types'
+import { withAccountProvisioning } from '@/collections/Users/accountProvisioning'
+import { removeTestAccounts } from '../helpers/accessFixtures'
 
 describe('account schema defaults', () => {
   let payload: Payload
@@ -14,16 +16,27 @@ describe('account schema defaults', () => {
   })
 
   afterAll(async () => {
-    for (const id of userIDs) await payload.delete({ collection: 'users', id })
+    await removeTestAccounts(payload, userIDs)
   })
 
   async function createSyntheticUser(role: User['role'] = 'editor') {
     const email = `synthetic-role-${randomUUID()}@example.invalid`
     const password = 'synthetic-role-default-password'
-    const user = await payload.create({
-      collection: 'users',
-      data: { email, password, name: 'Synthetic role defaults', role, disabled: false },
-    })
+    const req = await createLocalReq({}, payload)
+    const user = await withAccountProvisioning(req, () =>
+      payload.create({
+        collection: 'users',
+        req,
+        data: {
+          email,
+          password,
+          name: 'Synthetic role defaults',
+          role,
+          disabled: false,
+          authRevision: 0,
+        },
+      }),
+    )
     userIDs.push(user.id)
     return { user, email, password }
   }

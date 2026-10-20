@@ -107,6 +107,7 @@ export const seed = async ({
         password: 'password',
         role: 'editor',
         disabled: false,
+        authRevision: 0,
       },
     }),
     payload.create({
