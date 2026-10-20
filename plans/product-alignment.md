@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Resolve domain contracts and write coherent implementation slices              |
-| 2: execution              | In progress: Task 4          | Account/access slice 1a; later tasks and product slices pending                |
+| 2: execution              | In progress: Task 5                    | Account/access slice 1a; operational task in independent review                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -19,13 +19,15 @@ changed. The checkpoint below records later work.
   formal domain records, storage and public design surfaces remain later slices.
 - Task1 roles/schema accepted at `f7e9dbf` (review `1683fd5`); Task2 accounts/auth
   accepted at `b36830b` (review/smoke `3adc97d`); Task3 editorial permissions
-  accepted at `e932995` (review checkpoint `035daa9`). No real account promoted.
-- Active Task4: `Hawksprey420/access-public-queries`, base `035daa9`, checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-public-queries`.
+  accepted at `e932995` (review checkpoint `035daa9`); Task4 public queries/search
+  accepted at `5f66d37` plus recovery `2df8a48` (review `39377c3`). No real account promoted.
+- Active Task5: `Hawksprey420/access-operations`, base `39377c3`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-operations`.
   Its `plans/product-alignment.md` is the authoritative current task checkpoint.
-  Public query/search guards are under final verification; task acceptance pending.
-- Follow that checkpoint's exact next action. Tasks5–6 still own operational
-  authorization and whole-slice browser/cache verification. Do not repeat completed
+  Implementation `f387f6b` passes88 integration tests, types/changed lint and build;
+  independent operational review is underway. This does not complete the slice.
+- Follow that checkpoint's exact next action. Task6 still owns whole-slice
+  browser/cache verification. Do not repeat completed
   setup, migrations or the CMS data mirror merely to resume this task.
 - Mandatory workflow: separate task branches/worktrees, scoped verified commits,
   independent task review and a separate `access-integration` checkout. Runtime
@@ -36,6 +38,7 @@ changed. The checkpoint below records later work.
   Test writes use disposable `binturong_test`, never the local CMS snapshot.
 - [Setup checkpoint](local-supabase-setup.md) retains private credential/media-copy
   evidence and platform differences; no data copy was repeated during this work.
+
 ## Sources and reconnaissance snapshot
 
 Primary context: [workspace instructions](../AGENTS.md), [app instructions](../binturong-open-usg/AGENTS.md),
