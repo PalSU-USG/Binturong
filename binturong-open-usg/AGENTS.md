@@ -30,8 +30,12 @@ explicit migration; a successful type check does not validate existing database 
 The `users` collection authenticates CMS users with `editor`, `publisher`, `admin`,
 and `super_admin` roles and a protected `disabled` flag. Account access reloads current
 authority and serializes writes in the Payload transaction. There is no tenant field.
-The shared `authenticated` helper still checks login only until the publication task
-replaces its content permissions; account-role completion does not secure every endpoint.
+Content permissions reload the active account. Editors save individual native drafts;
+publishers and higher roles publish, withdraw, restore, schedule, and change live
+configuration. Published Pages/Posts cannot be hard-deleted; draft deletion locks
+the current row before checking its status. Bulk content deletion is denied.
+Native scheduling is guarded at its server-function boundary; per-job revision
+proof and runner authorization remain the operational-access task's responsibility.
 
 - Anonymous page and post reads must remain limited to published content. Preserve
   preview authentication and the separation between public and draft queries.

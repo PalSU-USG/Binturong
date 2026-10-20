@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { publishContent } from '@/access/contentAccess'
 
 import { link } from '@/fields/link'
 import { revalidateHeader } from './hooks/revalidateHeader'
@@ -6,6 +7,7 @@ import { revalidateHeader } from './hooks/revalidateHeader'
 export const Header: GlobalConfig = {
   slug: 'header',
   access: {
+    update: publishContent,
     read: () => true,
   },
   fields: [

@@ -11,6 +11,8 @@ import {
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { deleteDraftContent } from '@/access/contentAccess'
+import { enforceEditorialWrites } from '@/hooks/enforceEditorialWrites'
 import { Banner } from '../../blocks/Banner/config'
 import { Code } from '../../blocks/Code/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
@@ -31,8 +33,9 @@ export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: {
     create: authenticated,
-    delete: authenticated,
+    delete: deleteDraftContent,
     read: authenticatedOrPublished,
+    readVersions: authenticated,
     update: authenticated,
   },
   // This config controls what's populated by default when a post is referenced
@@ -217,6 +220,7 @@ export const Posts: CollectionConfig<'posts'> = {
     slugField(),
   ],
   hooks: {
+    beforeOperation: [enforceEditorialWrites],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidateDelete],

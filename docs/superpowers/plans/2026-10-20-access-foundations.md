@@ -116,16 +116,23 @@ snapshots after role/status/password changes, including disable/re-enable.
 `tests/int/editorial-access.int.spec.ts`; modify Pages, Posts, Media, Categories,
 `src/Header/config.ts`, `src/Footer/config.ts`, `src/plugins/index.ts`,
 `src/access/authenticated.ts`, and `src/access/authenticatedOrPublished.ts`.
+Also add `src/jobs/authorizeScheduling.ts` and wire the supported server-function
+override in `src/app/(payload)/layout.tsx`: the installed native scheduling handler
+only checks admin access. Its cancellation path needs a verified job deletion
+without the native handler's subsequent empty queue entry. Execution proof stays Task 5.
 
 **Interfaces:** native `Access` exports `editContent`, `publishContent`, and `readPublishedOrStaff`;
 native before-operation/change/delete hooks `enforceEditorialWrites`. All use `getActiveAccount`.
 
-- [ ] Add RED cases for every role through enforced Local API plus REST/GraphQL: editor draft save succeeds; publish, withdraw, restore-to-public, delete-published, and schedule attempts fail. Include omitted `_status`, bulk updates, and `draft: false`. Publishers and higher roles can publish valid existing Page/Post content. Editor revisions preserve the public title/body.
-- [ ] Run `npm run test:int -- tests/int/editorial-access.int.spec.ts`; observe the existing bypasses.
-- [ ] Wire shared checks into every affected collection/global/plugin override. Readers see published records or authorized drafts; editors use the native draft path. Restrict live Header/Footer/Categories/redirect/form configuration writes to publisher+. Keep Pages/Posts' current 50-version policy, native required fields, hooks, and URLs. Public media stays public; official PDF handling remains outside this slice.
-- [ ] Require publishing permission on native restore and scheduling paths, not just `_status` fields. Ordinary hard deletion cannot remove published entries. Keep form-submission validation separate from form-configuration permissions. Preserve existing plugin fields/hooks when overriding access.
-- [ ] Re-run the focused matrix and related account tests. Verify author projections expose no emails, roles, password fields, or sessions.
-- [ ] Review/stage exact changed files; commit `feat(access): enforce editorial publication permissions`.
+- [x] Add RED cases for every role through enforced Local API plus REST/GraphQL: editor draft save succeeds; publish, withdraw, restore-to-public, delete-published, and schedule attempts fail. Include omitted `_status`, bulk updates, and `draft: false`. Publishers and higher roles can publish valid existing Page/Post content. Editor revisions preserve the public title/body.
+- [x] Run `npm run test:int -- tests/int/editorial-access.int.spec.ts`; observe the existing bypasses.
+- [x] Wire shared checks into every affected collection/global/plugin override. Readers see published records or authorized drafts; editors use the native draft path. Restrict live Header/Footer/Categories/redirect/form configuration writes to publisher+. Keep Pages/Posts' current 50-version policy, native required fields, hooks, and URLs. Public media stays public; official PDF handling remains outside this slice.
+- [x] Require publishing permission on native restore and scheduling paths, not just `_status` fields. Ordinary hard deletion cannot remove published entries. Keep form-submission validation separate from form-configuration permissions. Preserve existing plugin fields/hooks when overriding access.
+      Lock a single draft row before delete authorization so concurrent publication
+      cannot turn an allowed draft deletion into deletion of a published record.
+      Bulk content deletion is denied until it can provide equivalent checks.
+- [x] Re-run the focused matrix and related account tests. Verify author projections expose no emails, roles, password fields, or sessions.
+- [x] Review/stage exact changed files; commit `feat(access): enforce editorial publication permissions`.
 
 ### Task 4: Close indirect reads and search writes
 

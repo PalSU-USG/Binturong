@@ -2,6 +2,8 @@ import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { deleteDraftContent } from '@/access/contentAccess'
+import { enforceEditorialWrites } from '@/hooks/enforceEditorialWrites'
 import { Archive } from '../../blocks/ArchiveBlock/config'
 import { CallToAction } from '../../blocks/CallToAction/config'
 import { Content } from '../../blocks/Content/config'
@@ -25,8 +27,9 @@ export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   access: {
     create: authenticated,
-    delete: authenticated,
+    delete: deleteDraftContent,
     read: authenticatedOrPublished,
+    readVersions: authenticated,
     update: authenticated,
   },
   // This config controls what's populated by default when a page is referenced
@@ -120,6 +123,7 @@ export const Pages: CollectionConfig<'pages'> = {
     slugField(),
   ],
   hooks: {
+    beforeOperation: [enforceEditorialWrites],
     afterChange: [revalidatePage],
     beforeChange: [populatePublishedAt],
     afterDelete: [revalidateDelete],

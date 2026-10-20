@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                |
-| 2: execution              | Task 2 accepted; Task 3 next           | Four-role policy and migration; subsequent tasks remain pending                |
+| 2: execution              | In progress: Task 3                    | Four-role policy and migration; subsequent tasks remain pending                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,43 +17,39 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [six-task plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-  Foundation slice 1a is executing; domain records/storage/public UI remain later slices.
-- Task 1 independently approved at `f7e9dbf`, recorded at `1683fd5`.
-  Task 2 base `1683fd5`, branch `Hawksprey420/access-accounts`, active checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-accounts`.
-- Task 2 account CRUD/auth/bootstrap committed at `b36830b` and independently approved. No real account selected/promoted. Bootstrap requires
-  an existing nominated local account, defaults to transactional rollback, permits
-  explicit apply, and makes an exact repeat a no-op. Public bootstrap is denied.
-- Guards reload actor/target authority under the current Payload transaction's
-  advisory lock, preserve an active super-admin, block bulk account writes and
-  manipulated credential/session/role/status fields, and revoke disabled sessions.
-- Early independent review led to runtime regressions for native auth snapshot
-  races, password recovery and account unlock. Three additive Payload migrations
-  retain applied history: authority guard, password-verifier guard, then hidden
-  `authRevision` to reject old snapshots after disable/re-enable. The trigger owns
-  revision increments; clients cannot read/write it. Password recovery/reset and
-  normal login remain native Payload operations.
-- Final `npm run test:int`: **36/36 pass**. Type checking and changed-code ESLint
-  pass with **0 errors/warnings**. Focused auth tests pass all seven cases. Browser smoke initially
-  hit the 30s cold-setup timeout twice. With only setup budget120s, serial Chromium
-  passes **4/4**. Production build and sitemap generation pass.
-- Last-super-admin mutation made its test fail with HTTP 200 instead of 409;
-  source restored byte-for-byte before the final run. Other RED/GREEN evidence
-  and commands live in ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
-- Final migration upgrade/repeat checks passed on branch/test/fresh local databases.
-  Original rows and credential fingerprints are preserved (excluding the new default0
-  revision field). No main-data-mirror or cloud writes. Applied migrations retained.
-- Fresh reviewer independently reran **36/36 integration**, types, targeted ESLint
-  (0 errors/warnings), and diff checks against `1683fd5..b36830b`; no blockers.
-  Browser/build and migration/mutation evidence were inspected, not independently rerun.
-  Full lint baseline retains five inherited errors/eight warnings.
-  This account task does not secure publication/search/jobs: Tasks 3-5 own those.
-- Native CLI shutdown explicitly exits only after transaction cleanup and
-  `payload.destroy()`: installed Postgres connect retains a pool client, so awaiting
-  `pool.end()` hung. Real CLI subprocess tests cover exit, dry-run, apply and repeat.
-- Main owner generated types remain unchanged. No dependency/lockfile changes,
-  merge, push, real bootstrap, cloud migration or deployment performed.
-  Planning, completed Task 1 and integration worktrees remain separate.
+  Slice 1a: accounts/access. Formal domain records, storage and public UI follow later.
+- Task 1 accepted at `f7e9dbf` (review `1683fd5`). Task 2 accepted at `b36830b`
+  (review/smoke `3adc97d`). Four roles, concurrent last-super-admin protection,
+  native-auth snapshot guard, and local dry-run bootstrap are implemented.
+  No real account has been nominated or promoted.
+- Task 2 evidence: 36 integration tests, types and changed-code lint pass;
+  Chromium smoke4/4 and production build pass. Fresh reviewer reran integration,
+  types and lint. Three additive migrations passed fresh/upgrade/repeat checks;
+  existing rows/password verifiers preserved. See the accepted commits for detail.
+- Task 3 base `3adc97d`; branch `Hawksprey420/access-publication` at
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-publication`.
+  Implementation verified in the working tree; commit and independent review pending.
+- Task 3 covers native editor drafts, publisher transitions/restore/scheduling,
+  current active-account checks, version reads and publisher-only live configuration.
+  Public images retain public reads. Published Pages/Posts cannot be deleted;
+  single-draft deletion locks the row before status authorization. Bulk deletion denied.
+- Native schedule cancellation now deletes the verified schedule without queuing an
+  empty job. Per-job revision proof/runner authorization remain Task5. Search and
+  indirect public query boundaries remain Task4; the full slice is not complete.
+- Verification: `npm run test:int` **53/53 pass**, including17 publication cases;
+  `npm exec -- tsc --noEmit --incremental false` passes; changed-code ESLint
+  **0 errors/warnings**. Publisher/delete races fail without row locking and pass
+  with it. Bypassing the editor guard fails both focused regressions; bytes restored.
+  Production build and sitemap pass. Browser/keyboard/responsive checks remain Task6.
+- Detailed private logs: ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
+  Full lint baseline retains5 inherited errors/8 warnings; no unrelated cleanup.
+- Main checkout owner `src/payload-types.ts` hash remains
+  `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
+  No dependency/lockfile changes, cloud writes, merge or push. Planning, completed
+  task worktrees and `access-integration` remain separate. Task3 dirty paths are
+  its access/hooks/config/layout/tests, app guidance, plan and this checkpoint.
+- Next action: commit the verified Task3 diff and request independent
+  task acceptance before creating Task4's worktree from its accepted commit.
 
 ## Sources and reconnaissance snapshot
 
@@ -264,6 +260,4 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Create the Task 3 publishing worktree from this accepted account range. Transfer
-ignored runtime assets only after all checks stop; preserve Task 2 clean. Implement
-Task 3 tests first, then publication guards. No integration/push authorized.
+Continue from the current checkpoint above; its next action is authoritative.
