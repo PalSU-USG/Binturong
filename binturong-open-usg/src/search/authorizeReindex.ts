@@ -1,14 +1,36 @@
-import type { Access, PayloadHandler, PayloadRequest, Plugin } from 'payload'
+import type {
+  Access,
+  CollectionBeforeOperationHook,
+  PayloadHandler,
+  PayloadRequest,
+  Plugin,
+} from 'payload'
 import { commitTransaction, initTransaction, killTransaction } from 'payload'
 
 import { publishContent } from '@/access/contentAccess'
 
-const reindexRequests = new WeakSet<PayloadRequest>()
+const reindexRequests = new WeakMap<PayloadRequest, { transactionID?: number | string }>()
 
 export const trustedSearchWrite: Access = ({ req }) => reindexRequests.has(req)
 
 export function isReindexRequest(req: PayloadRequest): boolean {
   return reindexRequests.has(req)
+}
+
+async function requireReindexTransaction(req: PayloadRequest): Promise<void> {
+  const state = reindexRequests.get(req)
+  if (state && (!state.transactionID || state.transactionID !== (await req.transactionID))) {
+    throw new Error('Search rebuild lost its original transaction')
+  }
+}
+
+async function guardReindexTransaction({
+  req,
+  operation,
+}: Parameters<CollectionBeforeOperationHook>[0]): Promise<void> {
+  if (operation === 'create' || operation === 'update' || operation === 'delete') {
+    await requireReindexTransaction(req)
+  }
 }
 
 export function authorizeReindex(handler: PayloadHandler): PayloadHandler {
@@ -33,13 +55,17 @@ export function authorizeReindex(handler: PayloadHandler): PayloadHandler {
     }
     const originalJSON = req.json
     req.json = async () => body
-    reindexRequests.add(req)
+    const state: { transactionID?: number | string } = {}
+    reindexRequests.set(req, state)
     let ownsTransaction = false
     try {
       ownsTransaction = await initTransaction(req)
+      state.transactionID = await req.transactionID
+      await requireReindexTransaction(req)
       // shortcut: clear orphan rows from the Posts-only index; scope cleanup before adding another source.
       await req.payload.delete({ collection: 'search', where: {}, overrideAccess: false, req })
       const response = await handler(req)
+      await requireReindexTransaction(req)
       if (!response.ok) {
         if (ownsTransaction) await killTransaction(req)
         return response
@@ -101,6 +127,13 @@ export const protectSearchReindex: Plugin = (config) => ({
       ? collection
       : {
           ...collection,
+          hooks: {
+            ...collection.hooks,
+            beforeOperation: [
+              guardReindexTransaction,
+              ...(collection.hooks?.beforeOperation ?? []),
+            ],
+          },
           endpoints: (collection.endpoints || []).map((endpoint) =>
             endpoint.method === 'post' && endpoint.path === '/reindex'
               ? {

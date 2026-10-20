@@ -443,4 +443,47 @@ describe('public queries and search maintenance', () => {
       await killTransaction(req)
     }
   })
+
+  it('prevents_later_writes_when_a_real_native_failure_ends_the_reindex_transaction', async () => {
+    await createPost()
+    await createPost()
+    await createPost()
+    const before = await payload.find({
+      collection: 'search',
+      depth: 0,
+      pagination: false,
+      limit: 0,
+    })
+    const search = payload.collections.search.config
+    const originalHooks = search.hooks.beforeChange
+    const transactions: unknown[] = []
+    search.hooks.beforeChange = [
+      ...originalHooks,
+      async ({ data, operation, req }) => {
+        if (operation === 'create') {
+          transactions.push(await req.transactionID)
+          if (transactions.length === 1) throw new Error('Synthetic native search-hook failure')
+        }
+        return data
+      },
+    ]
+    try {
+      expect(
+        (await request('search/reindex', 'publisher', 'POST', { collections: ['posts'] })).status,
+      ).toBe(500)
+    } finally {
+      search.hooks.beforeChange = originalHooks
+    }
+    expect(transactions).toHaveLength(1)
+    const after = await payload.find({
+      collection: 'search',
+      depth: 0,
+      pagination: false,
+      limit: 0,
+    })
+    expect(after.docs).toEqual(before.docs)
+    expect(
+      (await request('search/reindex', 'publisher', 'POST', { collections: ['posts'] })).status,
+    ).toBe(200)
+  })
 })

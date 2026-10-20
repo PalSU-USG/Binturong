@@ -153,6 +153,10 @@ existing cached query signatures stay unchanged. Public queries use `overrideAcc
 Empty source IDs constrain reads to zero rows while permitting an empty search response.
 Reindex owns the outer transaction, clears orphan derived rows, verifies the complete
 ID/title/slug projection after the native handler, and rolls back incomplete rebuilds.
+Pin its transaction ID in server-held request state. Before every search mutation
+and after the native handler, reject transaction loss so swallowed native failures
+cannot resume index writes in newly committed transactions. Test with a real native
+hook failure, not only a spy that throws before entering Payload's operation.
 
 - [x] Add failing tests for anonymous draft reads through redirects, archive blocks, related posts, search, and cached helpers; draft changes must not alter the current published search title. Direct search CRUD is denied for every ordinary user; only publisher+ may request reindex.
 - [x] Run `npm run test:int -- tests/int/public-boundaries.int.spec.ts`; record the exact failing paths.

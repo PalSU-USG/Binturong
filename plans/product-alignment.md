@@ -22,7 +22,9 @@ changed. The current checkpoint below records subsequent approved execution.
   (review `3adc97d`), Task 3 `e932995` (review `035daa9`). No real account promoted.
 - Task 4 base `035daa9`; branch `Hawksprey420/access-public-queries` at
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-public-queries`.
-  Implementation verified in the working tree; commit and independent review pending.
+  Implementation `5f66d37` was blocked by independent review: a real native failure
+  ended the rebuild transaction and allowed later commits. Its tested fix is dirty;
+  follow-up commit and independent acceptance remain pending.
 - Public helpers/archives/redirects enforce access and published revisions. Selected
   archives reload source records; redirects resolve current public targets by ID.
   Author projection selects names/IDs only, rejects forged names and propagates failures.
@@ -30,10 +32,15 @@ changed. The current checkpoint below records subsequent approved execution.
   user CRUD is denied; only a server-held reindex request gets native write permission.
   Publisher-only reindex owns its transaction, clears the current Posts-only index,
   verifies ID/title/slug output and duplicates, and rolls back incomplete rebuilds.
-- `npm run test:int`: **70/70 pass**, including17 public-query/search and17 editorial
+- Review fix pins the original transaction ID in private request state. A search
+  before-operation guard stops further mutations after transaction loss; the wrapper
+  checks identity again before commit. Real hook failure preserves the prior index;
+  the following clean retry succeeds without duplicates.
+- `npm run test:int`: **71/71 pass**, including18 public-query/search and17 editorial
   cases. Types and changed-code ESLint pass with **0 errors/warnings**. Production
-  build and sitemap pass. Search-read bypass mutation failed its privacy regression;
-  original bytes restored. Reindex failure/rollback/retry and empty search are covered.
+  build and sitemap pass after the review fix. Search-read and native
+  transaction-guard bypass mutations failed their regressions; original bytes restored.
+  Actual-operation failure/rollback/retry and empty search are covered.
 - Cache tests prove invalidation calls only. Task 6 must test warmed browser caches
   and withdrawal during an open transaction: native hooks run before commit.
   Task 5 owns preview/job authority and reviewed-revision execution. The whole slice
@@ -46,7 +53,7 @@ changed. The current checkpoint below records subsequent approved execution.
   No merge, push, cloud writes or deployment. Task, planning and integration worktrees
   remain separate. Dirty Task 4 paths are its queries/search/hooks/callers/tests,
   shared synthetic fixture, plan and this checkpoint; generated types have no semantic diff.
-- Next action: commit the verified Task 4 diff and request independent acceptance,
+- Next action: commit the verified recovery fix and request independent acceptance,
   then create Task 5's worktree from its accepted range.
 
 ## Sources and reconnaissance snapshot
