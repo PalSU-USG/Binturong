@@ -28,7 +28,7 @@ changed. The current checkpoint below records subsequent approved execution.
   existing rows/password verifiers preserved. See the accepted commits for detail.
 - Task 3 base `3adc97d`; branch `Hawksprey420/access-publication` at
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-publication`.
-  Implementation verified in the working tree; commit and independent review pending.
+  Implementation `e932995` independently accepted; review checkpoint records acceptance.
 - Task 3 covers native editor drafts, publisher transitions/restore/scheduling,
   current active-account checks, version reads and publisher-only live configuration.
   Public images retain public reads. Published Pages/Posts cannot be deleted;
@@ -46,7 +46,7 @@ changed. The current checkpoint below records subsequent approved execution.
 - Main checkout owner `src/payload-types.ts` hash remains
   `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
   No dependency/lockfile changes, cloud writes, merge or push. Planning, completed
-  task worktrees and `access-integration` remain separate. Task3 dirty paths are
+  task worktrees and `access-integration` remain separate. Task3 implemented paths are
   its access/hooks/config/layout/tests, app guidance, plan and this checkpoint.
 - Next action: commit the verified Task3 diff and request independent
   task acceptance before creating Task4's worktree from its accepted commit.
