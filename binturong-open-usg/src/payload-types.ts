@@ -1752,20 +1752,23 @@ export interface TaskSchedulePublish {
   input: {
     type?: ('publish' | 'unpublish') | null;
     locale?: string | null;
-    doc?:
-      | ({
-          relationTo: 'pages';
-          value: number | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: number | Post;
-        } | null);
+    doc?: {
+      relationTo?: ('pages' | 'posts') | null;
+      value?: string | null;
+    };
     global?: string | null;
     user?: {
       relationTo: 'users';
       value: number | User;
     } | null;
+    accountID?: number | null;
+    documentID?: number | null;
+    versionID?: number | null;
+    appliedVersionID?: number | null;
+    collection?: string | null;
+    versionHash?: string | null;
+    appliedVersionHash?: string | null;
+    timezone?: string | null;
   };
   output?: unknown;
 }

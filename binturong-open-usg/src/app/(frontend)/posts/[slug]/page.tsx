@@ -14,6 +14,7 @@ import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { getPreviewAccess } from '@/utilities/getPreviewAccess'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -87,15 +88,14 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 }
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
-
   const payload = await getPayload({ config: configPromise })
+  const preview = await getPreviewAccess(payload)
 
   const result = await payload.find({
     collection: 'posts',
-    draft,
+    ...preview,
     limit: 1,
-    overrideAccess: draft,
+    overrideAccess: false,
     pagination: false,
     where: {
       slug: {

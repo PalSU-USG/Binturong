@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | In progress: Task 4                    | Accounts and editorial access accepted; public queries/search under verification |
+| 2: execution              | In progress: Task 5                    | Accounts, editorial and public-query tasks accepted; operational access underway |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,46 +17,46 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [six-task plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-  Slice 1a is accounts/access; formal domain records, storage and public UI follow later.
+  Slice 1a is accounts/access; domain records, storage and public UI follow later.
 - Independently accepted: Task 1 `f7e9dbf` (review `1683fd5`), Task 2 `b36830b`
-  (review `3adc97d`), Task 3 `e932995` (review `035daa9`). No real account promoted.
-- Task 4 base `035daa9`; branch `Hawksprey420/access-public-queries` at
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-public-queries`.
-  Implementation `5f66d37` plus recovery fix `2df8a48` independently accepted.
-  The native borrowed-transaction blocker is resolved; no new scoped defects.
-- Public helpers/archives/redirects enforce access and published revisions. Selected
-  archives reload source records; redirects resolve current public targets by ID.
-  Author projection selects names/IDs only, rejects forged names and propagates failures.
-- Search hides stale/orphan rows unless their source remains published. Direct
-  user CRUD is denied; only a server-held reindex request gets native write permission.
-  Publisher-only reindex owns its transaction, clears the current Posts-only index,
-  verifies ID/title/slug output and duplicates, and rolls back incomplete rebuilds.
-- Review fix pins the original transaction ID in private request state. A search
-  before-operation guard stops further mutations after transaction loss; the wrapper
-  checks identity again before commit. Real hook failure preserves the prior index;
-  the following clean retry succeeds without duplicates.
-- `npm run test:int`: **71/71 pass**, including18 public-query/search and17 editorial
-  cases. Types and changed-code ESLint pass with **0 errors/warnings**. Production
-  build and sitemap pass after the review fix. Search-read and native
-  transaction-guard bypass mutations failed their regressions; original bytes restored.
-  Actual-operation failure/rollback/retry and empty search are covered.
-- Cache tests prove invalidation calls only. Task 6 must test warmed browser caches
-  and withdrawal during an open transaction: native hooks run before commit.
-  Task 5 owns preview/job authority and reviewed-revision execution. The whole slice
-  is incomplete; no browser, keyboard or responsive completion claim yet.
-- Detailed private logs: ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
-  Full lint retains5 inherited errors/8 warnings. No new schema, migrations,
-  dependencies or lockfile changes. Previous migration proof remains in accepted commits.
+  (review `3adc97d`), Task 3 `e932995` (review `035daa9`), Task 4 `5f66d37`
+  plus native-transaction recovery `2df8a48` (review `39377c3`).
+- Task 5 base `39377c3`; branch `Hawksprey420/access-operations` at
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-operations`.
+  Implementation verified; independent review pending.
+- Seed denies all roles before loading destructive code; dashboard seed action removed.
+  Preview entry and both detail queries require current active staff authentication.
+  A cookie alone cannot read private drafts, including metadata.
+- Queue/cancel/run gates require current publisher authority; a valid cron runner
+  still needs each job's saved authorizer and exact revision. Legacy, revoked,
+  disabled, malformed and stale jobs fail closed. Native queue/UI/slug retained.
+- Native autosave can mutate one version ID: proof adds a content hash. Publication
+  and an applied-revision receipt share a pinned transaction. A completion retry
+  recognizes committed work without another version. Swallowed native search failure
+  cannot stamp a receipt after transaction loss. Per-job request state is fresh.
+- Native editorial writes, scheduling and execution share the existing account lock.
+  This conservative serialization also protects autosave/bulk and role-change races;
+  write throughput is limited until measured demand justifies finer lock ordering.
+- `npm run test:int`: **88/88 pass**, including operational17 and editorial17.
+  Types and changed-code ESLint pass with **0 errors/warnings**. Production build
+  and sitemap pass. Revision, hash-only and post-publication transaction guard
+  bypass mutations fail their focused regressions; original bytes restored.
+  Real hook rollback/retry, completion-loss replay and observed role-lock contention pass.
+- Task 6 still owns browser/keyboard/responsive checks and the warmed-cache withdrawal
+  race with an open transaction. Invalidation-call assertions do not prove that race.
+  The in-app browser reports unavailable; discovery is empty. No substitute manual
+  browser used. Repository browser automation remains a separate required check.
+- Task 5 changes task input types only: existing job JSON needs no SQL migration.
+  No dependency/lockfile change or new content schema. Full lint retains5 inherited
+  errors/8 warnings. Detailed private evidence is under ignored
+  `.superpowers/sdd/2026-10-20-access-foundations/`.
 - Main owner generated-types SHA256 remains
   `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
-  No merge, push, cloud writes or deployment. Task, planning and integration worktrees
-  remain separate. Dirty Task 4 paths are its queries/search/hooks/callers/tests,
-  shared synthetic fixture, plan and this checkpoint; generated types have no semantic diff.
-- Independent reviewer reran public18/18 + editorial17/17, types, changed lint and
-  diff checks. It inspected native transaction ordering; did not rerun full71,
-  build/browser or mutations. Accepted `035daa9..2df8a48`.
-- Next action: create Task 5's worktree from this accepted range, then add operational
-  access regressions before changing preview, jobs and the template seed endpoint.
+  No real account promoted, merge, push, cloud write or deployment. Task, planning
+  and integration worktrees remain separate. Task 5 changed paths are its source,
+  tests/generated types, app guidance, plan and this checkpoint.
+- Next action: commit the verified Task 5 unit and obtain independent task review
+  before creating Task 6's verification worktree.
 
 ## Sources and reconnaissance snapshot
 

@@ -34,8 +34,12 @@ Content permissions reload the active account. Editors save individual native dr
 publishers and higher roles publish, withdraw, restore, schedule, and change live
 configuration. Published Pages/Posts cannot be hard-deleted; draft deletion locks
 the current row before checking its status. Bulk content deletion is denied.
-Native scheduling is guarded at its server-function boundary; per-job revision
-proof and runner authorization remain the operational-access task's responsibility.
+Native scheduling is guarded at its server-function boundary and executes with a
+server-selected account, exact saved version and content hash. It rechecks current
+authority, rejects legacy/stale jobs, and records publication and its retry receipt
+in one transaction. Native editorial writes share the account authority lock with
+scheduling/execution. Preview cookies require fresh active staff authentication
+on both entry and draft reads; the template seed endpoint denies every role.
 
 - Anonymous page and post reads must remain limited to published content. Preserve
   preview authentication and the separation between public and draft queries.

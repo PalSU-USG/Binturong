@@ -1,4 +1,3 @@
-import type { PayloadRequest } from 'payload'
 import { getPayload } from 'payload'
 import { getSafeRedirect } from 'payload/shared'
 
@@ -7,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
 
 import configPromise from '@payload-config'
+import { getPreviewAccount } from '@/utilities/getPreviewAccess'
 
 export type PreviewSearchParams = {
   path: string
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   const path = searchParams.get('path')
   const previewSecret = searchParams.get('previewSecret')
 
-  if (previewSecret !== process.env.PREVIEW_SECRET) {
+  if (!process.env.PREVIEW_SECRET || previewSecret !== process.env.PREVIEW_SECRET) {
     return new Response('You are not allowed to preview this page', { status: 403 })
   }
 
@@ -35,14 +35,10 @@ export async function GET(req: NextRequest): Promise<Response> {
     return new Response('This endpoint can only be used for relative previews', { status: 500 })
   }
 
-  let user
+  let previewAccount
 
   try {
-    const authResult = await payload.auth({
-      req: req as unknown as PayloadRequest,
-      headers: req.headers,
-    })
-    user = authResult.user
+    previewAccount = await getPreviewAccount(payload, req.headers)
   } catch (error) {
     payload.logger.error({ err: error }, 'Error verifying token for live preview')
     return new Response('You are not allowed to preview this page', { status: 403 })
@@ -50,12 +46,10 @@ export async function GET(req: NextRequest): Promise<Response> {
 
   const draft = await draftMode()
 
-  if (!user) {
+  if (!previewAccount) {
     draft.disable()
     return new Response('You are not allowed to preview this page', { status: 403 })
   }
-
-  // You can add additional checks here to see if the user is allowed to preview this page
 
   draft.enable()
 

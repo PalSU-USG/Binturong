@@ -3,6 +3,7 @@ import { sql } from '@payloadcms/db-postgres'
 
 import { getActiveAccount } from '@/access/activeAccount'
 import { hasRole } from '@/access/roles'
+import { lockAccounts } from '@/collections/Users/accountProvisioning'
 
 export async function enforceEditorialWrites({
   args,
@@ -10,8 +11,10 @@ export async function enforceEditorialWrites({
   overrideAccess,
   req,
 }: Parameters<CollectionBeforeOperationHook>[0]): Promise<void> {
-  if (overrideAccess || !['create', 'update', 'delete', 'restoreVersion'].includes(operation))
-    return
+  if (!['create', 'update', 'delete', 'restoreVersion'].includes(operation)) return
+  // Share the authority lock with scheduling, including draft autosaves and native bulk writes.
+  await lockAccounts(req)
+  if (overrideAccess) return
   const actor = await getActiveAccount(req)
   if (!actor) throw new APIError('An active staff account is required', 403)
   if (operation === 'delete') {

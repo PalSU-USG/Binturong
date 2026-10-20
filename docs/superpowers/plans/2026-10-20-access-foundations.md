@@ -173,16 +173,26 @@ hook failure, not only a spy that throws before entering Payload's operation.
 extend `src/hooks/enforceEditorialWrites.ts` and Pages/Posts scheduling configuration;
 create `src/jobs/authorizePublication.ts`, `tests/int/operational-access.int.spec.ts`.
 Update generated types/migration snapshots if scheduled-job authorization data changes.
+Also protect both detail-page preview queries through `src/utilities/getPreviewAccess.ts`;
+the cookie alone previously enabled privileged draft reads. Extend the native scheduling
+adapter and generated task input types. Job input remains the existing JSON column,
+so this task needs no database migration. Update the editorial concurrency test's
+observed wait to the shared authority lock, which now precedes its row lock.
 
-**Interfaces:** `authorizePublication(req: PayloadRequest, job: { accountID: number; collection: 'pages' | 'posts'; documentID: number; versionID: number }): Promise<void>`
+**Interfaces:** `authorizePublication(req: PayloadRequest, job: { accountID: number; collection: 'pages' | 'posts'; documentID: number; versionID: number; versionHash: string }): Promise<void>`
 revalidates the authorizing account and exact revision before a scheduled transition.
+The hash is required because native autosave/withdrawal can update one version ID.
+Publication and its applied-revision receipt share a transaction. A completion retry
+recognizes that receipt without creating another content version. Native editorial
+writes, scheduling and execution reuse the account authority lock; this conservative
+serialization trades write throughput for a simple, consistent revocation/revision boundary.
 
-- [ ] Add RED tests: all user roles are denied `/next/seed`; preview requires a current active staff account and valid preview secret; editor/disabled users cannot run jobs; a revoked scheduling actor cannot publish through cron.
-- [ ] Run `npm run test:int -- tests/int/operational-access.int.spec.ts` and confirm expected failures.
-- [ ] Make seed return 403 before calling any seeding code and remove its dashboard action. Retain private synthetic fixture setup for tests. Use active-account checks for preview and jobs. Preserve authenticated relative preview redirects.
-- [ ] Keep scheduler runner authentication separate from per-job authority. Persist server-controlled `accountID`, `collection`, `documentID`, and `versionID` on scheduled transitions; recheck them at execution. Reject legacy jobs without that proof rather than guessing an actor. If the built-in scheduled task cannot enforce it, replace only that task adapter, preserving the native queue. Include any required migration in this task.
-- [ ] Run focused tests for allowed publishing jobs, stale/revoked jobs, invalid secrets, malformed account IDs, and retries after failure. A valid cron secret alone cannot approve arbitrary publication.
-- [ ] Review/stage the complete unit; commit `fix(access): guard preview jobs and seed operations`.
+- [x] Add RED tests: all user roles are denied `/next/seed`; preview requires a current active staff account and valid preview secret; editor/disabled users cannot run jobs; a revoked scheduling actor cannot publish through cron.
+- [x] Run `npm run test:int -- tests/int/operational-access.int.spec.ts` and confirm expected failures.
+- [x] Make seed return 403 before calling any seeding code and remove its dashboard action. Retain private synthetic fixture setup for tests. Use active-account checks for preview and jobs. Preserve authenticated relative preview redirects.
+- [x] Keep scheduler runner authentication separate from per-job authority. Persist server-controlled `accountID`, `collection`, `documentID`, and `versionID` on scheduled transitions; recheck them at execution. Reject legacy jobs without that proof rather than guessing an actor. If the built-in scheduled task cannot enforce it, replace only that task adapter, preserving the native queue. Include any required migration in this task.
+- [x] Run focused tests for allowed publishing jobs, stale/revoked jobs, invalid secrets, malformed account IDs, and retries after failure. A valid cron secret alone cannot approve arbitrary publication.
+- [x] Review/stage the complete unit; commit `fix(access): guard preview jobs and seed operations`.
 
 ### Task 6: Verify the complete slice and prepare review
 

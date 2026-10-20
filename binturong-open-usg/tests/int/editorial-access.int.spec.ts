@@ -274,8 +274,7 @@ describe('editorial authority', () => {
         await vi.waitFor(
           async () => {
             const { rows } = await payload.db.pool.query(
-              "select pid from pg_stat_activity where datname = current_database() and wait_event_type = 'Lock' and query like $1",
-              [`%${collection}%`],
+              "select pid from pg_locks where locktype = 'advisory' and classid = 20261020 and objid = 1 and not granted",
             )
             expect(rows.length).toBeGreaterThan(0)
           },

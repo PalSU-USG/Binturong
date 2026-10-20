@@ -14,6 +14,8 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { publishContent } from './access/contentAccess'
+import { scheduledPublication } from './jobs/authorizePublication'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -24,8 +26,6 @@ export default buildConfig({
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
       beforeDashboard: ['@/components/BeforeDashboard'],
     },
     importMap: {
@@ -74,20 +74,47 @@ export default buildConfig({
   },
   jobs: {
     access: {
-      run: ({ req }: { req: PayloadRequest }): boolean => {
-        // Allow logged in users to execute this endpoint (default)
-        if (req.user) return true
+      queue: async ({ req }) => Boolean(await publishContent({ req })),
+      cancel: async ({ req }) => Boolean(await publishContent({ req })),
+      run: async ({ req }: { req: PayloadRequest }): Promise<boolean> => {
+        if (req.user) return Boolean(await publishContent({ req }))
 
         const secret = process.env.CRON_SECRET
         if (!secret) return false
 
-        // If there is no logged in user, then check
-        // for the Vercel Cron secret to be present as an
-        // Authorization header:
         const authHeader = req.headers.get('authorization')
         return authHeader === `Bearer ${secret}`
       },
     },
     tasks: [],
   },
+}).then((config) => {
+  // Payload appends this task during sanitization; replace its handler without registering a duplicate.
+  const tasks = config.jobs.tasks?.filter(({ slug }) => slug === 'schedulePublish')
+  if (tasks?.length !== 1) throw new Error('Expected one native publication task')
+  tasks[0].handler = scheduledPublication
+  // The native drawer and upcoming-schedule query persist string IDs in this JSON locator.
+  tasks[0].inputSchema = tasks[0].inputSchema?.map((field) =>
+    'name' in field && field.name === 'doc'
+      ? {
+          name: 'doc',
+          type: 'group',
+          fields: [
+            { name: 'relationTo', type: 'select', options: ['pages', 'posts'] },
+            { name: 'value', type: 'text' },
+          ],
+        }
+      : field,
+  )
+  tasks[0].inputSchema?.push(
+    ...['accountID', 'documentID', 'versionID', 'appliedVersionID'].map((name) => ({
+      name,
+      type: 'number' as const,
+    })),
+    ...['collection', 'versionHash', 'appliedVersionHash', 'timezone'].map((name) => ({
+      name,
+      type: 'text' as const,
+    })),
+  )
+  return config
 })

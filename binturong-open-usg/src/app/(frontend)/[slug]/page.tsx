@@ -12,6 +12,7 @@ import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { getPreviewAccess } from '@/utilities/getPreviewAccess'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -92,16 +93,15 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 }
 
 const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
-
   const payload = await getPayload({ config: configPromise })
+  const preview = await getPreviewAccess(payload)
 
   const result = await payload.find({
     collection: 'pages',
-    draft,
+    ...preview,
     limit: 1,
     pagination: false,
-    overrideAccess: draft,
+    overrideAccess: false,
     where: {
       slug: {
         equals: slug,
