@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Resolve domain contracts and write coherent implementation slices              |
-| 2: execution              | In progress: Task 6                    | Accounts/access final verification and review                                 |
+| 2: execution              | Slice 1a accepted                      | Six accounts/access tasks complete; Slice 1b planning follows                  |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -20,11 +20,17 @@ changed. The checkpoint below records later work.
 - Tasks1–4 independently accepted. Task5 `f387f6b` was reviewed; its one P2 partial
   receipt defect was corrected in `5f30dab` after a native regression failed first.
   Correction full88 integration/types/changed lint/build pass. No real account promoted.
-- Active Task6: `Hawksprey420/access-verification`, base `5f30dab`, checkout
+- Accepted Task6: `Hawksprey420/access-verification`, base `5f30dab`, checkout
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-verification`.
   Its `plans/product-alignment.md` is the authoritative current task checkpoint.
-  Next: actual production-cache withdrawal race and role-aware browser flows,
-  remaining verification and independent whole-slice review. Slice1a is not complete.
+  Runtime verification `261c611`; closure `95fdfad`. Independent whole-slice review
+  accepted `a7700b4..261c611`: all88 integration tests/types rerun pass; no confirmed
+  runtime/security/compatibility blocker. Seven Chromium tests, one production-cache
+  regression/build/sitemap and fresh/populated upgrade/repeat migrations pass as
+  implementer evidence assessed by the reviewer. Task6-only lint0/0; whole-slice
+  lint0 errors/4 generated-migration warnings. Full lint retains5 errors/10 warnings.
+  Next: write and review the Slice1b domain/schema implementation plan. Official
+  files remain disabled until the storage slice; later product slices are incomplete.
 - Session write access is restored. The prepared receipt patch is now represented
   by the verified task commit; the temporary unapplied patch artifact is removed.
 - Mandatory workflow: separate task branches/worktrees, scoped verified commits,
