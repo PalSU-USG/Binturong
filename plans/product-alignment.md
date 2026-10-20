@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | In progress: Task 6                    | Accounts, editorial and public-query tasks accepted; operational access underway |
+| 2: execution              | Slice 1a accepted                      | Six accounts/access tasks complete; Slice 1b planning follows                   |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -23,7 +23,12 @@ changed. The current checkpoint below records subsequent approved execution.
   Reviewer found no other confirmed defect and completed synthetic probe cleanup.
 - Task6 branch `Hawksprey420/access-verification`, base `5f30dab`, checkout
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-verification`.
-  Verification passes; independent whole-slice review is pending.
+  Verification commit `261c6115210e62db08db978f5d6972d19a209fc0`.
+  Independent reviewer `/root/review_access_slice` accepted the full
+  `a7700b4..261c611` range with no confirmed runtime/security blocker. Reviewer
+  independently reran all88 integration tests and types, reviewed compatibility,
+  and verified owner-file preservation. Browser/build/migration/mutation results
+  below are implementer evidence assessed by the reviewer, not independent reruns.
 - `npm test`: **88 integration tests and7 Chromium tests pass**. Browser tests cover
   native editor autosave preserving public content, publisher publication, admin vs
   super-admin, and revocation of an existing browser session. Keyboard focus/Tab and
@@ -35,9 +40,12 @@ changed. The current checkpoint below records subsequent approved execution.
   uncommitted, then verifies API404 and no withdrawn list/sitemap/detail content.
   Bypassing withdrawal invalidation makes that regression fail after commit; original
   bytes restored and final production run passes. No cache architecture rewrite.
-- Types and changed-file ESLint pass with **0 errors/warnings**. Full lint actually
-  reports5 existing errors/10 warnings in unchanged Header/Card/Theme, migrations
-  and the old frontend smoke test. Earlier8-warning notes were incomplete. Generated
+- Types pass; **Task6-only** changed-file ESLint has0 errors/warnings. Reviewer's
+  whole-slice lint has0 errors and4 generated access-role migration argument
+  warnings, plus an ignored-file warning from explicitly passing generated types.
+  Full lint reports5 existing errors/10 warnings in Header/Card/Theme, migrations
+  and the old frontend smoke test;4 warnings were introduced by Slice1a's generated
+  migration and inherited by Task6. Earlier8-warning notes were incomplete. Generated
   Playwright outputs are now ignored by lint to prevent cleanup/scanning races.
   Production check runs a successful fresh build and sitemap generation.
 - All5 Payload migrations pass on fresh and populated-baseline disposable databases;
@@ -59,8 +67,9 @@ changed. The current checkpoint below records subsequent approved execution.
   tests do not replace that manual inspection. Full accessibility, Figma/brand
   alignment, cloud grants/baseline adoption and official-file privacy remain later
   work. Scoped access verification does not establish institutional-release readiness.
-- Next action: commit the verified Task6 unit and request independent specification,
-  evidence and compatibility review across the entire account/access slice.
+- Next action: write and review the Slice1b domain/schema implementation plan from
+  the approved spec. Keep official file writes/delivery disabled until storage is
+  verified. Integration remains a separate owner decision; do not merge or push.
 
 ## Sources and reconnaissance snapshot
 

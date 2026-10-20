@@ -209,8 +209,8 @@ Reconcile the stale metadata-only setup text with the already verified data-copy
       Exercise warmed public caches during withdrawal, including a public request
       while the withdrawal transaction remains open: native hooks invalidate before
       commit. Invalidation-call assertions alone do not prove browser cache isolation.
-- [ ] Review the full diff, generated files, private-data exclusions, and root owner-file preservation. Request independent specification/evidence/compatibility review; fix blockers and rerun affected checks.
-- [ ] Commit the verification/fixture documentation as `test(access): verify the CMS permission boundaries`. Record actual commits, failures/skips, remaining data-deployment steps, and next action in the checkpoint. Do not merge, push, migrate cloud, or claim the later domain/storage slices complete.
+- [x] Review the full diff, generated files, private-data exclusions, and root owner-file preservation. Request independent specification/evidence/compatibility review; fix blockers and rerun affected checks. Whole range `a7700b4..261c611` independently accepted; full88 integration/types rerun pass. Scoped acceptance, not deployment or institutional-release approval.
+- [x] Commit the verification/fixture documentation as `test(access): verify the CMS permission boundaries`. Commit `261c611`; actual results, lint limits, remaining data-deployment steps and next action are in the checkpoint. No merge, push or cloud migration; later domain/storage slices remain incomplete.
 
 ## Handoff
 
