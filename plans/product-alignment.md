@@ -2,11 +2,11 @@
 
 ## Phase log
 
-| Phase                     | State                                  | Deliverable                                                                    |
-| ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
-| 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
-| 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                |
-| 2: execution              | In progress: Task 3                    | Four-role policy and migration; subsequent tasks remain pending                |
+| Phase                     | State                                  | Deliverable                                                                      |
+| ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
+| 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
+| 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
+| 2: execution              | In progress: Task 4                    | Accounts and editorial access accepted; public queries/search under verification |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,39 +17,37 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [six-task plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-  Slice 1a: accounts/access. Formal domain records, storage and public UI follow later.
-- Task 1 accepted at `f7e9dbf` (review `1683fd5`). Task 2 accepted at `b36830b`
-  (review/smoke `3adc97d`). Four roles, concurrent last-super-admin protection,
-  native-auth snapshot guard, and local dry-run bootstrap are implemented.
-  No real account has been nominated or promoted.
-- Task 2 evidence: 36 integration tests, types and changed-code lint pass;
-  Chromium smoke4/4 and production build pass. Fresh reviewer reran integration,
-  types and lint. Three additive migrations passed fresh/upgrade/repeat checks;
-  existing rows/password verifiers preserved. See the accepted commits for detail.
-- Task 3 base `3adc97d`; branch `Hawksprey420/access-publication` at
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-publication`.
-  Implementation `e932995` independently accepted; review checkpoint records acceptance.
-- Task 3 covers native editor drafts, publisher transitions/restore/scheduling,
-  current active-account checks, version reads and publisher-only live configuration.
-  Public images retain public reads. Published Pages/Posts cannot be deleted;
-  single-draft deletion locks the row before status authorization. Bulk deletion denied.
-- Native schedule cancellation now deletes the verified schedule without queuing an
-  empty job. Per-job revision proof/runner authorization remain Task5. Search and
-  indirect public query boundaries remain Task4; the full slice is not complete.
-- Verification: `npm run test:int` **53/53 pass**, including17 publication cases;
-  `npm exec -- tsc --noEmit --incremental false` passes; changed-code ESLint
-  **0 errors/warnings**. Publisher/delete races fail without row locking and pass
-  with it. Bypassing the editor guard fails both focused regressions; bytes restored.
-  Production build and sitemap pass. Browser/keyboard/responsive checks remain Task6.
+  Slice 1a is accounts/access; formal domain records, storage and public UI follow later.
+- Independently accepted: Task 1 `f7e9dbf` (review `1683fd5`), Task 2 `b36830b`
+  (review `3adc97d`), Task 3 `e932995` (review `035daa9`). No real account promoted.
+- Task 4 base `035daa9`; branch `Hawksprey420/access-public-queries` at
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-public-queries`.
+  Implementation verified in the working tree; commit and independent review pending.
+- Public helpers/archives/redirects enforce access and published revisions. Selected
+  archives reload source records; redirects resolve current public targets by ID.
+  Author projection selects names/IDs only, rejects forged names and propagates failures.
+- Search hides stale/orphan rows unless their source remains published. Direct
+  user CRUD is denied; only a server-held reindex request gets native write permission.
+  Publisher-only reindex owns its transaction, clears the current Posts-only index,
+  verifies ID/title/slug output and duplicates, and rolls back incomplete rebuilds.
+- `npm run test:int`: **70/70 pass**, including17 public-query/search and17 editorial
+  cases. Types and changed-code ESLint pass with **0 errors/warnings**. Production
+  build and sitemap pass. Search-read bypass mutation failed its privacy regression;
+  original bytes restored. Reindex failure/rollback/retry and empty search are covered.
+- Cache tests prove invalidation calls only. Task 6 must test warmed browser caches
+  and withdrawal during an open transaction: native hooks run before commit.
+  Task 5 owns preview/job authority and reviewed-revision execution. The whole slice
+  is incomplete; no browser, keyboard or responsive completion claim yet.
 - Detailed private logs: ignored `.superpowers/sdd/2026-10-20-access-foundations/`.
-  Full lint baseline retains5 inherited errors/8 warnings; no unrelated cleanup.
-- Main checkout owner `src/payload-types.ts` hash remains
+  Full lint retains5 inherited errors/8 warnings. No new schema, migrations,
+  dependencies or lockfile changes. Previous migration proof remains in accepted commits.
+- Main owner generated-types SHA256 remains
   `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
-  No dependency/lockfile changes, cloud writes, merge or push. Planning, completed
-  task worktrees and `access-integration` remain separate. Task3 implemented paths are
-  its access/hooks/config/layout/tests, app guidance, plan and this checkpoint.
-- Next action: commit the verified Task3 diff and request independent
-  task acceptance before creating Task4's worktree from its accepted commit.
+  No merge, push, cloud writes or deployment. Task, planning and integration worktrees
+  remain separate. Dirty Task 4 paths are its queries/search/hooks/callers/tests,
+  shared synthetic fixture, plan and this checkpoint; generated types have no semantic diff.
+- Next action: commit the verified Task 4 diff and request independent acceptance,
+  then create Task 5's worktree from its accepted range.
 
 ## Sources and reconnaissance snapshot
 

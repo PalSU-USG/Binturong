@@ -200,6 +200,7 @@ export const Posts: CollectionConfig<'posts'> = {
       name: 'populatedAuthors',
       type: 'array',
       access: {
+        create: () => false,
         update: () => false,
       },
       admin: {

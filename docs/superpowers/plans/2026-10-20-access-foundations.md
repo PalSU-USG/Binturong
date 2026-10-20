@@ -141,18 +141,26 @@ native before-operation/change/delete hooks `enforceEditorialWrites`. All use `g
 modify `src/plugins/index.ts`, `src/search/beforeSync.ts`,
 `src/utilities/getDocument.ts`, `getGlobals.ts`, `getRedirects.ts`,
 `src/blocks/ArchiveBlock/Component.tsx`, and affected frontend query callers.
+Also update `src/components/PayloadRedirects/index.tsx`, the author projection and
+Page/Post revalidation hooks; add `src/hooks/revalidatePublicContent.ts` for document,
+related-page and navigation cache invalidation. Reuse a synthetic rich-text fixture
+under `tests/helpers/contentFixtures.ts` without changing its content.
 
-**Interfaces:** `authorizeReindex(req: PayloadRequest): Promise<Response>` wraps the installed plugin's handler;
+**Interfaces:** `authorizeReindex(handler: PayloadHandler): PayloadHandler` captures and wraps
+the installed plugin's endpoint after registration; its native handler is not publicly exported.
 `publishedSearchAccess: Access` restricts public search rows to currently published Post IDs;
 existing cached query signatures stay unchanged. Public queries use `overrideAccess: false`, `draft: false`.
+Empty source IDs constrain reads to zero rows while permitting an empty search response.
+Reindex owns the outer transaction, clears orphan derived rows, verifies the complete
+ID/title/slug projection after the native handler, and rolls back incomplete rebuilds.
 
-- [ ] Add failing tests for anonymous draft reads through redirects, archive blocks, related posts, search, and cached helpers; draft changes must not alter the current published search title. Direct search CRUD is denied for every ordinary user; only publisher+ may request reindex.
-- [ ] Run `npm run test:int -- tests/int/public-boundaries.int.spec.ts`; record the exact failing paths.
-- [ ] Fix the shared query/caller that owns each leak. Keep preview queries authenticated and separate from shared public caches. Narrow privileged author/category lookups to their needed fields and propagate genuine failures.
-- [ ] Preserve the native search plugin. Guard its installed reindex endpoint after plugin registration and before its handler runs. Give only that server-held invocation permission to run its native access checks; ordinary collection writes remain denied. Keep sync limited to published revisions, preserve the prior published projection on draft saves, and remove entries on withdrawal/delete. A body-supplied context flag must never enable trusted writes. Verify behavior against the installed handler, which checks search create/update/delete permissions.
-- [ ] Add `publishedSearchAccess`: derive permitted source IDs from an access-enforced, published-only Post query selecting IDs, then constrain search reads to those IDs and `doc.relationTo: posts`. Empty results deny reads. Cover public REST/GraphQL as well as the frontend when failed sync leaves stale rows. Verify withdrawal stays private during failed index repair; cross-collection search waits for Slice 3.
-- [ ] Re-run the focused cases plus publication tests, including a failed sync followed by retry. Index repair must converge to the published source without duplicate entries or private fallback.
-- [ ] Commit `fix(access): protect public queries and search maintenance` after staged-diff review.
+- [x] Add failing tests for anonymous draft reads through redirects, archive blocks, related posts, search, and cached helpers; draft changes must not alter the current published search title. Direct search CRUD is denied for every ordinary user; only publisher+ may request reindex.
+- [x] Run `npm run test:int -- tests/int/public-boundaries.int.spec.ts`; record the exact failing paths.
+- [x] Fix the shared query/caller that owns each leak. Keep preview queries authenticated and separate from shared public caches. Narrow privileged author/category lookups to their needed fields and propagate genuine failures.
+- [x] Preserve the native search plugin. Guard its installed reindex endpoint after plugin registration and before its handler runs. Give only that server-held invocation permission to run its native access checks; ordinary collection writes remain denied. Keep sync limited to published revisions, preserve the prior published projection on draft saves, and remove entries on withdrawal/delete. A body-supplied context flag must never enable trusted writes. Verify behavior against the installed handler, which checks search create/update/delete permissions.
+- [x] Add `publishedSearchAccess`: derive permitted source IDs from an access-enforced, published-only Post query selecting IDs, then constrain search reads to those IDs and `doc.relationTo: posts`. Empty results deny reads. Cover public REST/GraphQL as well as the frontend when failed sync leaves stale rows. Verify withdrawal stays private during failed index repair; cross-collection search waits for Slice 3.
+- [x] Re-run the focused cases plus publication tests, including a failed sync followed by retry. Index repair must converge to the published source without duplicate entries or private fallback.
+- [x] Commit `fix(access): protect public queries and search maintenance` after staged-diff review.
 
 ### Task 5: Protect preview, jobs, and destructive seed paths
 
@@ -180,6 +188,9 @@ only where role-aware fixtures require it; update `plans/product-alignment.md` a
 - [ ] Add browser regressions: editor saves a draft without changing public content; publisher publishes; admin cannot manage a super-admin; disabling an account invalidates its existing session. Assert server outcomes as well as UI visibility.
 - [ ] Run `npm test`, `npm exec -- tsc --noEmit --incremental false`, `npm run lint`, and `npm run build`. Record inherited failures separately; new failures in changed code block completion. Recheck migrations on fresh and populated synthetic databases, repeat-run behavior, and preserved IDs/credentials. Do not run a down migration over valuable role data; recover using a reviewed backup/forward correction.
 - [ ] Exercise actual anonymous and all four authenticated roles against REST, GraphQL, preview, search/reindex, jobs, and user-scoped Local API. Check keyboard/focus in affected admin flows; inspect desktop/mobile behavior where controls changed. Report unavailable browser tooling explicitly.
+      Exercise warmed public caches during withdrawal, including a public request
+      while the withdrawal transaction remains open: native hooks invalidate before
+      commit. Invalidation-call assertions alone do not prove browser cache isolation.
 - [ ] Review the full diff, generated files, private-data exclusions, and root owner-file preservation. Request independent specification/evidence/compatibility review; fix blockers and rerun affected checks.
 - [ ] Commit the verification/fixture documentation as `test(access): verify the CMS permission boundaries`. Record actual commits, failures/skips, remaining data-deployment steps, and next action in the checkpoint. Do not merge, push, migrate cloud, or claim the later domain/storage slices complete.
 

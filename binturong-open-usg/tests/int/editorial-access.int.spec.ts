@@ -13,41 +13,12 @@ import { GRAPHQL_POST } from '@payloadcms/next/routes'
 import { authorizeScheduling } from '@/jobs/authorizeScheduling'
 
 import config from '@/payload.config'
-import type { Post } from '@/payload-types'
+import { syntheticContent as content } from '../helpers/contentFixtures'
 import { userRoles, type UserRole } from '@/access/roles'
 import { createAccessFixtures, removeTestAccounts } from '../helpers/accessFixtures'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
 
-const content: Post['content'] = {
-  root: {
-    type: 'root',
-    children: [
-      {
-        type: 'paragraph',
-        children: [
-          {
-            type: 'text',
-            text: 'Synthetic publication fixture.',
-            detail: 0,
-            format: 0,
-            mode: 'normal',
-            style: '',
-            version: 1,
-          },
-        ],
-        direction: null,
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    ],
-    direction: null,
-    format: '',
-    indent: 0,
-    version: 1,
-  },
-}
 const context = { disableRevalidate: true }
 
 describe('editorial authority', () => {

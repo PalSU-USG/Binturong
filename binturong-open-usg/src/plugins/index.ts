@@ -10,6 +10,8 @@ import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publishContent } from '@/access/contentAccess'
+import { protectSearchReindex, trustedSearchWrite } from '@/search/authorizeReindex'
+import { publishedSearchAccess } from '@/search/publishedSearchAccess'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -87,9 +89,16 @@ export const plugins: Plugin[] = [
     collections: ['posts'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
+      access: {
+        create: trustedSearchWrite,
+        update: trustedSearchWrite,
+        delete: trustedSearchWrite,
+        read: publishedSearchAccess,
+      },
       fields: ({ defaultFields }) => {
         return [...defaultFields, ...searchFields]
       },
     },
   }),
+  protectSearchReindex,
 ]

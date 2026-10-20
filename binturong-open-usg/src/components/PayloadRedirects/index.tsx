@@ -1,7 +1,6 @@
 import type React from 'react'
-import type { Page, Post } from '@/payload-types'
-
-import { getCachedDocument } from '@/utilities/getDocument'
+import config from '@payload-config'
+import { getPayload } from 'payload'
 import { getCachedRedirects } from '@/utilities/getRedirects'
 import { notFound, redirect } from 'next/navigation'
 
@@ -21,25 +20,23 @@ export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }
       redirect(redirectItem.to.url)
     }
 
-    let redirectUrl: string
-
-    if (typeof redirectItem.to?.reference?.value === 'string') {
-      const collection = redirectItem.to?.reference?.relationTo
-      const id = redirectItem.to?.reference?.value
-
-      const document = (await getCachedDocument(collection, id)()) as Page | Post
-      redirectUrl = `${redirectItem.to?.reference?.relationTo !== 'pages' ? `/${redirectItem.to?.reference?.relationTo}` : ''}/${
-        document?.slug
-      }`
-    } else {
-      redirectUrl = `${redirectItem.to?.reference?.relationTo !== 'pages' ? `/${redirectItem.to?.reference?.relationTo}` : ''}/${
-        typeof redirectItem.to?.reference?.value === 'object'
-          ? redirectItem.to?.reference?.value?.slug
-          : ''
-      }`
+    const reference = redirectItem.to?.reference
+    const value = reference?.value
+    const id = typeof value === 'object' && value ? value.id : value
+    if (reference && id) {
+      const payload = await getPayload({ config })
+      const document = await payload.findByID({
+        collection: reference.relationTo,
+        id,
+        overrideAccess: false,
+        draft: false,
+        depth: 0,
+        disableErrors: true,
+        select: { slug: true },
+      })
+      if (document?.slug)
+        redirect(`${reference.relationTo === 'pages' ? '' : '/posts'}/${document.slug}`)
     }
-
-    if (redirectUrl) redirect(redirectUrl)
   }
 
   if (disableNotFound) return null

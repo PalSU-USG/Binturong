@@ -28,6 +28,8 @@ export const ArchiveBlock: React.FC<
 
     const fetchedPosts = await payload.find({
       collection: 'posts',
+      overrideAccess: false,
+      draft: false,
       depth: 1,
       limit,
       ...(flattenedCategories && flattenedCategories.length > 0
@@ -44,11 +46,19 @@ export const ArchiveBlock: React.FC<
     posts = fetchedPosts.docs
   } else {
     if (selectedDocs?.length) {
-      const filteredSelectedPosts = selectedDocs.map((post) => {
-        if (typeof post.value === 'object') return post.value
-      }) as Post[]
-
-      posts = filteredSelectedPosts
+      const ids = selectedDocs.map(({ value }) => (typeof value === 'object' ? value.id : value))
+      const payload = await getPayload({ config: configPromise })
+      const result = await payload.find({
+        collection: 'posts',
+        overrideAccess: false,
+        draft: false,
+        depth: 1,
+        pagination: false,
+        limit: 0,
+        where: { id: { in: ids } },
+      })
+      const published = new Map(result.docs.map((doc) => [doc.id, doc]))
+      posts = ids.flatMap((id) => (published.get(id) ? [published.get(id)!] : []))
     }
   }
 
