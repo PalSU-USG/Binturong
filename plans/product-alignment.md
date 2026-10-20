@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Slice 1a accepted                      | Six accounts/access tasks complete; Slice 1b planning follows                   |
+| 2: execution              | Slice 1a integration underway          | Phase01 accounts/access accepted; phase02 domain/schema planning follows        |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,61 +15,38 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
-  and [six-task plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-  Slice1a is accounts/access; formal records, storage and institutional UI follow later.
-- Tasks1–4 independently accepted. Task5 `f387f6b`, review correction `5f30dab`:
-  malformed receipt native regression RED→GREEN; full88/types/changed lint/build pass.
-  Reviewer found no other confirmed defect and completed synthetic probe cleanup.
-- Task6 branch `Hawksprey420/access-verification`, base `5f30dab`, checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-verification`.
-  Verification commit `261c6115210e62db08db978f5d6972d19a209fc0`.
-  Independent reviewer `/root/review_access_slice` accepted the full
-  `a7700b4..261c611` range with no confirmed runtime/security blocker. Reviewer
-  independently reran all88 integration tests and types, reviewed compatibility,
-  and verified owner-file preservation. Browser/build/migration/mutation results
-  below are implementer evidence assessed by the reviewer, not independent reruns.
-- `npm test`: **88 integration tests and7 Chromium tests pass**. Browser tests cover
-  native editor autosave preserving public content, publisher publication, admin vs
-  super-admin, and revocation of an existing browser session. Keyboard focus/Tab and
-  390px overflow checks pass. Desktop/mobile captures were inspected. They retain
-  the inherited template branding/hero; institutional visual approval is not claimed.
-- Production check: `npm run test:e2e -- --config=playwright.production.config.ts`
-  passes **1/1** after a real HTTP publication. It warms list/sitemap, observes a
-  deferred-COMMIT lock after cache hooks, refills public output while withdrawal is
-  uncommitted, then verifies API404 and no withdrawn list/sitemap/detail content.
-  Bypassing withdrawal invalidation makes that regression fail after commit; original
-  bytes restored and final production run passes. No cache architecture rewrite.
-- Types pass; **Task6-only** changed-file ESLint has0 errors/warnings. Reviewer's
-  whole-slice lint has0 errors and4 generated access-role migration argument
-  warnings, plus an ignored-file warning from explicitly passing generated types.
-  Full lint reports5 existing errors/10 warnings in Header/Card/Theme, migrations
-  and the old frontend smoke test;4 warnings were introduced by Slice1a's generated
-  migration and inherited by Task6. Earlier8-warning notes were incomplete. Generated
-  Playwright outputs are now ignored by lint to prevent cleanup/scanning races.
-  Production check runs a successful fresh build and sitemap generation.
-- All5 Payload migrations pass on fresh and populated-baseline disposable databases;
-  repeats preserve migration history. Upgrade preserves IDs/salt/password verifiers,
-  applies editor/active/revision0 defaults, and passes real password login.
-  Evidence: ignored `task6-migrations.log`; databases
-  `binturong_verify_fresh_1792488232635`, `binturong_verify_upgrade_1792488238150`.
-  No down migration, main-data reset or cloud write was performed.
-- Documentation drift reconciled from the main checkout's verified setup record:
-  the earlier data/password-verifier/media snapshot was already copied. This work
-  did not repeat it. New account schema remains local; cloud parity is not claimed.
-  Next dev's generated AGENTS warning was checked against its installed generator.
-- Main owner generated-types SHA256 is unchanged:
-  `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
-  Task generated types show no semantic diff and are not staged. Private env/logs,
-  media and screenshots remain ignored. No real account promoted, merge, push or
-  deployment. Planning/task/integration checkouts remain separate.
-- Limitations: in-app browser was unavailable; screenshots and repository Chromium
-  tests do not replace that manual inspection. Full accessibility, Figma/brand
-  alignment, cloud grants/baseline adoption and official-file privacy remain later
-  work. Scoped access verification does not establish institutional-release readiness.
-- Next action: write and review the Slice1b domain/schema implementation plan from
-  the approved spec. Keep official file writes/delivery disabled until storage is
-  verified. Integration remains a separate owner decision; do not merge or push.
+- Owner authorized merging phase01 to `dev`, then continuing phase02 in a new
+  worktree. Phase01 here means completed Slice1a accounts/access; phase02 means
+  the next Slice1b domain/schema plan within overall Phase2 execution.
+- All six accounts/access tasks are complete. Reviewed runtime `261c611`, closure
+  `95fdfad`; independent whole-slice review accepted `a7700b4..261c611`.
+  Sources: [approved spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
+  and [completed plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
+- Integration combines `95fdfad` and `dev` head `6597122` in the separate
+  `Hawksprey420/access-integration` worktree. Only documentation conflicted;
+  the application tree exactly matches the accepted implementation. Independent
+  reviewer `/root/review_access_slice` accepted the conflict resolution.
+- Combined-tree checks pass: `npm test` (88 integration +7 Chromium),
+  `npm exec -- tsc --noEmit --incremental false`, and
+  `npm run test:e2e -- --config=playwright.production.config.ts` (1 production-cache
+  regression after a fresh production build/sitemap). Logs remain ignored under
+  `.superpowers/sdd/phase01-integration/` in the integration checkout.
+- Prior full lint remains5 errors/10 warnings; Task6-only lint0/0, whole-slice
+  lint0 errors/4 generated-migration warnings. Migration upgrade/repeat, password
+  preservation/login and cache mutation evidence remain accepted; not rerun here.
+- Owner numeric-ID corrections are retained in the reviewed generated types.
+  Original bytes are backed up privately with SHA256
+  `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`
+  and preserved in stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`.
+  Differences are limited to approved role fields and the native scheduler contract;
+  restoring the old complete file would remove those reviewed contracts.
+- Next action: fast-forward `dev` to this verified integration, then create the
+  phase02 domain/schema worktree from that exact commit and write its implementation
+  plan. Official file operations wait for storage. No push, main/cloud database
+  migration, real account promotion or deployment was performed.
+- In-app/Figma inspection, full accessibility, cloud grants/baseline adoption and
+  official-file privacy remain unverified or assigned to later slices. The existing
+  data mirror was not repeated; see [setup evidence](local-supabase-setup.md).
 
 ## Sources and reconnaissance snapshot
 
