@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Slice 1a integration underway          | Phase01 accounts/access accepted; phase02 domain/schema planning follows        |
+| 2: execution              | Phase01 merged; phase02 planning       | Accounts/access integrated; domain/schema plan is next                         |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,38 +15,25 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Owner authorized merging phase01 to `dev`, then continuing phase02 in a new
-  worktree. Phase01 here means completed Slice1a accounts/access; phase02 means
-  the next Slice1b domain/schema plan within overall Phase2 execution.
-- All six accounts/access tasks are complete. Reviewed runtime `261c611`, closure
-  `95fdfad`; independent whole-slice review accepted `a7700b4..261c611`.
-  Sources: [approved spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
-  and [completed plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-- Integration combines `95fdfad` and `dev` head `6597122` in the separate
-  `Hawksprey420/access-integration` worktree. Only documentation conflicted;
-  the application tree exactly matches the accepted implementation. Independent
-  reviewer `/root/review_access_slice` accepted the conflict resolution.
-- Combined-tree checks pass: `npm test` (88 integration +7 Chromium),
-  `npm exec -- tsc --noEmit --incremental false`, and
-  `npm run test:e2e -- --config=playwright.production.config.ts` (1 production-cache
-  regression after a fresh production build/sitemap). Logs remain ignored under
-  `.superpowers/sdd/phase01-integration/` in the integration checkout.
-- Prior full lint remains5 errors/10 warnings; Task6-only lint0/0, whole-slice
-  lint0 errors/4 generated-migration warnings. Migration upgrade/repeat, password
-  preservation/login and cache mutation evidence remain accepted; not rerun here.
-- Owner numeric-ID corrections are retained in the reviewed generated types.
-  Original bytes are backed up privately with SHA256
-  `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`
-  and preserved in stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`.
-  Differences are limited to approved role fields and the native scheduler contract;
-  restoring the old complete file would remove those reviewed contracts.
-- Next action: fast-forward `dev` to this verified integration, then create the
-  phase02 domain/schema worktree from that exact commit and write its implementation
-  plan. Official file operations wait for storage. No push, main/cloud database
-  migration, real account promotion or deployment was performed.
-- In-app/Figma inspection, full accessibility, cloud grants/baseline adoption and
-  official-file privacy remain unverified or assigned to later slices. The existing
-  data mirror was not repeated; see [setup evidence](local-supabase-setup.md).
+- Phase01 (Slice1a accounts/access) merged into `dev` through the independently
+  reviewed integration checkout: `00f3b1f4196ddcfceb402b0896714755df01af32`.
+  Only documentation conflicted; the application matches reviewed head `95fdfad`.
+- Combined-tree checks passed:88 integration tests,7 Chromium tests, types, and
+  the production-cache regression after a fresh production build/sitemap.
+  Prior full lint remains5 errors/10 warnings; it was not rerun for this merge.
+- Active phase02 (Slice1b domain/schema) branch:
+  `Hawksprey420/phase02-domain-schema`, based on merge `00f3b1f`, checkpoint commit
+  `9218162`. Checkout:
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/phase02-domain-schema`.
+  Its `plans/product-alignment.md` is the authoritative continuation checkpoint.
+  Existing dependencies/private environments/media were prepared there without
+  installation, cloud copying or database resets. No domain implementation yet.
+- Owner numeric-ID edits are retained in reviewed generated types; original bytes
+  remain in a private backup and stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`.
+- Next action: write and review the short domain/schema implementation plan in
+  phase02. Keep official file operations disabled until storage is verified.
+- No push, main/cloud database migration, real account promotion or deployment.
+  Main-data/cloud rollout remains separate; see [setup evidence](local-supabase-setup.md).
 
 ## Sources and reconnaissance snapshot
 
