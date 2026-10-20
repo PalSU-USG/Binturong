@@ -22,9 +22,8 @@ changed. The current checkpoint below records subsequent approved execution.
   (review `3adc97d`), Task 3 `e932995` (review `035daa9`). No real account promoted.
 - Task 4 base `035daa9`; branch `Hawksprey420/access-public-queries` at
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-public-queries`.
-  Implementation `5f66d37` was blocked by independent review: a real native failure
-  ended the rebuild transaction and allowed later commits. Its tested fix is dirty;
-  follow-up commit and independent acceptance remain pending.
+  Implementation `5f66d37` plus recovery fix `2df8a48` independently accepted.
+  The native borrowed-transaction blocker is resolved; no new scoped defects.
 - Public helpers/archives/redirects enforce access and published revisions. Selected
   archives reload source records; redirects resolve current public targets by ID.
   Author projection selects names/IDs only, rejects forged names and propagates failures.
@@ -53,8 +52,11 @@ changed. The current checkpoint below records subsequent approved execution.
   No merge, push, cloud writes or deployment. Task, planning and integration worktrees
   remain separate. Dirty Task 4 paths are its queries/search/hooks/callers/tests,
   shared synthetic fixture, plan and this checkpoint; generated types have no semantic diff.
-- Next action: commit the verified recovery fix and request independent acceptance,
-  then create Task 5's worktree from its accepted range.
+- Independent reviewer reran public18/18 + editorial17/17, types, changed lint and
+  diff checks. It inspected native transaction ordering; did not rerun full71,
+  build/browser or mutations. Accepted `035daa9..2df8a48`.
+- Next action: create Task 5's worktree from this accepted range, then add operational
+  access regressions before changing preview, jobs and the template seed endpoint.
 
 ## Sources and reconnaissance snapshot
 
