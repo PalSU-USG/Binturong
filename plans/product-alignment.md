@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Slice 1a integration underway          | Phase01 accounts/access accepted; phase02 domain/schema planning follows        |
+| 2: execution              | Phase01 merged; phase02 planning       | Accounts/access integrated; domain/schema plan is next                         |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -18,6 +18,10 @@ changed. The current checkpoint below records subsequent approved execution.
 - Owner authorized merging phase01 to `dev`, then continuing phase02 in a new
   worktree. Phase01 here means completed Slice1a accounts/access; phase02 means
   the next Slice1b domain/schema plan within overall Phase2 execution.
+- Phase01 merged to `dev` at `00f3b1f4196ddcfceb402b0896714755df01af32`.
+  Phase02 branch `Hawksprey420/phase02-domain-schema` starts at that exact commit,
+  in `C:/Users/Hawksprey/orca/workspaces/Binturong/phase02-domain-schema`.
+  This is the active checkpoint. No domain/schema implementation has begun.
 - All six accounts/access tasks are complete. Reviewed runtime `261c611`, closure
   `95fdfad`; independent whole-slice review accepted `a7700b4..261c611`.
   Sources: [approved spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
@@ -40,9 +44,13 @@ changed. The current checkpoint below records subsequent approved execution.
   and preserved in stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`.
   Differences are limited to approved role fields and the native scheduler contract;
   restoring the old complete file would remove those reviewed contracts.
-- Next action: fast-forward `dev` to this verified integration, then create the
-  phase02 domain/schema worktree from that exact commit and write its implementation
-  plan. Official file operations wait for storage. No push, main/cloud database
+- Existing dependencies moved into phase02 without installation/upgrades; private
+  branch/test environments and32 existing media files copied with matching hashes.
+  No database snapshot was recopied. The application matches the verified merge;
+  baseline checks above apply to that exact source, without another redundant run.
+- Next action: write and review a short Slice1b domain/schema implementation plan
+  from the approved spec in this worktree. Official file operations wait for storage.
+  No push, main/cloud database
   migration, real account promotion or deployment was performed.
 - In-app/Figma inspection, full accessibility, cloud grants/baseline adoption and
   official-file privacy remain unverified or assigned to later slices. The existing
