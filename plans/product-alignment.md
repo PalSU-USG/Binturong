@@ -23,7 +23,8 @@ changed. The current checkpoint below records subsequent approved execution.
   plus native-transaction recovery `2df8a48` (review `39377c3`).
 - Task 5 base `39377c3`; branch `Hawksprey420/access-operations` at
   `C:/Users/Hawksprey/orca/workspaces/Binturong/access-operations`.
-  Implementation verified; independent review pending.
+  Implementation `f387f6b` independently reviewed; its one P2 receipt defect is now corrected.
+  Correction regression observed native false-success RED before applying the source fix.
 - Seed denies all roles before loading destructive code; dashboard seed action removed.
   Preview entry and both detail queries require current active staff authentication.
   A cookie alone cannot read private drafts, including metadata.
@@ -37,6 +38,8 @@ changed. The current checkpoint below records subsequent approved execution.
 - Native editorial writes, scheduling and execution share the existing account lock.
   This conservative serialization also protects autosave/bulk and role-change races;
   write throughput is limited until measured demand justifies finer lock ordering.
+- Receipt correction rejects any partial/invalid applied-revision receipt before
+  replay recognition. Native runner regression includes seven malformed receipt cases.
 - `npm run test:int`: **88/88 pass**, including operational17 and editorial17.
   Types and changed-code ESLint pass with **0 errors/warnings**. Production build
   and sitemap pass. Revision, hash-only and post-publication transaction guard
@@ -55,8 +58,9 @@ changed. The current checkpoint below records subsequent approved execution.
   No real account promoted, merge, push, cloud write or deployment. Task, planning
   and integration worktrees remain separate. Task 5 changed paths are its source,
   tests/generated types, app guidance, plan and this checkpoint.
-- Next action: commit the verified Task 5 unit and obtain independent task review
-  before creating Task 6's verification worktree.
+- Next action: finish correction build/checks, commit the review fix, then create
+  Task 6's verification worktree. Independent review found no other confirmed defect;
+  its focused34 tests/types/changed lint passed. Corrected probe cleanup completed.
 
 ## Sources and reconnaissance snapshot
 

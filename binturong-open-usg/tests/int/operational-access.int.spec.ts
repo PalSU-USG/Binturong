@@ -379,6 +379,13 @@ describe('operational authority', () => {
       { versionID: false },
       { versionHash: '' },
       { collection: 'users' },
+      { appliedVersionID: 1 },
+      { appliedVersionHash: 'a'.repeat(64) },
+      { appliedVersionID: 1, appliedVersionHash: null },
+      { appliedVersionID: 0, appliedVersionHash: 'a'.repeat(64) },
+      { appliedVersionID: '1', appliedVersionHash: 'a'.repeat(64) },
+      { appliedVersionID: true, appliedVersionHash: 'a'.repeat(64) },
+      { appliedVersionID: 1, appliedVersionHash: '' },
     ]) {
       const job = await payload.create({
         collection: 'payload-jobs',

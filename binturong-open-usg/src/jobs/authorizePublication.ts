@@ -117,12 +117,21 @@ export const scheduledPublication: TaskHandler<'schedulePublish'> = async ({
     )
       throw new APIError('Re-schedule this publication with a reviewed revision', 403)
 
-    const proof =
-      positiveID(input.appliedVersionID) && typeof input.appliedVersionHash === 'string'
-        ? { ...input, versionID: input.appliedVersionID, versionHash: input.appliedVersionHash }
-        : input
+    const hasReceipt =
+      input.appliedVersionID !== undefined || input.appliedVersionHash !== undefined
+    let proof = input
+    if (hasReceipt) {
+      const appliedProof = {
+        ...input,
+        versionID: input.appliedVersionID,
+        versionHash: input.appliedVersionHash,
+      }
+      if (!validProof(appliedProof))
+        throw new APIError('The publication receipt is incomplete or invalid', 403)
+      proof = appliedProof
+    }
     await authorizePublication(req, proof)
-    if (!positiveID(input.appliedVersionID)) {
+    if (!hasReceipt) {
       const reviewed = await latestPublicationVersion(req, input.collection, input.documentID)
       const data = {
         ...reviewed.version,
