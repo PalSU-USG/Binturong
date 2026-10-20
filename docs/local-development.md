@@ -75,6 +75,28 @@ database, other ports, and connection-string query overrides. Playwright starts
 its own server on loopback port 3003 and refuses to reuse an existing server.
 Admin tests create and delete synthetic users in the test database.
 
+## Access verification
+
+Run `npm test` for integration and serial Chromium checks. The browser suite verifies
+editor autosave, publisher publication, admin restrictions and revocation of an
+existing browser session. It writes synthetic fixtures only to `binturong_test`.
+
+Run the production-cache check separately:
+
+```powershell
+npm run test:e2e -- --config=playwright.production.config.ts
+```
+
+It builds against the guarded test environment and starts an isolated production
+server on loopback port 3004. A temporary deferred trigger pauses one synthetic
+withdrawal at COMMIT while public requests refill warmed caches; cleanup removes
+the trigger/function and fixtures. Do not interrupt that test while its barrier is
+held, or run another writer against the same test database. The ordinary development
+server uses port 3003. Neither server reuses the owner's application on port 3000.
+
+These checks verify access behavior, not the approved institutional design. Public
+screens still use the Payload template; the design-system and shell slices follow.
+
 ## First local super-admin
 
 The account migration makes existing users active editors; it promotes nobody.
@@ -112,7 +134,7 @@ supabase link --project-ref ntzwpcnsjpijfhrgvvin
 
 Linking does not synchronize schema or data. This checkout was linked successfully
 after signing in with an account that can access the project. The app's hosted
-database credentials were used only for read-only metadata inspection.
+database credentials were used for read-only inspection and snapshot export.
 
 Do not run the initial migration against the existing hosted database. Its tables
 already exist, while its migration history contains only the `dev` marker. A
@@ -127,11 +149,51 @@ push; local URLs and defaults must not overwrite intentional hosted settings.
 ## Verified parity and remaining differences
 
 On 19 October 2026, the generated local baseline matched cloud metadata exactly:
-66 tables, 566 columns, 163 constraints, 310 indexes, and 69 enum values. Only
-metadata and aggregate record counts were inspected; cloud content was not copied.
+66 tables, 566 columns, 163 constraints, 310 indexes, and 69 enum values.
 
-This establishes application schema parity, not complete platform or security
-equivalence. Local PostgreSQL is 17.6 and cloud is 17.11. Cloud migration adoption,
+The subsequent authorized data copy imported 140 rows across 59 application tables
+from one consistent cloud snapshot. It includes 4 pages, 3 posts, 4 media records,
+6 categories, 2 CMS users, Header/Footer, relationships, versions, search, and
+preferences. Per-table row counts and SHA-256 fingerprints matched after import,
+including the stored user password verifiers. Actual password login was not tested.
+This is a point-in-time development snapshot, not continuous synchronization.
+
+The existing 32 original/derivative media files are present in `public/media` and
+match the cloud-recorded file sizes. Local SHA-256 hashes were recorded privately;
+cloud file checksums were unavailable, so equal file bytes were not independently
+proven. Keep these ignored uploads when moving to another development checkout.
+
+Active sessions, document locks, jobs, cache, and migration history were excluded.
+All 39 sequence states were checked; five excluded runtime/migration counters were
+restored from the pre-import backup after review found that the dump included them.
+The dedicated test database and the owner's generated types were unchanged.
+
+For another refresh, first preserve local edits and take a private backup. Recheck
+the source project and exact local destination, schema compatibility, and media
+availability. Export a consistent source snapshot; use native `pg_dump`/`psql` with
+passwords passed through the environment, never command text. Exclude the runtime
+tables above **and their sequences**. Import into an empty, prepared local target
+under locks and one transaction, and compare counts/fingerprints before committing.
+A nonempty target must stop for deliberate reconciliation, not be cleared by default.
+Verify sequence state separately: PostgreSQL `setval` survives transaction rollback,
+so failed imports require explicit sequence recovery from the backup. Do not replay
+the data dump into an already populated database or run the seed endpoint there.
+
+Private exports contain account credential material. Keep exports, recovery SQL,
+row fingerprints, and raw logs outside Git. Preserve separate environment secrets;
+do not copy cloud sessions or send development mail through production delivery.
+The one-off transfer used private temporary files; no reusable refresh command or
+scheduled synchronization is installed.
+
+After the copy, `npm run build` passed. A temporary production server on loopback
+port 3002 returned 200 for seven published routes/indexes and served all 32 media
+files with matching local hashes. This does not verify visual appearance or login.
+
+These counts describe the original baseline, not the current access slice.
+Account migrations add roles, disabled status, authentication revisions and guards
+only to the isolated local branch/test databases. Cloud has not received them;
+current full schema parity is not claimed. Platform/security equivalence is also
+unverified. Local PostgreSQL is 17.6 and cloud is 17.11. Cloud migration adoption,
 grants/RLS hardening, durable storage, and bucket provisioning remain outstanding.
 The read-only `supabase config diff` also reported 14 settings differences: auth
 redirects, email/OTP and MFA behavior, SMS, pooler limits, and vector storage.

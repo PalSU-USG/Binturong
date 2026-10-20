@@ -7,14 +7,17 @@ Keep cloud records intact and use a separate local database for tests. Payload
 owns its tables; Supabase CLI owns local services. Keep one migration authority.
 
 Approved product decisions remain editors/publishers, private draft files, and
-equivalent local/cloud structure with environment-specific credentials and data.
-Domain collections and visual implementation follow this setup.
+equivalent local/cloud structure. The user explicitly chose to copy hosted CMS
+users and password verifiers with content. Environment secrets and active sessions
+remain separate; tests retain their own synthetic database. Domain collections and
+visual implementation follow this setup.
 
 ## Phase log and current state
 
 - Working tree: `dev`, original base `c9717ed`. Workflow enforcement was committed
-  at `1fac880`; local worktree ignores at `f72edf2`. The setup commit introducing
-  this checkpoint records the verified baseline and test isolation. No push made.
+  at `1fac880`; local worktree ignores at `f72edf2`; setup at `c8b1a54`; lint loading
+  at `b151180`. This checkpoint's data-copy update is a documentation-only commit;
+  private exports and account data are never staged. No push made.
 - Owner changes preserved: `src/payload-types.ts` is byte-identical to its initial
   state; the owner's initialized `supabase/` directory now uses separate ports.
 - Phase 0 completed: repository, linked design sources, and cloud reconnaissance.
@@ -32,13 +35,32 @@ Domain collections and visual implementation follow this setup.
   destination, outgoing-range, fast-forward, and remote verification steps for
   authorized pushes; updated app instructions to match the actual test setup.
 - No cloud schema, migration history, content, or permissions have been changed.
+- Data-copy execution completed: 140 rows across 59 included tables match one cloud
+  snapshot by count and SHA-256 row fingerprint. Includes hosted CMS accounts and
+  password verifiers, versions, relationships, preferences, and search. Runtime
+  sessions/locks/jobs/cache and local migration history remain environment-specific.
+- Independent transfer review caught excluded sequence counters in the native dump.
+  Restored five from the local backup; verified all 39 sequence states separately.
+  Table import used a locked empty-target guard and transaction; a deliberately
+  failed write probe rolled back. Sequence rollback requires explicit recovery.
+- All 32 referenced media files exist and match recorded sizes; private local hashes
+  saved. No cloud file-checksum comparison or real-password login was possible.
+- Post-copy `npm run build` passed against the populated development database. The
+  test database and owner's generated types remain unchanged. No new product code.
+- Production HTTP smoke on loopback port 3002: seven published routes/indexes
+  returned 200; all 32 media responses matched local SHA-256 hashes. This checks
+  delivery, not visual layout or actual password login.
+- Retry guard exercised against the populated target: import rejected before
+  export/import. Final fingerprints reconfirmed all 66 development/test tables;
+  both Supabase databases remain healthy on their separate ports.
 
 ## Verification on 19 October 2026
 
 - Read-only cloud metadata recheck: exact match with generated local schema and
   original cloud snapshot: 66 tables, 566 columns, 163 constraints, 310 indexes,
   and 69 enum values. Cloud counts remain 4 pages, 3 posts, 4 media, 2 users,
-  and 6 categories. Records were not copied locally.
+  and 6 categories. At that inspection, records had not yet been copied locally;
+  the later copy and verification are recorded in the current state above.
 - `npm test`: 10 integration tests and 4 Chromium browser tests passed. Guard
   regression observed RED (8 failures) before implementation, then GREEN.
   Rechecked before committing the pending setup: the same 10 + 4 tests passed.
@@ -71,8 +93,9 @@ role authorization, domain collections, and public UI remain subsequent slices.
 
 ## Next action
 
-Prepare and review the one-time hosted baseline-adoption procedure against the
-fresh matching schema, including recovery evidence and a guarded migration-history
-change. Do not execute baseline table-creation SQL on the hosted database.
+Resume the written domain/publication spec review in `.worktrees/domain-publication`
+before writing its implementation plan. Before any later cloud migration release,
+review the one-time baseline-history adoption and recovery procedure; never execute
+baseline table-creation SQL on the existing hosted database.
 
 Setup commands and limits: [local development](../docs/local-development.md).

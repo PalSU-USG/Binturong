@@ -198,10 +198,14 @@ serialization trades write throughput for a simple, consistent revocation/revisi
 
 **Files:** create `tests/e2e/access.e2e.spec.ts`; update existing admin/frontend e2e tests
 only where role-aware fixtures require it; update `plans/product-alignment.md` and local setup guidance.
+Also add `playwright.production.config.ts` and `tests/production/public-cache.e2e.spec.ts`
+for actual production-cache behavior. Run browser fixtures serially and exclude generated
+Playwright output from ESLint. Retain Next dev's verified generated AGENTS instruction.
+Reconcile the stale metadata-only setup text with the already verified data-copy record.
 
-- [ ] Add browser regressions: editor saves a draft without changing public content; publisher publishes; admin cannot manage a super-admin; disabling an account invalidates its existing session. Assert server outcomes as well as UI visibility.
-- [ ] Run `npm test`, `npm exec -- tsc --noEmit --incremental false`, `npm run lint`, and `npm run build`. Record inherited failures separately; new failures in changed code block completion. Recheck migrations on fresh and populated synthetic databases, repeat-run behavior, and preserved IDs/credentials. Do not run a down migration over valuable role data; recover using a reviewed backup/forward correction.
-- [ ] Exercise actual anonymous and all four authenticated roles against REST, GraphQL, preview, search/reindex, jobs, and user-scoped Local API. Check keyboard/focus in affected admin flows; inspect desktop/mobile behavior where controls changed. Report unavailable browser tooling explicitly.
+- [x] Add browser regressions: editor saves a draft without changing public content; publisher publishes; admin cannot manage a super-admin; disabling an account invalidates its existing session. Assert server outcomes as well as UI visibility.
+- [x] Run `npm test`, `npm exec -- tsc --noEmit --incremental false`, `npm run lint`, and `npm run build`. Record inherited failures separately; new failures in changed code block completion. Recheck migrations on fresh and populated synthetic databases, repeat-run behavior, and preserved IDs/credentials. Do not run a down migration over valuable role data; recover using a reviewed backup/forward correction.
+- [x] Exercise actual anonymous and all four authenticated roles against REST, GraphQL, preview, search/reindex, jobs, and user-scoped Local API. Check keyboard/focus in affected admin flows; inspect desktop/mobile behavior where controls changed. Report unavailable browser tooling explicitly.
       Exercise warmed public caches during withdrawal, including a public request
       while the withdrawal transaction remains open: native hooks invalidate before
       commit. Invalidation-call assertions alone do not prove browser cache isolation.

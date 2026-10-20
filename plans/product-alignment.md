@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | In progress: Task 5                    | Accounts, editorial and public-query tasks accepted; operational access underway |
+| 2: execution              | In progress: Task 6                    | Accounts, editorial and public-query tasks accepted; operational access underway |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,50 +17,50 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [six-task plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-  Slice 1a is accounts/access; domain records, storage and public UI follow later.
-- Independently accepted: Task 1 `f7e9dbf` (review `1683fd5`), Task 2 `b36830b`
-  (review `3adc97d`), Task 3 `e932995` (review `035daa9`), Task 4 `5f66d37`
-  plus native-transaction recovery `2df8a48` (review `39377c3`).
-- Task 5 base `39377c3`; branch `Hawksprey420/access-operations` at
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-operations`.
-  Implementation `f387f6b` independently reviewed; its one P2 receipt defect is now corrected.
-  Correction regression observed native false-success RED before applying the source fix.
-- Seed denies all roles before loading destructive code; dashboard seed action removed.
-  Preview entry and both detail queries require current active staff authentication.
-  A cookie alone cannot read private drafts, including metadata.
-- Queue/cancel/run gates require current publisher authority; a valid cron runner
-  still needs each job's saved authorizer and exact revision. Legacy, revoked,
-  disabled, malformed and stale jobs fail closed. Native queue/UI/slug retained.
-- Native autosave can mutate one version ID: proof adds a content hash. Publication
-  and an applied-revision receipt share a pinned transaction. A completion retry
-  recognizes committed work without another version. Swallowed native search failure
-  cannot stamp a receipt after transaction loss. Per-job request state is fresh.
-- Native editorial writes, scheduling and execution share the existing account lock.
-  This conservative serialization also protects autosave/bulk and role-change races;
-  write throughput is limited until measured demand justifies finer lock ordering.
-- Receipt correction rejects any partial/invalid applied-revision receipt before
-  replay recognition. Native runner regression includes seven malformed receipt cases.
-- `npm run test:int`: **88/88 pass**, including operational17 and editorial17.
-  Types and changed-code ESLint pass with **0 errors/warnings**. Production build
-  and sitemap pass. Revision, hash-only and post-publication transaction guard
-  bypass mutations fail their focused regressions; original bytes restored.
-  Real hook rollback/retry, completion-loss replay and observed role-lock contention pass.
-- Task 6 still owns browser/keyboard/responsive checks and the warmed-cache withdrawal
-  race with an open transaction. Invalidation-call assertions do not prove that race.
-  The in-app browser reports unavailable; discovery is empty. No substitute manual
-  browser used. Repository browser automation remains a separate required check.
-- Task 5 changes task input types only: existing job JSON needs no SQL migration.
-  No dependency/lockfile change or new content schema. Full lint retains5 inherited
-  errors/8 warnings. Detailed private evidence is under ignored
-  `.superpowers/sdd/2026-10-20-access-foundations/`.
-- Main owner generated-types SHA256 remains
+  Slice1a is accounts/access; formal records, storage and institutional UI follow later.
+- Tasks1–4 independently accepted. Task5 `f387f6b`, review correction `5f30dab`:
+  malformed receipt native regression RED→GREEN; full88/types/changed lint/build pass.
+  Reviewer found no other confirmed defect and completed synthetic probe cleanup.
+- Task6 branch `Hawksprey420/access-verification`, base `5f30dab`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-verification`.
+  Verification passes; independent whole-slice review is pending.
+- `npm test`: **88 integration tests and7 Chromium tests pass**. Browser tests cover
+  native editor autosave preserving public content, publisher publication, admin vs
+  super-admin, and revocation of an existing browser session. Keyboard focus/Tab and
+  390px overflow checks pass. Desktop/mobile captures were inspected. They retain
+  the inherited template branding/hero; institutional visual approval is not claimed.
+- Production check: `npm run test:e2e -- --config=playwright.production.config.ts`
+  passes **1/1** after a real HTTP publication. It warms list/sitemap, observes a
+  deferred-COMMIT lock after cache hooks, refills public output while withdrawal is
+  uncommitted, then verifies API404 and no withdrawn list/sitemap/detail content.
+  Bypassing withdrawal invalidation makes that regression fail after commit; original
+  bytes restored and final production run passes. No cache architecture rewrite.
+- Types and changed-file ESLint pass with **0 errors/warnings**. Full lint actually
+  reports5 existing errors/10 warnings in unchanged Header/Card/Theme, migrations
+  and the old frontend smoke test. Earlier8-warning notes were incomplete. Generated
+  Playwright outputs are now ignored by lint to prevent cleanup/scanning races.
+  Production check runs a successful fresh build and sitemap generation.
+- All5 Payload migrations pass on fresh and populated-baseline disposable databases;
+  repeats preserve migration history. Upgrade preserves IDs/salt/password verifiers,
+  applies editor/active/revision0 defaults, and passes real password login.
+  Evidence: ignored `task6-migrations.log`; databases
+  `binturong_verify_fresh_1792488232635`, `binturong_verify_upgrade_1792488238150`.
+  No down migration, main-data reset or cloud write was performed.
+- Documentation drift reconciled from the main checkout's verified setup record:
+  the earlier data/password-verifier/media snapshot was already copied. This work
+  did not repeat it. New account schema remains local; cloud parity is not claimed.
+  Next dev's generated AGENTS warning was checked against its installed generator.
+- Main owner generated-types SHA256 is unchanged:
   `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
-  No real account promoted, merge, push, cloud write or deployment. Task, planning
-  and integration worktrees remain separate. Task 5 changed paths are its source,
-  tests/generated types, app guidance, plan and this checkpoint.
-- Next action: finish correction build/checks, commit the review fix, then create
-  Task 6's verification worktree. Independent review found no other confirmed defect;
-  its focused34 tests/types/changed lint passed. Corrected probe cleanup completed.
+  Task generated types show no semantic diff and are not staged. Private env/logs,
+  media and screenshots remain ignored. No real account promoted, merge, push or
+  deployment. Planning/task/integration checkouts remain separate.
+- Limitations: in-app browser was unavailable; screenshots and repository Chromium
+  tests do not replace that manual inspection. Full accessibility, Figma/brand
+  alignment, cloud grants/baseline adoption and official-file privacy remain later
+  work. Scoped access verification does not establish institutional-release readiness.
+- Next action: commit the verified Task6 unit and request independent specification,
+  evidence and compatibility review across the entire account/access slice.
 
 ## Sources and reconnaissance snapshot
 
