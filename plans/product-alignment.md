@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved  | Resolve domain contracts and write coherent implementation slices              |
-| 2: execution              | Paused by owner during Task 2          | Account/access slice 1a; later tasks and product slices pending                |
+| 2: execution              | In progress: Task 4          | Account/access slice 1a; later tasks and product slices pending                |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,38 +15,27 @@ changed. The checkpoint below records later work.
 
 ## Current checkpoint
 
-- Spec and six-task account/access plan are approved. Current execution is slice
-  1a; domain records, durable storage, and visual/public surfaces follow afterward.
-- Mandatory [task-isolation workflow](../docs/engineering-workflow.md#task-isolation-and-integration)
-  now applies to implementation: task worktrees, independent review, scoped verified
-  commits, and a separate integration checkout. Adapted from inspected Bintanong.
-- Planning anchor: `feat/domain-publication`, `.worktrees/domain-publication`,
-  commit `a7700b4`. The approved plan lives in its `docs/superpowers/plans/` folder.
-- Task 1 independently approved at `f7e9dbf`; recorded at `1683fd5` on
-  `Hawksprey420/access-role-schema`. No review blockers.
-- Owner requested stopping for usage. Resume Task 2 in
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-accounts`, branch
-  `Hawksprey420/access-accounts`, checkpoint commit `d4583ef` (task base `1683fd5`).
+- Execution resumed at the owner's request. Slice1a accounts/access continues;
+  formal domain records, storage and public design surfaces remain later slices.
+- Task1 roles/schema accepted at `f7e9dbf` (review `1683fd5`); Task2 accounts/auth
+  accepted at `b36830b` (review/smoke `3adc97d`); Task3 editorial permissions
+  accepted at `e932995` (review checkpoint `035daa9`). No real account promoted.
+- Active Task4: `Hawksprey420/access-public-queries`, base `035daa9`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-public-queries`.
   Its `plans/product-alignment.md` is the authoritative current task checkpoint.
-- Task 2 implementation is uncommitted and not accepted. Focused account/schema
-  tests passed 8/8, atomic tests 5/5, native-auth tests 5/5. Bootstrap test is RED
-  because its service/CLI do not exist yet; full current suite/types are unverified.
-  Only the disposable test DB received the new authority-guard trigger migration.
-- Task 1 checks: 14 integration tests and type check pass; changed-code lint has
-  0 errors/4 generated-migration warnings. Local fresh/upgrade/repeat migrations
-  preserve original IDs/credential fingerprints. Tests use `binturong_test` only.
-- Preflight at `6d6368c`: 10 integration + 4 Chromium tests, types, production build
-  pass. Full lint retains 5 inherited errors/8 warnings. Browser/build checks were
-  not rerun after Task 1; whole-slice proof remains Task 6.
-- Integration checkout: `Hawksprey420/access-integration`,
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/access-integration`. No task merged.
-  No push, cloud write, or deployment performed. Runtime changes remain isolated.
-- Main implementation remains unchanged; workflow adoption is `975be18`. Owner
-  `binturong-open-usg/src/payload-types.ts` remains uncommitted and byte-identical
-  to the original private backup. It is excluded from this commit.
-- Verified CMS mirror and private credential/media-copy evidence remain in the
-  [setup checkpoint](local-supabase-setup.md). No setup/data copy was repeated.
-
+  Public query/search guards are under final verification; task acceptance pending.
+- Follow that checkpoint's exact next action. Tasks5–6 still own operational
+  authorization and whole-slice browser/cache verification. Do not repeat completed
+  setup, migrations or the CMS data mirror merely to resume this task.
+- Mandatory workflow: separate task branches/worktrees, scoped verified commits,
+  independent task review and a separate `access-integration` checkout. Runtime
+  changes remain outside `dev`; no merge, push, cloud write or deployment performed.
+- This checkout contains coordinator documentation only. Owner generated types
+  remain uncommitted and unchanged, SHA256
+  `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`.
+  Test writes use disposable `binturong_test`, never the local CMS snapshot.
+- [Setup checkpoint](local-supabase-setup.md) retains private credential/media-copy
+  evidence and platform differences; no data copy was repeated during this work.
 ## Sources and reconnaissance snapshot
 
 Primary context: [workspace instructions](../AGENTS.md), [app instructions](../binturong-open-usg/AGENTS.md),
@@ -256,6 +245,4 @@ MCP, PNPKI, Bintanong, SSO, and a custom helpdesk remain later integrations.
 
 ## Next action
 
-Resume the `access-accounts` checkpoint: implement local-only super-admin bootstrap
-against its existing RED test, finish Task 2 verification, commit and obtain independent
-review. Preserve all dirty task files. Do not repeat setup or start Task 3 yet.
+Continue from the active task checkpoint named above.
