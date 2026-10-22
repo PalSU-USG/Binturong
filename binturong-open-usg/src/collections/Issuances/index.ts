@@ -3,6 +3,7 @@ import { authenticated } from '@/access/authenticated'
 import { deleteDraftContent, readPublishedOrStaff } from '@/access/contentAccess'
 import { domainSlug } from '@/fields/domainSlug'
 import { protectDomainWrites } from '../shared/protectDomainWrites'
+import { validateNumber, validateNumberInput } from './validateNumber'
 import {
   protectDomainReferences,
   validateDomainReferences,
@@ -19,6 +20,7 @@ const hasDocumentNumber = (data: unknown) =>
 
 export const Issuances: CollectionConfig = {
   slug: 'issuances',
+  indexes: [{ fields: ['organization', 'type', 'seriesYear', 'normalizedNumber'], unique: true }],
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'type', 'documentNumber', 'seriesYear', '_status'],
@@ -64,6 +66,7 @@ export const Issuances: CollectionConfig = {
         (typeof value === 'number' && Number.isInteger(value) && value > 0) ||
         'Enter the source series year as a positive integer.',
     },
+    { name: 'normalizedNumber', type: 'text', admin: { readOnly: true } },
     { name: 'issuedDate', type: 'date', admin: { date: { pickerAppearance: 'dayOnly' } } },
     { name: 'effectiveDate', type: 'date', admin: { date: { pickerAppearance: 'dayOnly' } } },
     { name: 'academicYear', type: 'relationship', relationTo: 'academic-years', index: true },
@@ -85,8 +88,8 @@ export const Issuances: CollectionConfig = {
     domainSlug('title'),
   ],
   hooks: {
-    beforeOperation: [protectDomainWrites, protectDomainReferences],
-    beforeChange: [validateDomainReferences],
+    beforeOperation: [protectDomainWrites, protectDomainReferences, validateNumberInput],
+    beforeChange: [validateDomainReferences, validateNumber],
   },
   versions: { drafts: { autosave: false, schedulePublish: false }, maxPerDoc: 0 },
 }

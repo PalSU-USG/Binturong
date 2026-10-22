@@ -938,6 +938,7 @@ export interface Issuance {
   type: 'executive_order' | 'memorandum' | 'act' | 'resolution' | 'advisory';
   documentNumber?: string | null;
   seriesYear?: number | null;
+  normalizedNumber?: string | null;
   issuedDate?: string | null;
   effectiveDate?: string | null;
   academicYear?: (number | null) | AcademicYear;
@@ -1769,6 +1770,7 @@ export interface IssuancesSelect<T extends boolean = true> {
   type?: T;
   documentNumber?: T;
   seriesYear?: T;
+  normalizedNumber?: T;
   issuedDate?: T;
   effectiveDate?: T;
   academicYear?: T;

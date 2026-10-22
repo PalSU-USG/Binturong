@@ -1,30 +1,14 @@
-import { slugField, ValidationError, type FieldHook, type RowField, type Where } from 'payload'
+import { slugField, ValidationError, type FieldHook, type RowField } from 'payload'
+import { hasDomainKey } from '@/collections/shared/hasDomainKey'
 
 const uniqueDomainSlug: FieldHook = async ({ collection, originalDoc, req, value }) => {
   if (!collection || typeof value !== 'string' || !value) return value
-  const where: Where = { slug: { equals: value } }
-  if (originalDoc?.id !== undefined) where.id = { not_equals: originalDoc.id }
-
-  for (const draft of [false, true]) {
-    const existing = await req.payload.find({
+  if (await hasDomainKey(req, collection.slug, { slug: { equals: value } }, originalDoc?.id))
+    throw new ValidationError({
       collection: collection.slug,
-      draft,
-      where,
-      depth: 0,
-      limit: 1,
       req,
-      overrideAccess: false,
-      select: { slug: true },
+      errors: [{ path: 'slug', message: 'This slug is already used by another record or draft.' }],
     })
-    if (existing.docs.length)
-      throw new ValidationError({
-        collection: collection.slug,
-        req,
-        errors: [
-          { path: 'slug', message: 'This slug is already used by another record or draft.' },
-        ],
-      })
-  }
   return value
 }
 

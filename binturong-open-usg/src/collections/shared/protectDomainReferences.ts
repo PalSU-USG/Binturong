@@ -116,6 +116,34 @@ async function hasReferences(
   return false
 }
 
+// Task5 calls this under its transition transaction/account lock before withdrawal.
+export async function validateDomainWithdrawal(
+  req: PayloadRequest,
+  target: 'organizations' | 'offices',
+  id: number,
+): Promise<void> {
+  for (const collection of ['issuances', 'reports'] as const) {
+    const field =
+      target === 'organizations'
+        ? 'organization'
+        : collection === 'issuances'
+          ? 'issuingOffice'
+          : 'responsibleOffices'
+    const result = await req.payload.find({
+      collection,
+      req,
+      overrideAccess: true,
+      draft: false,
+      depth: 0,
+      limit: 1,
+      select: { createdAt: true },
+      where: { and: [{ _status: { equals: 'published' } }, { [field]: { equals: id } }] },
+    })
+    if (result.docs.length)
+      throw new APIError('Published official records require this organization or office', 409)
+  }
+}
+
 async function snapshots(req: PayloadRequest, collection: DomainCollection, id: number) {
   const canonical = await req.payload.findByID({
     collection,
