@@ -173,21 +173,12 @@ export const validateDomainReferences: CollectionBeforeChangeHook = async ({
     const organization = referenceID(data.organization)
     if (data.branch != null && !['executive', 'legislative', 'judicial'].includes(data.branch))
       invalid(req, slug, 'branch', 'Choose a supported branch, or leave it unset.')
-    if (originalDoc?.id) {
-      const current = await req.payload.findByID({
-        collection: 'offices',
-        id: originalDoc.id,
-        req,
-        overrideAccess: false,
-        depth: 0,
-      })
-      if (
-        (referenceID(current.organization) !== organization ||
-          referenceID(originalDoc.organization) !== organization) &&
-        (await hasReferences(req, 'offices', originalDoc.id))
-      )
-        throw new APIError('Retained references prevent changing this office’s organization', 409)
-    }
+    if (
+      originalDoc?.id &&
+      referenceID(originalDoc.organization) !== organization &&
+      (await hasReferences(req, 'offices', originalDoc.id))
+    )
+      throw new APIError('Retained references prevent changing this office’s organization', 409)
     const pending = [referenceID(data.parent)].filter((id): id is number => id !== undefined)
     const visited = new Set<number>()
     while (pending.length) {

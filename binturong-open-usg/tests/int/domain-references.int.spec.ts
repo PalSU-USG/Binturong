@@ -236,6 +236,26 @@ describe('domain directory references', () => {
     })
   })
 
+  it('keeps_referenced_office_drafts_editable_when_organization_is_unchanged', async () => {
+    const original = await organization()
+    const next = await organization()
+    const sourceOffice = await office({ organization: original.id })
+    await updateOffice(sourceOffice.id, { organization: next.id })
+    await person({ terms: [{ office: sourceOffice.id }] })
+    const updated = await updateOffice(sourceOffice.id, { name: 'Synthetic corrected office name' })
+    expect(updated.name).toBe('Synthetic corrected office name')
+    expect(
+      typeof updated.organization === 'object' ? updated.organization?.id : updated.organization,
+    ).toBe(next.id)
+    expect(
+      (await payload.findByID({ collection: 'offices', id: sourceOffice.id, depth: 0 }))
+        .organization,
+    ).toBe(original.id)
+    await expect(
+      updateOffice(sourceOffice.id, { organization: original.id }),
+    ).rejects.toMatchObject({ status: 409 })
+  })
+
   it('rejects_a_cycle_inside_a_caller_transaction_without_committing_it', async () => {
     const org = await organization()
     const root = await office({ organization: org.id })

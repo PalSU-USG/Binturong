@@ -26,9 +26,9 @@ changed. The current checkpoint below records subsequent approved execution.
   acyclic office parents, supplied dates, reference existence and retained-history
   deletion/organization guards. Current and latest snapshots are checked under the
   existing authority lock. No tenant accounts, calendar or successful publication.
-- Native RED14/14 observed; focused19/19 and final full125/125 (13 files) pass.
+- Native RED14/14 observed; repaired focused20/20 and full126/126 (13 files) pass.
   Types and changed-file lint pass; five guard bypasses fail their focused assertions,
-  with original source restored before final125. Independent review pending.
+  with original source restored before final126. Independent re-review pending.
   A redundant raw-reference check was removed after its bypass stayed green; the
   candidate validator is the enforcing boundary. Test adapter-session typing corrected.
 - Seven migrations pass fresh/upgrade/repeat/grants/empty-new-table down-up.
@@ -43,8 +43,24 @@ changed. The current checkpoint below records subsequent approved execution.
 - No main-data/cloud/branch-data migrations, integration or push. Main `dev` remains
   `9141209`; owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` preserved.
   Build/browser/full lint remain Task6 gates; prior full lint5 errors/10 warnings.
-- Next action: finish Task2 checks, commit the verified unit, obtain independent
-  review and fix blockers before starting Task3 from accepted Task2.
+- Task2 review requested changes on `b6c226144b96856f604efbaba7566f42fcefb3c2`.
+  Reviewer independently passed125 tests, types/lint and migration proof, but
+  reproduced a blocker: orgA canonical -> unreferenced orgB draft -> Person term
+  made a later name-only draft save fail409. The new native regression reproduced
+  this RED, then passed after the narrow fix. Real organization changes still fail409.
+- Repair scope: shared office guard and one native regression; no migration change.
+  Compare ordinary draft changes with the latest candidate, leaving canonical
+  organization checks explicit at Task5 publication. This is a correction to the
+  approved edit contract, not permission to publish or migrate retained references.
+- Repair checks: `npm run test:int -- tests/int/domain-references.int.spec.ts`
+  (observe the new name-only regression RED, then GREEN), `npm run test:int`,
+  `npm exec -- tsc --noEmit --incremental false`, and explicit changed-file ESLint
+  for the shared hook and regression. Re-run relevant guard probes after restoration.
+- Repair final checks pass:126 integration tests, types, changed lint and all five
+  guard probes. No new migration/artifact changes. Logs: `task2-review-fix-*` and
+  `task2-repaired-*` in the ignored ledger. Task2 remains unaccepted pending review.
+- Next action: commit the verified repair, request re-review of the exact head,
+  then create Task3 only after acceptance.
 
 ## Sources and reconnaissance snapshot
 
