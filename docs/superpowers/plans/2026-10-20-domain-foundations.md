@@ -105,7 +105,7 @@ await expect(payload.update({ collection: 'offices', id: office.id, draft: true,
 
 **Interfaces:** `requireOfficialFiles(req: PayloadRequest, candidate: { mainDocument?: unknown; attachments?: unknown }): Promise<never>` currently throws a field-specific unavailable-storage error; the storage slice replaces its implementation with actual verification. Document read access is active staff only. A before-operation guard denies **all** Document mutations through REST/GraphQL/Local API, including privileged overrides. No upload or download endpoint exists. `mainDocument`/attachments reference Documents, never Media.
 
-- [ ] RED: editor can save incomplete Issuance/Report drafts; every role including super-admin cannot write Documents or publish an official record; client-written file state/key/checksum cannot enable publication; visitor cannot discover document keys or draft-related titles. Preserve Posts/Media behavior.
+- [x] RED: editor can save incomplete Issuance/Report drafts; every role including super-admin cannot write Documents or publish an official record; client-written file state/key/checksum cannot enable publication; visitor cannot discover document keys or draft-related titles. Preserve Posts/Media behavior.
 
 ```ts
 await expect(payload.create({ collection: 'documents', data: {
@@ -113,8 +113,10 @@ await expect(payload.create({ collection: 'documents', data: {
   overrideAccess: true })).rejects.toMatchObject({ status: 403 })
 ```
 
-- [ ] Implement configs, `maxPerDoc: 0` and manual record drafts. Add field-specific candidate checks for required title/slug/organization/type, report period, issuance number/year, dates and same-organization offices. Report validation errors before the final storage gate; a complete official candidate still cannot publish here. Preserve optional source facts.
-- [ ] Generate/review migration; run native REST/GraphQL/Local denied cases and full checks. Commit `feat(records): add formal record drafts and sealed documents`; independent review. This task does not certify PDF validity, file privacy after publication or successful official publication.
+- [x] Implement configs, `maxPerDoc: 0` and manual record drafts. Add field-specific candidate checks for required title/slug/organization/type, report period, issuance number/year, dates and same-organization offices. Report validation errors before the final storage gate; a complete official candidate still cannot publish here. Preserve optional source facts.
+- [x] Generate/review migration; run native REST/GraphQL/Local denied cases and full checks. Commit `feat(records): add formal record drafts and sealed documents`; independent review. This task does not certify PDF validity, file privacy after publication or successful official publication.
+
+**Acceptance:** Runtime `582ac3a`, independently accepted by `/root/review_domain_records` on22 October2026:57 native tests, types, changed lint and generated snapshot comparison pass; no blocker. Implementer145 tests, six guard probes and eight-migration preservation proofs remain separately recorded in the task checkpoint.
 
 ## Task 4: Number integrity and reference retention
 
