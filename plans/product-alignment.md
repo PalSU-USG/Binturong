@@ -15,46 +15,29 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Owner authorized merging phase01 to `dev`, then continuing phase02 in a new
-  worktree. Phase01 here means completed Slice1a accounts/access; phase02 means
-  the next Slice1b domain/schema plan within overall Phase2 execution.
-- Phase01 merged to `dev` at `00f3b1f4196ddcfceb402b0896714755df01af32`.
-  Phase02 branch `Hawksprey420/phase02-domain-schema` starts at that exact commit,
-  in `C:/Users/Hawksprey/orca/workspaces/Binturong/phase02-domain-schema`.
-  This is the active checkpoint. No domain/schema implementation has begun.
-- All six accounts/access tasks are complete. Reviewed runtime `261c611`, closure
-  `95fdfad`; independent whole-slice review accepted `a7700b4..261c611`.
-  Sources: [approved spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
-  and [completed plan](../docs/superpowers/plans/2026-10-20-access-foundations.md).
-- Integration combines `95fdfad` and `dev` head `6597122` in the separate
-  `Hawksprey420/access-integration` worktree. Only documentation conflicted;
-  the application tree exactly matches the accepted implementation. Independent
-  reviewer `/root/review_access_slice` accepted the conflict resolution.
-- Combined-tree checks pass: `npm test` (88 integration +7 Chromium),
-  `npm exec -- tsc --noEmit --incremental false`, and
-  `npm run test:e2e -- --config=playwright.production.config.ts` (1 production-cache
-  regression after a fresh production build/sitemap). Logs remain ignored under
-  `.superpowers/sdd/phase01-integration/` in the integration checkout.
-- Prior full lint remains5 errors/10 warnings; Task6-only lint0/0, whole-slice
-  lint0 errors/4 generated-migration warnings. Migration upgrade/repeat, password
-  preservation/login and cache mutation evidence remain accepted; not rerun here.
-- Owner numeric-ID corrections are retained in the reviewed generated types.
-  Original bytes are backed up privately with SHA256
-  `28ECEDF9B66523C7002BAD0E325F72BCB24BF495B0C10962CEBB61890EF3B954`
-  and preserved in stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`.
-  Differences are limited to approved role fields and the native scheduler contract;
-  restoring the old complete file would remove those reviewed contracts.
-- Existing dependencies moved into phase02 without installation/upgrades; private
-  branch/test environments and32 existing media files copied with matching hashes.
-  No database snapshot was recopied. The application matches the verified merge;
-  baseline checks above apply to that exact source, without another redundant run.
-- Next action: write and review a short Slice1b domain/schema implementation plan
-  from the approved spec in this worktree. Official file operations wait for storage.
-  No push, main/cloud database
-  migration, real account promotion or deployment was performed.
-- In-app/Figma inspection, full accessibility, cloud grants/baseline adoption and
-  official-file privacy remain unverified or assigned to later slices. The existing
-  data mirror was not repeated; see [setup evidence](local-supabase-setup.md).
+- Phase01 accounts/access merged to dev at `00f3b1f`; phase02 is Slice1b domain/schema.
+  Planning branch `Hawksprey420/phase02-domain-schema`, base `00f3b1f`.
+- [Approved spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md);
+  [six-task domain plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md)
+  independently accepted by `/root/review_domain_plan` on22 October2026.
+  Review accepts planning only; no new schema behavior is implemented yet.
+- Plan corrections preserve native compatibility: restore through validated ordinary
+  update, retry receipts bind complete intent, scheduling validates displayed proof,
+  and server guards reject history-mutating flags. Published slug stability needs a
+  real server regression; native slugField is insufficient by itself.
+- Tasks1–6 pending. Next action: create Task1's own native worktree, write and observe
+  failing Organizations/AcademicYears draft/access/slug/grant tests, then implement.
+  Serial execution with independent task review and separate final integration.
+- Docker was stopped after the account switch; restarting existing Desktop service.
+  Tests target only guarded `binturong_test` on55322. No schema push, shared-data
+  migration, cloud writes, account promotions, merge or push authorized by this work.
+- Phase01 evidence remains scoped:88 integration+7 browser, types/build/cache pass;
+  prior full lint5 errors/10 warnings. No need to repeat setup or the data snapshot.
+  Existing dependencies/private environments/media are in this planning worktree.
+- Owner original generated types remain privately backed up and in stash
+  `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`; no unrelated main checkout changes.
+- Storage, official file publication/delivery, public record pages/search and visual
+  work remain later slices. In-app/Figma and full accessibility remain unverified.
 
 ## Sources and reconnaissance snapshot
 
