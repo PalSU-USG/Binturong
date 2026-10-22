@@ -59,6 +59,11 @@ Names below are persisted API contracts. Optional source facts remain absent. Us
 
 **Files:** create `src/collections/Organizations.ts`, `AcademicYears.ts`, `src/collections/shared/protectDomainWrites.ts`, `src/fields/domainSlug.ts`, `tests/int/domain-schema.int.spec.ts`. Include registration/types/migration as above.
 
+Observed Task1 compatibility fixes also touch `src/hooks/enforceEditorialWrites.ts`
+(resolve kebab-case slugs through the adapter's canonical table-name map) and
+`src/access/activeAccount.ts` (reject IDs outside the current PostgreSQL serial range
+before querying). Both failed through native execution before correction.
+
 **Interfaces:** export `Organizations`, `AcademicYears` (`CollectionConfig`), `protectDomainWrites: CollectionBeforeOperationHook` and `domainSlug(useAsSlug: 'name'|'label'|'title'): RowField`. Reuse `enforceEditorialWrites`, `readPublishedOrStaff`, `authenticated`, `deleteDraftContent`. The slug helper extends native `slugField` with a field hook that checks canonical and latest-draft slug collisions under the write's account lock; native version tables have no unique index. All new-domain writes reload active authority, including privileged Local API calls. Until Task5 supplies a server-held transition, allow individual drafts only, even for publishers; deny direct publication/withdrawal/restore, bulk mutations and submitted audit fields. Deny API `autosave`, `publishAllLocales` and `unpublishAllLocales` flags on these new collections: configuration alone does not prevent native history mutation.
 
 - [ ] Add real Local API + REST/GraphQL tests: all four active roles prepare/read drafts; visitor/disabled/unknown-role access is denied; incomplete drafts work; supplied participation defaults false; duplicate slugs, direct publication and bulk writes fail. Exercise actual restricted DB-role grants.

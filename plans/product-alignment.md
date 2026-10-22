@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase01 merged; phase02 planning       | Accounts/access integrated; domain/schema plan is next                         |
+| 2: execution              | Phase02 Task1 in progress              | Draft Organizations/AcademicYears; independent task reviews follow              |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,29 +15,40 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Phase01 accounts/access merged to dev at `00f3b1f`; phase02 is Slice1b domain/schema.
-  Planning branch `Hawksprey420/phase02-domain-schema`, base `00f3b1f`.
-- [Approved spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md);
-  [six-task domain plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md)
+- Phase02 means Slice1b domain/schema, following merged phase01 `00f3b1f`.
+  [Spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md) approved;
+  [six-task plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md)
   independently accepted by `/root/review_domain_plan` on22 October2026.
-  Review accepts planning only; no new schema behavior is implemented yet.
-- Plan corrections preserve native compatibility: restore through validated ordinary
-  update, retry receipts bind complete intent, scheduling validates displayed proof,
-  and server guards reject history-mutating flags. Published slug stability needs a
-  real server regression; native slugField is insufficient by itself.
-- Tasks1–6 pending. Next action: create Task1's own native worktree, write and observe
-  failing Organizations/AcademicYears draft/access/slug/grant tests, then implement.
-  Serial execution with independent task review and separate final integration.
-- Docker was stopped after the account switch; restarting existing Desktop service.
-  Tests target only guarded `binturong_test` on55322. No schema push, shared-data
-  migration, cloud writes, account promotions, merge or push authorized by this work.
-- Phase01 evidence remains scoped:88 integration+7 browser, types/build/cache pass;
-  prior full lint5 errors/10 warnings. No need to repeat setup or the data snapshot.
-  Existing dependencies/private environments/media are in this planning worktree.
-- Owner original generated types remain privately backed up and in stash
-  `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`; no unrelated main checkout changes.
-- Storage, official file publication/delivery, public record pages/search and visual
-  work remain later slices. In-app/Figma and full accessibility remain unverified.
+- Task1 branch `Hawksprey420/domain-metadata`, base `0a2853a`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-metadata`.
+  Organizations/AcademicYears draft schemas, fresh authority, native slug extension,
+  additive migration/grants and18 new native boundary cases are implemented.
+  Tasks2–6 pending; publication remains deliberately disabled for these collections.
+- Final full integration:106/106 pass (88 existing +18 Task1), types pass,
+  explicit changed-file ESLint0 errors/0 warnings, staged-diff checks pass.
+  Four focused bypasses make regressions fail (draft-only, Local authority, latest
+  slug, audit rejection); source bytes restored before final full106 run.
+- Six migrations, repeat no-op and restricted role grants pass on fresh and
+  populated predecessor databases. Existing posts/categories/relationships/versions,
+  user IDs/password verifiers are unchanged; real password login passes.
+  Newest migration down/up tested only on empty disposable new-schema tables.
+  Final proof databases: `binturong_domain_verify_fresh_1792651414892`,
+  `binturong_domain_verify_upgrade_1792651432179`. Evidence remains ignored under
+  `.superpowers/sdd/2026-10-20-domain-foundations/` in this checkout.
+- Native RED-to-GREEN fixes include adapter table-name resolution for AcademicYear
+  deletion, serial-ID range checks before account lookup, privileged draft deletion,
+  unsupported statuses, and generated down SQL after cascading foreign-key removal.
+  The predecessor fixture uses the low-level adapter before migration because
+  current runtime hooks correctly require the new schema; this is not a rollout test.
+- Earlier failed-run synthetic fixtures were inventoried and removed with an exact
+  timestamp/count/prefix check. Existing Docker stacks healthy55322/54322; no reset,
+  main-data/cloud migration, real promotion, integration or push. Owner stash
+  `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains preserved.
+- Browser/build and full lint not repeated for Task1; whole-slice checks are Task6.
+  Prior full lint5 errors/10 warnings remain separate. Official files/storage,
+  public records/search and institutional UI remain later tasks/slices.
+- Next action: commit this verified Task1 unit, request independent task review,
+  fix blockers, then create Task2 from its accepted commit in a new task worktree.
 
 ## Sources and reconnaissance snapshot
 

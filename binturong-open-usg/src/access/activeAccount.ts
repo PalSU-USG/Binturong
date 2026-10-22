@@ -7,7 +7,15 @@ export async function getActiveAccount(
   req: PayloadRequest,
 ): Promise<Pick<User, 'id' | 'role' | 'disabled'> | null> {
   const id = req.user?.id
-  if (req.user?.collection !== 'users' || !Number.isSafeInteger(id) || !id || id < 1) return null
+  // Users use PostgreSQL serial IDs; larger JS-safe integers fail its database cast.
+  if (
+    req.user?.collection !== 'users' ||
+    !Number.isSafeInteger(id) ||
+    !id ||
+    id < 1 ||
+    id > 2_147_483_647
+  )
+    return null
 
   const { docs } = await req.payload.find({
     collection: 'users',
