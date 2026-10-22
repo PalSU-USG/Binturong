@@ -77,6 +77,9 @@ export interface Config {
     offices: Office;
     people: Person;
     activities: Activity;
+    documents: Document;
+    issuances: Issuance;
+    reports: Report;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -104,6 +107,9 @@ export interface Config {
     offices: OfficesSelect<false> | OfficesSelect<true>;
     people: PeopleSelect<false> | PeopleSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    issuances: IssuancesSelect<false> | IssuancesSelect<true>;
+    reports: ReportsSelect<false> | ReportsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -904,6 +910,146 @@ export interface Activity {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  organization: number | Organization;
+  title: string;
+  state: 'pending' | 'ready' | 'failed';
+  storageKey?: string | null;
+  originalFilename?: string | null;
+  mimeType?: string | null;
+  size?: number | null;
+  sha256?: string | null;
+  previousVersion?: (number | null) | Document;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "issuances".
+ */
+export interface Issuance {
+  id: number;
+  title: string;
+  organization: number | Organization;
+  issuingOffice?: (number | null) | Office;
+  type: 'executive_order' | 'memorandum' | 'act' | 'resolution' | 'advisory';
+  documentNumber?: string | null;
+  seriesYear?: number | null;
+  issuedDate?: string | null;
+  effectiveDate?: string | null;
+  academicYear?: (number | null) | AcademicYear;
+  summary?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  mainDocument: number | Document;
+  attachments?: (number | Document)[] | null;
+  relatedRecords?:
+    | (
+        | {
+            relationTo: 'issuances';
+            value: number | Issuance;
+          }
+        | {
+            relationTo: 'reports';
+            value: number | Report;
+          }
+        | {
+            relationTo: 'posts';
+            value: number | Post;
+          }
+        | {
+            relationTo: 'activities';
+            value: number | Activity;
+          }
+      )[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reports".
+ */
+export interface Report {
+  id: number;
+  title: string;
+  organization: number | Organization;
+  responsibleOffices?: (number | Office)[] | null;
+  type: 'financial' | 'accomplishment';
+  reportingPeriod: string;
+  periodStartDate?: string | null;
+  periodEndDate?: string | null;
+  academicYear?: (number | null) | AcademicYear;
+  abstract?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  sourceVersionLabel?: string | null;
+  mainDocument: number | Document;
+  attachments?: (number | Document)[] | null;
+  relatedRecords?:
+    | (
+        | {
+            relationTo: 'issuances';
+            value: number | Issuance;
+          }
+        | {
+            relationTo: 'reports';
+            value: number | Report;
+          }
+        | {
+            relationTo: 'posts';
+            value: number | Post;
+          }
+        | {
+            relationTo: 'activities';
+            value: number | Activity;
+          }
+      )[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1131,6 +1277,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'activities';
         value: number | Activity;
+      } | null)
+    | ({
+        relationTo: 'documents';
+        value: number | Document;
+      } | null)
+    | ({
+        relationTo: 'issuances';
+        value: number | Issuance;
+      } | null)
+    | ({
+        relationTo: 'reports';
+        value: number | Report;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1577,6 +1735,71 @@ export interface ActivitiesSelect<T extends boolean = true> {
   time?: T;
   location?: T;
   description?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  organization?: T;
+  title?: T;
+  state?: T;
+  storageKey?: T;
+  originalFilename?: T;
+  mimeType?: T;
+  size?: T;
+  sha256?: T;
+  previousVersion?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "issuances_select".
+ */
+export interface IssuancesSelect<T extends boolean = true> {
+  title?: T;
+  organization?: T;
+  issuingOffice?: T;
+  type?: T;
+  documentNumber?: T;
+  seriesYear?: T;
+  issuedDate?: T;
+  effectiveDate?: T;
+  academicYear?: T;
+  summary?: T;
+  mainDocument?: T;
+  attachments?: T;
+  relatedRecords?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reports_select".
+ */
+export interface ReportsSelect<T extends boolean = true> {
+  title?: T;
+  organization?: T;
+  responsibleOffices?: T;
+  type?: T;
+  reportingPeriod?: T;
+  periodStartDate?: T;
+  periodEndDate?: T;
+  academicYear?: T;
+  abstract?: T;
+  sourceVersionLabel?: T;
+  mainDocument?: T;
+  attachments?: T;
+  relatedRecords?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;

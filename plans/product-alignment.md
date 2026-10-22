@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task3 inspection              | Draft Organizations/AcademicYears; independent task reviews follow              |
+| 2: execution              | Phase02 Task3 verification              | Draft Organizations/AcademicYears; independent task reviews follow              |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,16 +17,16 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Phase02 is Slice1b domain/schema. Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md) remain authoritative.
-  Tasks 1–2 accepted; Task3 begins here; Tasks4–6 pending.
+  Tasks 1–2 accepted; Task3 implemented, awaiting independent review; Tasks4–6 pending.
 - Task3 checkout `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-records`,
   branch `Hawksprey420/domain-records`, base `77540c5a9a84832a09d636a2b1b7dfa082307bf6`.
   Dependencies moved intact and private `.env`/`.env.test` copies hash-verified.
   Accepted Task2 runtime `5111c04`; its final126 tests, types, lint and migration
   preservation passed. Independent repair review38 tests; prior125/migrations valid.
-- Before implementation: inspect native polymorphic reference queries and validation
-  order so schema requirements remain authoritative and invalid candidates report
-  field errors before the unavailable-storage gate. Read-only investigation delegated;
-  parent exclusively owns the guarded test DB. No Task3 runtime changes yet.
+- Task3 schemas and guards are implemented. Native inspection established exact
+  polymorphic equality and validation ordering; the reconciled plan reuses sanitized
+  field validators without rerunning field hooks. The candidate helper is directly
+  tested now; Task5 connects it to reviewed transitions. Parent owns the test DB.
 - Task3 contracts: new `documents` immutable file entries, never a public Media
   upload; staff-only reads and all REST/GraphQL/Local mutations denied, including
   privileged overrides. Issuances/Reports use incomplete manual drafts and unlimited
@@ -46,8 +46,31 @@ changed. The current checkpoint below records subsequent approved execution.
   outside authorization. `dev` stays `9141209`; owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`
   preserved. Browser/build/full lint remain Task6; prior lint5 errors/10 warnings.
   Task4 tied-timestamp and Task5 canonical office/publication checks remain pending.
-- Next action: finish bounded native inspection, write formal-record/Document tests,
-  run expected RED, then implement the reconciled Task3 contracts.
+- Native RED13 missing schemas/helper observed, then focused19/19 and types pass.
+  Observed/fixed legacy privileged Post cleanup (403), advisory numbering with absent
+  year, and malformed record types (500 -> field400). The collision fixture uses an
+  explicit free test ID because the adapter intentionally ignored data.id; no row
+  was overwritten. A registration edit missed Windows line endings, detected before
+  migration; collection inventory was corrected and verified before generation.
+- Eight migrations pass fresh/populated/repeat/grants/empty-new-table down-up:
+  `binturong_records_verify_fresh_1792656760794` and
+  `binturong_records_verify_upgrade_1792656767756`. Predecessor content, metadata,
+  terms, relationships, IDs/password verifiers unchanged; native login passes.
+  Evidence: ignored `.superpowers/sdd/2026-10-20-domain-foundations/task3-*`.
+- Six guard probes now fail their focused assertions and restore source bytes:
+  Document writes, indirect private metadata, sealed storage, candidate validation,
+  polymorphic ID binding and formal history retention. An initial unsupported-query
+  probe failed before its assertion; its exact three synthetic rows/four accounts
+  were inventoried by timestamp/prefix/count and removed through restored guards.
+  The supported corrected probe passes. Logs retain both results.
+- Snapshot: nine additive tables; prior table/enum definitions unchanged except
+  three native locked-document relation columns. No existing migration rewritten.
+- Final implementer checks: `npm run test:int` passed145/145 across14 files;
+  `npm exec -- tsc --noEmit --incremental false` and changed-file ESLint with
+  `--max-warnings=0` exited0. Import-map generation exited0; after formatting,
+  its diff is empty. These checks followed restoration of all six guard probes.
+- Next action: commit Task3 and obtain independent spec/evidence/compatibility
+  review before starting Task4. Parent releases the guarded test database to review.
 
 ## Sources and reconnaissance snapshot
 

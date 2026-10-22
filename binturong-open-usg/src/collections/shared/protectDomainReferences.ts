@@ -6,11 +6,39 @@ import {
   type PayloadRequest,
 } from 'payload'
 
-type MetadataCollection = 'organizations' | 'academic-years' | 'offices' | 'people' | 'activities'
-const references: Partial<Record<MetadataCollection, Record<string, MetadataCollection>>> = {
+type DomainCollection =
+  | 'organizations'
+  | 'academic-years'
+  | 'offices'
+  | 'people'
+  | 'activities'
+  | 'documents'
+  | 'issuances'
+  | 'reports'
+  | 'posts'
+const references: Partial<
+  Record<DomainCollection, Record<string, DomainCollection | DomainCollection[]>>
+> = {
   offices: { organization: 'organizations', parent: 'offices' },
   people: { 'terms.office': 'offices', 'terms.academicYear': 'academic-years' },
   activities: { organization: 'organizations', academicYear: 'academic-years' },
+  documents: { organization: 'organizations', previousVersion: 'documents' },
+  issuances: {
+    organization: 'organizations',
+    issuingOffice: 'offices',
+    academicYear: 'academic-years',
+    mainDocument: 'documents',
+    attachments: 'documents',
+    relatedRecords: ['issuances', 'reports', 'posts', 'activities'],
+  },
+  reports: {
+    organization: 'organizations',
+    responsibleOffices: 'offices',
+    academicYear: 'academic-years',
+    mainDocument: 'documents',
+    attachments: 'documents',
+    relatedRecords: ['issuances', 'reports', 'posts', 'activities'],
+  },
 }
 
 function invalid(req: PayloadRequest, collection: string, path: string, message: string): never {
@@ -32,45 +60,63 @@ function valuesAt(data: unknown, path: string, prefix = ''): { path: string; val
   if (!data || typeof data !== 'object') return []
   const [key, ...rest] = path.split('.')
   if (!(key in data)) return []
-  const value = data[key as keyof typeof data]
+  const value: unknown = Reflect.get(data, key)
   return rest.length
     ? valuesAt(value, rest.join('.'), `${prefix}${key}.`)
-    : [{ path: `${prefix}${key}`, value }]
+    : Array.isArray(value)
+      ? value.map((entry, index) => ({ path: `${prefix}${key}.${index}`, value: entry }))
+      : [{ path: `${prefix}${key}`, value }]
 }
 
 async function hasReferences(
   req: PayloadRequest,
-  target: MetadataCollection,
+  target: DomainCollection,
   id: number,
 ): Promise<boolean> {
   for (const [source, paths] of Object.entries(references)) {
-    const matching = Object.entries(paths).filter(([, collection]) => collection === target)
+    const matching = Object.entries(paths).filter(([, collection]) =>
+      Array.isArray(collection) ? collection.includes(target) : collection === target,
+    )
     if (!matching.length) continue
-    const collection = source as MetadataCollection
+    const collection = source as DomainCollection
     const current = await req.payload.find({
       collection,
       req,
-      overrideAccess: false,
+      // The enclosing write is authorized; this private existence check exposes no content.
+      overrideAccess: true,
+      select: { createdAt: true },
       depth: 0,
       limit: 1,
-      where: { or: matching.map(([path]) => ({ [path]: { equals: id } })) },
+      where: {
+        or: matching.map(([path, targets]) => ({
+          [path]: { equals: Array.isArray(targets) ? { relationTo: target, value: id } : id },
+        })),
+      },
     })
     if (current.docs.length) return true
+    if (!req.payload.collections[collection].config.versions) continue
     // Filter inside the query so references cannot fall beyond a version-history page.
     const versions = await req.payload.findVersions({
       collection,
       req,
-      overrideAccess: false,
+      overrideAccess: true,
+      select: { createdAt: true },
       depth: 0,
       limit: 1,
-      where: { or: matching.map(([path]) => ({ [`version.${path}`]: { equals: id } })) },
+      where: {
+        or: matching.map(([path, targets]) => ({
+          [`version.${path}`]: {
+            equals: Array.isArray(targets) ? { relationTo: target, value: id } : id,
+          },
+        })),
+      },
     })
     if (versions.docs.length) return true
   }
   return false
 }
 
-async function snapshots(req: PayloadRequest, collection: MetadataCollection, id: number) {
+async function snapshots(req: PayloadRequest, collection: DomainCollection, id: number) {
   const canonical = await req.payload.findByID({
     collection,
     id,
@@ -80,6 +126,7 @@ async function snapshots(req: PayloadRequest, collection: MetadataCollection, id
     disableErrors: true,
   })
   if (!canonical) return []
+  if (!req.payload.collections[collection].config.versions) return [canonical]
   const latest = await req.payload.findVersions({
     collection,
     req,
@@ -92,12 +139,12 @@ async function snapshots(req: PayloadRequest, collection: MetadataCollection, id
   return [canonical, ...latest.docs.map(({ version }) => version)]
 }
 
-export const protectDomainReferences: CollectionBeforeOperationHook = async ({
+export async function protectDomainReferences({
   args,
   operation,
   req,
-}) => {
-  const collection = args.collection.config.slug as MetadataCollection
+}: Parameters<CollectionBeforeOperationHook>[0]): Promise<void> {
+  const collection = args.collection.config.slug as DomainCollection
   if (operation === 'delete' && 'id' in args) {
     const id = referenceID(args.id)
     if (id && (await hasReferences(req, collection, id)))
@@ -150,17 +197,71 @@ export const validateDomainReferences: CollectionBeforeChangeHook = async ({
   originalDoc,
   req,
 }) => {
-  const slug = collection.slug as MetadataCollection
-  for (const [path, target] of Object.entries(references[slug] ?? {}))
+  const slug = collection.slug as DomainCollection
+  const organization = referenceID(data.organization)
+  if (['issuances', 'reports'].includes(slug) && data.type != null) {
+    const typeField = collection.flattenedFields.find(
+      (field) => 'name' in field && field.name === 'type',
+    )
+    if (
+      typeField?.type === 'select' &&
+      !typeField.options.some(
+        (option) => (typeof option === 'string' ? option : option.value) === data.type,
+      )
+    )
+      invalid(req, slug, 'type', 'Choose a supported record type.')
+  }
+  for (const [path, targets] of Object.entries(references[slug] ?? {}))
     for (const entry of valuesAt(data, path)) {
       if (entry.value === undefined || entry.value === null || entry.value === '') continue
-      const id = referenceID(entry.value)
-      if (!id || !(await snapshots(req, target, id)).length)
+      let target: DomainCollection
+      let value: unknown = entry.value
+      if (Array.isArray(targets)) {
+        if (
+          !value ||
+          typeof value !== 'object' ||
+          !('relationTo' in value) ||
+          !targets.includes(value.relationTo as DomainCollection) ||
+          !('value' in value)
+        )
+          invalid(req, slug, entry.path, 'Choose a supported related record.')
+        target = value.relationTo as DomainCollection
+        value = value.value
+      } else target = targets
+      const id = referenceID(value)
+      const resolved = id ? await snapshots(req, target, id) : []
+      if (!resolved.length)
         invalid(req, slug, entry.path, 'The referenced record no longer exists.')
+      if (
+        ['issuances', 'reports'].includes(slug) &&
+        organization &&
+        ['offices', 'documents'].includes(target)
+      )
+        for (const referenced of resolved)
+          if (
+            referenceID('organization' in referenced ? referenced.organization : undefined) !==
+            organization
+          )
+            invalid(
+              req,
+              slug,
+              entry.path,
+              'The referenced office or document must belong to the same organization.',
+            )
     }
 
   if (slug === 'academic-years') dateRange(data, req, slug)
   if (slug === 'activities') dateValue(data.eventDate, req, slug, 'eventDate')
+  if (slug === 'issuances') {
+    dateValue(data.issuedDate, req, slug, 'issuedDate')
+    dateValue(data.effectiveDate, req, slug, 'effectiveDate')
+  }
+  if (slug === 'reports') {
+    const start = dateValue(data.periodStartDate, req, slug, 'periodStartDate')
+    const end = dateValue(data.periodEndDate, req, slug, 'periodEndDate')
+    if (start !== undefined && end !== undefined && end < start)
+      invalid(req, slug, 'periodEndDate', 'End date cannot precede start date.')
+  }
   if (slug === 'people' && data.terms !== undefined && data.terms !== null) {
     if (!Array.isArray(data.terms)) invalid(req, slug, 'terms', 'Enter office terms as a list.')
     for (const [index, term] of data.terms.entries()) {

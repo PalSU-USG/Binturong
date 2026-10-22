@@ -14,6 +14,9 @@ import { AcademicYears } from './collections/AcademicYears'
 import { Offices } from './collections/Offices'
 import { People } from './collections/People'
 import { Activities } from './collections/Activities'
+import { Documents } from './collections/Documents'
+import { Issuances } from './collections/Issuances'
+import { Reports } from './collections/Reports'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -79,6 +82,9 @@ export default buildConfig({
     Offices,
     People,
     Activities,
+    Documents,
+    Issuances,
+    Reports,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
