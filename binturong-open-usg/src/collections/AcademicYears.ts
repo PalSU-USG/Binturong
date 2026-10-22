@@ -4,6 +4,7 @@ import { authenticated } from '@/access/authenticated'
 import { deleteDraftContent, readPublishedOrStaff } from '@/access/contentAccess'
 import { domainSlug } from '@/fields/domainSlug'
 import { protectDomainWrites } from './shared/protectDomainWrites'
+import { protectDomainReferences, validateDomainReferences } from './shared/protectDomainReferences'
 
 export const AcademicYears: CollectionConfig = {
   slug: 'academic-years',
@@ -21,6 +22,9 @@ export const AcademicYears: CollectionConfig = {
     { name: 'endDate', type: 'date', admin: { date: { pickerAppearance: 'dayOnly' } } },
     domainSlug('label'),
   ],
-  hooks: { beforeOperation: [protectDomainWrites] },
+  hooks: {
+    beforeOperation: [protectDomainWrites, protectDomainReferences],
+    beforeChange: [validateDomainReferences],
+  },
   versions: { drafts: { autosave: false, schedulePublish: false }, maxPerDoc: 50 },
 }

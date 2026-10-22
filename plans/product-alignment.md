@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task1 accepted              | Draft Organizations/AcademicYears; independent task reviews follow              |
+| 2: execution              | Phase02 Task2 verification              | Draft Organizations/AcademicYears; independent task reviews follow              |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,44 +15,36 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Phase02 means Slice1b domain/schema, following merged phase01 `00f3b1f`.
-  [Spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md) approved;
-  [six-task plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md)
-  independently accepted by `/root/review_domain_plan` on22 October2026.
-- Task1 branch `Hawksprey420/domain-metadata`, base `0a2853a`, checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-metadata`.
-  Organizations/AcademicYears draft schemas, fresh authority, native slug extension,
-  additive migration/grants and18 new native boundary cases are implemented.
-  Tasks2–6 pending; publication remains deliberately disabled for these collections.
-- Final full integration:106/106 pass (88 existing +18 Task1), types pass,
-  explicit changed-file ESLint0 errors/0 warnings, staged-diff checks pass.
-  Four focused bypasses make regressions fail (draft-only, Local authority, latest
-  slug, audit rejection); source bytes restored before final full106 run.
-- Six migrations, repeat no-op and restricted role grants pass on fresh and
-  populated predecessor databases. Existing posts/categories/relationships/versions,
-  user IDs/password verifiers are unchanged; real password login passes.
-  Newest migration down/up tested only on empty disposable new-schema tables.
-  Final proof databases: `binturong_domain_verify_fresh_1792651414892`,
-  `binturong_domain_verify_upgrade_1792651432179`. Evidence remains ignored under
-  `.superpowers/sdd/2026-10-20-domain-foundations/` in this checkout.
-- Native RED-to-GREEN fixes include adapter table-name resolution for AcademicYear
-  deletion, serial-ID range checks before account lookup, privileged draft deletion,
-  unsupported statuses, and generated down SQL after cascading foreign-key removal.
-  The predecessor fixture uses the low-level adapter before migration because
-  current runtime hooks correctly require the new schema; this is not a rollout test.
-- Earlier failed-run synthetic fixtures were inventoried and removed with an exact
-  timestamp/count/prefix check. Existing Docker stacks healthy55322/54322; no reset,
-  main-data/cloud migration, real promotion, integration or push. Owner stash
-  `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains preserved.
-- Browser/build and full lint not repeated for Task1; whole-slice checks are Task6.
-  Prior full lint5 errors/10 warnings remain separate. Official files/storage,
-  public records/search and institutional UI remain later tasks/slices.
-- Independent Task1 review accepted clean commit `8c9381d2593d615853abc98cf1e252181b836eaf`
-  on22 October2026. Reviewer reran106/106, types, changed lint, diff checks and
-  fresh/upgrade/repeat/grants/down-up proof; no blocker. Logs: `task1-independent-*`
-  in the ignored ledger. Proof DBs end `1792652922487` and `1792652929828`.
-- Next action: create Task2 Offices/People/Activities from this accepted task branch
-  in its own native worktree, write native reference regressions, then implement.
+- Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
+  and [six-task plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
+  Task1 accepted at `8c9381d`; acceptance checkpoint `85c00bc`.
+- Task2 Offices/People/Activities is implemented in its own native checkout:
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-directory`, branch
+  `Hawksprey420/domain-directory`, base `85c00bc29fbd7156863863bf44e34ce59a05c491`.
+  Existing dependencies moved intact; private environment copies match hashes.
+- Scope: draft schemas/manual versions, separate public people, same-organization
+  acyclic office parents, supplied dates, reference existence and retained-history
+  deletion/organization guards. Current and latest snapshots are checked under the
+  existing authority lock. No tenant accounts, calendar or successful publication.
+- Native RED14/14 observed; focused19/19 and final full125/125 (13 files) pass.
+  Types and changed-file lint pass; five guard bypasses fail their focused assertions,
+  with original source restored before final125. Independent review pending.
+  A redundant raw-reference check was removed after its bypass stayed green; the
+  candidate validator is the enforcing boundary. Test adapter-session typing corrected.
+- Seven migrations pass fresh/upgrade/repeat/grants/empty-new-table down-up.
+  Populated predecessor posts/categories/relationships/versions, metadata and password
+  verifiers unchanged; native login passes. Proof DBs:
+  `binturong_directory_verify_fresh_1792653603013` and
+  `binturong_directory_verify_upgrade_1792653609054`.
+  Evidence: ignored `.superpowers/sdd/2026-10-20-domain-foundations/task2-*`.
+- One CLI helper stayed alive after logging a successful test-only migration;
+  verified idle DB state and stopped only that identified child. Focused native
+  tests then passed. Proof helpers exit explicitly; no SQL rollback/reset was needed.
+- No main-data/cloud/branch-data migrations, integration or push. Main `dev` remains
+  `9141209`; owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` preserved.
+  Build/browser/full lint remain Task6 gates; prior full lint5 errors/10 warnings.
+- Next action: finish Task2 checks, commit the verified unit, obtain independent
+  review and fix blockers before starting Task3 from accepted Task2.
 
 ## Sources and reconnaissance snapshot
 

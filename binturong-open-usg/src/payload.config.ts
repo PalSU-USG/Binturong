@@ -11,6 +11,9 @@ import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Organizations } from './collections/Organizations'
 import { AcademicYears } from './collections/AcademicYears'
+import { Offices } from './collections/Offices'
+import { People } from './collections/People'
+import { Activities } from './collections/Activities'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -65,7 +68,18 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Organizations, AcademicYears],
+  collections: [
+    Pages,
+    Posts,
+    Media,
+    Categories,
+    Users,
+    Organizations,
+    AcademicYears,
+    Offices,
+    People,
+    Activities,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins,

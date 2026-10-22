@@ -4,6 +4,7 @@ import * as migration_20261019_180133_auth_authority_guard from './20261019_1801
 import * as migration_20261020_055631_auth_credential_guard from './20261020_055631_auth_credential_guard'
 import * as migration_20261020_060134_account_auth_revision from './20261020_060134_account_auth_revision'
 import * as migration_20261022_051329_domain_metadata from './20261022_051329_domain_metadata'
+import * as migration_20261022_071500_domain_directory from './20261022_071500_domain_directory'
 
 export const migrations = [
   {
@@ -35,5 +36,10 @@ export const migrations = [
     up: migration_20261022_051329_domain_metadata.up,
     down: migration_20261022_051329_domain_metadata.down,
     name: '20261022_051329_domain_metadata',
+  },
+  {
+    up: migration_20261022_071500_domain_directory.up,
+    down: migration_20261022_071500_domain_directory.down,
+    name: '20261022_071500_domain_directory',
   },
 ]

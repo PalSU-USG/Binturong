@@ -4,6 +4,7 @@ import { authenticated } from '@/access/authenticated'
 import { deleteDraftContent, readPublishedOrStaff } from '@/access/contentAccess'
 import { domainSlug } from '@/fields/domainSlug'
 import { protectDomainWrites } from './shared/protectDomainWrites'
+import { protectDomainReferences, validateDomainReferences } from './shared/protectDomainReferences'
 
 export const Organizations: CollectionConfig = {
   slug: 'organizations',
@@ -21,6 +22,9 @@ export const Organizations: CollectionConfig = {
     { name: 'participating', type: 'checkbox', defaultValue: false },
     domainSlug('name'),
   ],
-  hooks: { beforeOperation: [protectDomainWrites] },
+  hooks: {
+    beforeOperation: [protectDomainWrites, protectDomainReferences],
+    beforeChange: [validateDomainReferences],
+  },
   versions: { drafts: { autosave: false, schedulePublish: false }, maxPerDoc: 50 },
 }
