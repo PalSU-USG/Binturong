@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Tasks1–4 accepted              | Reviewed transitions and scheduling next                                       |
+| 2: execution              | Phase02 Task5 starting                  | Reviewed transitions, audit and scheduling                                     |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,60 +17,50 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
-  Tasks1-4 independently accepted. Tasks5-6 pending.
-- Active Task4: `C:/Users/Hawksprey/orca/workspaces/Binturong/record-integrity`,
-  branch `Hawksprey420/record-integrity`, base `c092ac16fd6c1091e14bed1fecda3321c18cbb39`.
-  Native worktree; existing dependencies moved intact, private env copies hash-verified.
-  Guarded disposable `binturong_test` is released by Task4 implementation; no test or
-  migration writer remains active. Parent coordinates subsequent review ownership.
-- Accepted runtime commits: Task1 `8c9381d`, Task2 `5111c04`, Task3 `582ac3a`.
-  Task3 acceptance `c092ac1`; implementer145 integration tests, types/changed lint,
-  six restored guard probes and eight-migration fresh/upgrade/repeat/grants/down-up
-  proof pass. Independent Task3 review57 tests, types/changed lint and generated
-  snapshot comparison pass, no blocker. Detailed ignored evidence:
-  `.superpowers/sdd/2026-10-20-domain-foundations/task3-review-result.md`.
-- Task4 contracts: preserve displayed numbers; NFC/whitespace/case normalization,
-  nullable server-controlled key, canonical compound uniqueness and draft collision
-  reservations under the shared account lock. Deterministic latest version uses
-  updatedAt then numeric version ID, including shared slug checks. Retain references.
-- Task4 runtime `351ae3a5ea50892c3f03ca68c418fbdda834d16f` implements Issuance
-  number hooks, shared deterministic number/slug collision lookup and canonical
-  published-reference withdrawal validation. Submitted normalized values are always
-  overwritten so ordinary readonly-form resaves work and cannot forge keys.
-  Migration `20261022_110027_record_integrity` backfills canonical/history numbers
-  with frozen exact-JS normalization before the canonical unique index; conflicting
-  canonical/latest reservations abort adoption atomically. No old migration changed.
-- Reconciliation: Task4 can test canonical published-reference rules in isolation;
-  actual publication/withdrawal concurrency, participation transitions and rollback
-  depend on Task5's reviewed service. Keep those acceptance items open for Task5.
-  Native tied-timestamp partial-draft baseline selection is an adjacent installed
-  limitation; uniqueness must not depend on latest=true or ambiguous native reads.
-- Task4 evidence:8 expected native RED before runtime edits; readonly-form
-  correction also observed RED; focused10/10 and final full155/155 integration pass.
-  `npm exec -- tsc --noEmit --incremental false` and explicit changed-source/new-
-  migration ESLint `--max-warnings=0` pass. Types regenerated; import map regenerated
-  and formatted with no diff. Snapshot comparison proves exactly2 nullable columns,
-  canonical unique index and nonunique history index; other schema unchanged.
-  SQL23505 and an observed account-lock wait pass. Six guard bypasses fail intended
-  assertions and restore exact source bytes before the final covering full run.
-- Five disposable migration modes pass: fresh, populated predecessor upgrade/repeat/
-  grants, canonical collision, canonical/latest collision and latest/latest collision.
-  Native failed child processes and fresh-connection comparisons prove source rows,
-  retained history, schema and migration receipts roll back atomically. Unicode,
-  incomplete rows and multiple superseded tied parents are included. Detailed ignored
-  evidence: `.superpowers/sdd/2026-10-20-domain-foundations/task4-implementer-report.md`.
-- No main/cloud/branch-data writes, integration/push, dependency upgrade or owner
-  stash restoration. dev `9141209`; stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`
-  retained. Official storage/writes/delivery/publication remain sealed. Browser/build
-  and full lint remain Task6; inherited5 errors/10warnings are not a green suite.
-- Task4 independently accepted by `/root/review_record_integrity` at checkpoint
-  `395dc5c`:67 native tests across4 files, types, changed lint, snapshot comparison
-  and guarded DB assertions pass. No finding. Migration/mutation evidence inspected,
-  not independently repeated. Source unchanged and test database explicitly released.
-  Report: `.superpowers/sdd/2026-10-20-domain-foundations/task4-review-result.md`.
-- Task4 source committed; no remaining app/owner dirty files. This acceptance is
-  documentation only. Next action: create Task5 `domain-transitions` native worktree
-  from the accepted Task4 head and record its contracts/checks before implementation.
+  Tasks1-4 independently accepted; Task5 starts here; Task6 pending.
+- Active Task5: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-transitions`,
+  branch `Hawksprey420/domain-transitions`, base `f36259082216f8859396246d9edc7fbaace50548`.
+  Native worktree, dependencies moved intact, private env copies hash-verified.
+  Task4 reviewer released guarded localhost55322/binturong_test; no parallel writers.
+- Accepted runtimes: Task1 `8c9381d`, Task2 `5111c04`, Task3 `582ac3a`, Task4
+  `351ae3a` (acceptance `f362590`). Task4 implementer155 tests, types/changed lint,
+  five migration modes and six restored guard probes pass. Independent67 tests,
+  types/changed lint, snapshot and DB assertions pass. No findings. Detailed ignored
+  reports remain in `.superpowers/sdd/2026-10-20-domain-foundations/`.
+- Task5 contracts: reviewed saved revision proof, publish/withdraw/restore service,
+  private request-held capability, fresh publisher authority under the shared lock,
+  one transaction with protected first-publication/transition audit and exact replay.
+  Canonical withdrawal must preserve published content rather than copy a newer draft;
+  restore validates both expected head and selected historical target. Native CRUD,
+  forged context/audit, Local overrides and native restore cannot bypass the service.
+- Reach: new shared transition/validation/endpoints/native admin controls; seven new
+  versioned collection configs; shared guards/domainSlug; existing scheduling and
+  execution wrappers/receipts; types/import map and additive audit-field migration;
+  focused integration/browser regressions and this checkpoint. Reuse dependencies.
+- Carry forward Task4 canonical-reference withdrawal helper and real lock-barrier
+  publication/reference races, participation changes preserving historical reads,
+  and rollback proof. Office publication/restore compares canonical organization
+  even when a newer draft changed it; ordinary name-only draft edits stay allowed.
+- UI must bind proof to content actually displayed for review, require saved
+  unmodified forms, reject stale proof visibly and never fetch unseen newer proof
+  on publish/schedule click. Reuse installed controls, accessible states and native
+  form/document APIs. Native scheduling swallows errors; custom domain control must
+  inspect confirmed server outcome. Pages/Posts controls/contracts remain intact.
+- Exact app checks: `npm run test:int -- tests/int/domain-publication.int.spec.ts`
+  RED before source, then GREEN/full `npm run test:int`; `npm run generate:types`;
+  generate/review new Payload migration on test/disposable only; explicit changed-file
+  ESLint `--max-warnings=0`; `npm exec -- tsc --noEmit --incremental false`;
+  `npm run generate:importmap`; relevant Playwright tests plus in-app visual,
+  responsive and keyboard checks; guarded production build/cache checks where affected.
+  Critical guards need targeted failure/restoration; migration preservation/replay,
+  actual role/API paths, retry/concurrency/rollback must pass before independent review.
+- Official writes/delivery and official publish/restore remain sealed until private
+  storage verification. No main/cloud/branch-data writes, integration/push, dependency
+  upgrade or owner stash restoration. dev `9141209`; owner stash
+  `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` retained. Task6 whole-slice validation
+  remains separate; prior full-lint5 errors/10warnings do not establish a green suite.
+- Next action: Task5 native test-first regressions, then implement reviewed transitions,
+  audit, scheduling and supported controls; commit verified work and review independently.
 
 ## Sources and reconnaissance snapshot
 
