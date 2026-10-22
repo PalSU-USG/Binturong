@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Tasks1–3 accepted               | Domain metadata, directory and sealed formal-record drafts                      |
+| 2: execution              | Phase02 Task4 starting                  | Number integrity and reference retention                                       |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,68 +15,45 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Phase02 is Slice1b domain/schema. Approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
-  and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md) remain authoritative.
-  Tasks1–3 accepted; Tasks4–6 pending.
-- Task3 checkout `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-records`,
-  branch `Hawksprey420/domain-records`, base `77540c5a9a84832a09d636a2b1b7dfa082307bf6`.
-  Dependencies moved intact and private `.env`/`.env.test` copies hash-verified.
-  Accepted Task2 runtime `5111c04`; its final126 tests, types, lint and migration
-  preservation passed. Independent repair review38 tests; prior125/migrations valid.
-- Task3 schemas and guards are implemented. Native inspection established exact
-  polymorphic equality and validation ordering; the reconciled plan reuses sanitized
-  field validators without rerunning field hooks. The candidate helper is directly
-  tested now; Task5 connects it to reviewed transitions. Reviewer released the test DB.
-- Task3 contracts: new `documents` immutable file entries, never a public Media
-  upload; staff-only reads and all REST/GraphQL/Local mutations denied, including
-  privileged overrides. Issuances/Reports use incomplete manual drafts and unlimited
-  retained versions. References use Documents, structured organizations/offices/years
-  and polymorphic related records. No successful publication or file delivery.
-- Reach: three collection configs, shared draft/reference guards, file-validation
-  boundary, Payload registration/types/new migration/index, native regression tests.
-  Reuse existing services and dependencies; preserve old Posts/Media and migrations.
-- Exact checks from app directory: `npm run test:int -- tests/int/formal-record-schema.int.spec.ts`
-  (observe RED before source), `npm run generate:types`,
-  `npm run payload -- migrate:create formal_record_drafts` (test/disposable only),
-  `npm run test:int`, `npm exec -- tsc --noEmit --incremental false` and explicit
-  changed-file ESLint for these modules/tests/new migration. Regenerate import map
-  and inspect semantic diff. Prove fresh/populated/repeat/grants/empty rollback on
-  disposable databases, plus guard bypass failures followed by source restoration.
-- Main/cloud/branch-data writes, integration/push and dependency upgrades remain
-  outside authorization. `dev` stays `9141209`; owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`
-  preserved. Browser/build/full lint remain Task6; prior lint5 errors/10 warnings.
-  Task4 tied-timestamp and Task5 canonical office/publication checks remain pending.
-- Native RED13 missing schemas/helper observed, then focused19/19 and types pass.
-  Observed/fixed legacy privileged Post cleanup (403), advisory numbering with absent
-  year, and malformed record types (500 -> field400). The collision fixture uses an
-  explicit free test ID because the adapter intentionally ignored data.id; no row
-  was overwritten. A registration edit missed Windows line endings, detected before
-  migration; collection inventory was corrected and verified before generation.
-- Eight migrations pass fresh/populated/repeat/grants/empty-new-table down-up:
-  `binturong_records_verify_fresh_1792656760794` and
-  `binturong_records_verify_upgrade_1792656767756`. Predecessor content, metadata,
-  terms, relationships, IDs/password verifiers unchanged; native login passes.
-  Evidence: ignored `.superpowers/sdd/2026-10-20-domain-foundations/task3-*`.
-- Six guard probes now fail their focused assertions and restore source bytes:
-  Document writes, indirect private metadata, sealed storage, candidate validation,
-  polymorphic ID binding and formal history retention. An initial unsupported-query
-  probe failed before its assertion; its exact three synthetic rows/four accounts
-  were inventoried by timestamp/prefix/count and removed through restored guards.
-  The supported corrected probe passes. Logs retain both results.
-- Snapshot: nine additive tables; prior table/enum definitions unchanged except
-  three native locked-document relation columns. No existing migration rewritten.
-- Final implementer checks: `npm run test:int` passed145/145 across14 files;
-  `npm exec -- tsc --noEmit --incremental false` and changed-file ESLint with
-  `--max-warnings=0` exited0. Import-map generation exited0; after formatting,
-  its diff is empty. These checks followed restoration of all six guard probes.
-- Task3 runtime `582ac3ab49e15d288a1febdaac05536416d4b44c` independently accepted
-  by `/root/review_domain_records`:57 native tests across3 files, types, changed lint,
-  diff and78-table snapshot comparison pass. No blocker. Full suite/migration/probe
-  logs inspected rather than independently repeated. Detailed ignored report:
+- Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
+  and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
+  Tasks1-3 accepted. Task4 starting; Tasks5-6 pending.
+- Active Task4: `C:/Users/Hawksprey/orca/workspaces/Binturong/record-integrity`,
+  branch `Hawksprey420/record-integrity`, base `c092ac16fd6c1091e14bed1fecda3321c18cbb39`.
+  Native worktree; existing dependencies moved intact, private env copies hash-verified.
+  Guarded disposable `binturong_test` is released by Task3 review; no parallel writers.
+- Accepted runtime commits: Task1 `8c9381d`, Task2 `5111c04`, Task3 `582ac3a`.
+  Task3 acceptance `c092ac1`; implementer145 integration tests, types/changed lint,
+  six restored guard probes and eight-migration fresh/upgrade/repeat/grants/down-up
+  proof pass. Independent Task3 review57 tests, types/changed lint and generated
+  snapshot comparison pass, no blocker. Detailed ignored evidence:
   `.superpowers/sdd/2026-10-20-domain-foundations/task3-review-result.md`.
-- Tracked tree clean at accepted runtime; this acceptance changes documentation only.
-  Next action: create Task4 `record-integrity` native worktree from this accepted
-  Task3 head; record identity/backfill and Task5 dependency reconciliation before edits.
+- Task4 contracts: preserve displayed numbers; NFC/whitespace/case normalization,
+  nullable server-controlled key, canonical compound uniqueness and draft collision
+  reservations under the shared account lock. Deterministic latest version uses
+  updatedAt then numeric version ID, including shared slug checks. Retain references.
+- Task4 reaches Issuances config/number hooks, shared collision/reference helpers,
+  domainSlug, tests, registration-derived types/import map and a new migration/index.
+  Existing complete canonical/history numbers need exact-JS backfill before index;
+  conflicting adoption fails atomically instead of discarding a reservation.
+- Reconciliation: Task4 can test canonical published-reference rules in isolation;
+  actual publication/withdrawal concurrency, participation transitions and rollback
+  depend on Task5's reviewed service. Keep those acceptance items open for Task5.
+  Native tied-timestamp partial-draft baseline selection is an adjacent installed
+  limitation; uniqueness must not depend on latest=true or ambiguous native reads.
+- Exact checks from app: `npm run test:int -- tests/int/record-integrity.int.spec.ts`
+  (RED before source, then GREEN); `npm run generate:types`;
+  `npm run payload -- migrate:create record_integrity` with guarded test env;
+  `npm run test:int`; `npm exec -- tsc --noEmit --incremental false`;
+  explicit changed-file ESLint `--max-warnings=0`; regenerate/format import map.
+  Disposable fresh/populated/repeat/collision-rollback proofs, SQL23505, observed
+  lock barriers and guard mutation failures are required before independent review.
+- No main/cloud/branch-data writes, integration/push, dependency upgrade or owner
+  stash restoration. dev `9141209`; stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`
+  retained. Official storage/writes/delivery/publication remain sealed. Browser/build
+  and full lint remain Task6; inherited5 errors/10warnings are not a green suite.
+- Next action: record Task4 test-first regressions, then implement number integrity
+  and retained-reference rules in this task checkout; commit and review independently.
 
 ## Sources and reconnaissance snapshot
 

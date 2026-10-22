@@ -122,6 +122,8 @@ await expect(payload.create({ collection: 'documents', data: {
 
 **Files:** create `src/collections/Issuances/normalizeDocumentNumber.ts`, `src/collections/Issuances/validateNumber.ts`, `tests/int/record-integrity.int.spec.ts`; modify Issuances config, shared reference guards and a new migration.
 
+**Inspection reconciliation (Task4):** Installed3.90.2 can leave multiple `latest=true` versions when timestamps tie. Number and shared slug collisions must check each candidate parent's unfiltered head by `updatedAt DESC, id DESC`; superseded tied drafts do not reserve keys, while canonical rows still do. Backfill canonical and retained-version normalized numbers with exact JavaScript normalization before adding the canonical index; migration-local frozen normalization preserves migration reproducibility. Abort conflicting adoption atomically. Isolated canonical published-reference validation belongs here; real publication/withdrawal concurrency, participation transitions and transition rollback remain open until Task5 introduces the reviewed service. Synthetic SQL fixtures cannot certify those transitions.
+
 **Interfaces:** `normalizeDocumentNumber(value: string): string` preserves punctuation/leading zeros, normalizes NFC, trims/collapses whitespace, lowercases and returns NFC again. Persist server-controlled nullable `normalizedNumber`; the key is organization/type/seriesYear/normalizedNumber. Complete keys must be unique; incomplete drafts may have null keys. Advisory without a source number leaves both number and normalized key unset.
 
 - [ ] RED: Unicode/whitespace/case equivalents collide; `001` differs from `1`, punctuation remains significant, fractional years fail, and a client cannot forge the normalized field. Two concurrent same-key saves produce one success. Native SQL rejects duplicate canonical tuples with SQLSTATE23505.
@@ -132,10 +134,12 @@ expect(normalizeDocumentNumber('001')).not.toBe(normalizeDocumentNumber('1'))
 ```
 
 - [ ] Check other canonical rows **and** latest draft candidates under the shared account lock; exclude the current parent ID. Add the native compound unique index on canonical rows, not version history. Canonical reservations remain until a later publication replaces them or an unreferenced draft is deleted; draft edits alone do not free the old canonical key. Return a field error for this reservation, not an unexplained SQL exception. Cover native tied-version timestamps without trusting `latest=true` to be unique.
-- [ ] Block deleting metadata/files referenced by retained record versions. Block withdrawing organizations/offices required by published records; use published snapshots, not their newer drafts. Ending CSG participation blocks subsequent publication attempts but does not filter historical public reads. Prove concurrent publication/reference changes with lock barriers and rollback.
+- [ ] Block deleting metadata/files referenced by retained record versions. Add withdrawal validation for organizations/offices required by canonical published records, using published snapshots rather than newer drafts; prove the isolated rules now. Task5 must wire it to reviewed transitions, verify ending CSG participation blocks subsequent publications without filtering historical public reads, and prove concurrent publication/reference changes and rollback with lock barriers.
 - [ ] Generate/review index migration, fresh/upgrade/repeat proof, focused/full checks. Commit `feat(records): enforce numbering and retained references`; independent review.
 
 ## Task 5: Reviewed transitions, audit and scheduling
+
+**Carried dependency from Task4:** Wire canonical published-reference withdrawal validation into this service. Verify participation changes preserve historical reads while blocking new publication, and exercise publication/reference races and rollback with observed lock barriers. These are not established by Task4's isolated synthetic fixtures.
 
 **Files:** create `src/collections/shared/transitionDomainRecord.ts`, `validateDomainPublication.ts`, `domainTransitionEndpoints.ts`, `src/components/DomainTransitions/index.tsx`, `tests/int/domain-publication.int.spec.ts`; modify new collection configs, shared guards, existing `src/jobs/authorizePublication.ts`, `authorizeScheduling.ts`, `src/payload.config.ts`, and the supported server-function registration in `src/app/(payload)/layout.tsx` if needed. Regenerate types/import map and migration artifacts.
 
