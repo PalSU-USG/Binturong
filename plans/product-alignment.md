@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task2 verification              | Draft Organizations/AcademicYears; independent task reviews follow              |
+| 2: execution              | Phase02 Tasks1–2 accepted              | Draft Organizations/AcademicYears; independent task reviews follow              |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,50 +17,35 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [six-task plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
-  Task1 accepted at `8c9381d`; acceptance checkpoint `85c00bc`.
-- Task2 Offices/People/Activities is implemented in its own native checkout:
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-directory`, branch
-  `Hawksprey420/domain-directory`, base `85c00bc29fbd7156863863bf44e34ce59a05c491`.
-  Existing dependencies moved intact; private environment copies match hashes.
-- Scope: draft schemas/manual versions, separate public people, same-organization
-  acyclic office parents, supplied dates, reference existence and retained-history
-  deletion/organization guards. Current and latest snapshots are checked under the
-  existing authority lock. No tenant accounts, calendar or successful publication.
-- Native RED14/14 observed; repaired focused20/20 and full126/126 (13 files) pass.
-  Types and changed-file lint pass; five guard bypasses fail their focused assertions,
-  with original source restored before final126. Independent re-review pending.
-  A redundant raw-reference check was removed after its bypass stayed green; the
-  candidate validator is the enforcing boundary. Test adapter-session typing corrected.
-- Seven migrations pass fresh/upgrade/repeat/grants/empty-new-table down-up.
-  Populated predecessor posts/categories/relationships/versions, metadata and password
-  verifiers unchanged; native login passes. Proof DBs:
-  `binturong_directory_verify_fresh_1792653603013` and
-  `binturong_directory_verify_upgrade_1792653609054`.
-  Evidence: ignored `.superpowers/sdd/2026-10-20-domain-foundations/task2-*`.
-- One CLI helper stayed alive after logging a successful test-only migration;
-  verified idle DB state and stopped only that identified child. Focused native
-  tests then passed. Proof helpers exit explicitly; no SQL rollback/reset was needed.
-- No main-data/cloud/branch-data migrations, integration or push. Main `dev` remains
-  `9141209`; owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` preserved.
-  Build/browser/full lint remain Task6 gates; prior full lint5 errors/10 warnings.
-- Task2 review requested changes on `b6c226144b96856f604efbaba7566f42fcefb3c2`.
-  Reviewer independently passed125 tests, types/lint and migration proof, but
-  reproduced a blocker: orgA canonical -> unreferenced orgB draft -> Person term
-  made a later name-only draft save fail409. The new native regression reproduced
-  this RED, then passed after the narrow fix. Real organization changes still fail409.
-- Repair scope: shared office guard and one native regression; no migration change.
-  Compare ordinary draft changes with the latest candidate, leaving canonical
-  organization checks explicit at Task5 publication. This is a correction to the
-  approved edit contract, not permission to publish or migrate retained references.
-- Repair checks: `npm run test:int -- tests/int/domain-references.int.spec.ts`
-  (observe the new name-only regression RED, then GREEN), `npm run test:int`,
-  `npm exec -- tsc --noEmit --incremental false`, and explicit changed-file ESLint
-  for the shared hook and regression. Re-run relevant guard probes after restoration.
-- Repair final checks pass:126 integration tests, types, changed lint and all five
-  guard probes. No new migration/artifact changes. Logs: `task2-review-fix-*` and
-  `task2-repaired-*` in the ignored ledger. Task2 remains unaccepted pending review.
-- Next action: commit the verified repair, request re-review of the exact head,
-  then create Task3 only after acceptance.
+  Tasks 1–2 accepted; Tasks 3–6 pending. Phase01 is already merged into `dev`.
+- Accepted Task2 head: `5111c04a7abca2d25adb1fe9d8cacddc2590aab3`, branch
+  `Hawksprey420/domain-directory`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-directory`.
+  Feature `b6c2261` plus reviewed office-edit repair `5111c04`, based on `85c00bc`.
+- Draft Offices/People/Activities, separate public people, acyclic same-organization
+  office parents, valid supplied dates and retained-reference guards are implemented.
+  Publication remains disabled until Task5. No tenant accounts or calendar UI.
+- Final integration: 126/126 tests in 13 files; types and changed lint pass.
+  Five guard bypasses fail their focused tests; bytes restored before the full run.
+  Generated import map is unchanged after formatting. Snapshot comparison confirms
+  eight additive tables and three native relation columns; prior tables/enums intact.
+- Independent review requested a name-only office edit correction; its native RED
+  was observed and repaired. Re-review accepted `5111c04` on22 October2026:
+  38/38 directory + prerequisite tests, types, lint and diff checks pass. Prior
+  independent125-test and seven-migration proofs remain valid; parent126 log reviewed.
+- Fresh/populated/repeat/grants/empty-new-table rollback proofs preserve predecessor
+  content, metadata, relationships, IDs and password login. Independent proof DBs:
+  `binturong_directory_verify_fresh_1792654366503` and
+  `binturong_directory_verify_upgrade_1792654372577`.
+  Details: ignored `.superpowers/sdd/2026-10-20-domain-foundations/task2-*`.
+- Task5 must separately protect canonical office organization changes on publication
+  or restore; ordinary unchanged-organization draft edits stay possible. Task4 owns
+  tied native version timestamp proof. Neither future boundary is certified here.
+- No main/cloud/branch-data migration, integration or push. `dev` remains `9141209`;
+  owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` preserved.
+  Browser/build/full lint deferred to Task6; prior lint5 errors/10 warnings retained.
+- Next action: create Task3 formal-record/Document worktree from this accepted task
+  branch, record its base/contracts/exact checks before edits, then native RED.
 
 ## Sources and reconnaissance snapshot
 

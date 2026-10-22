@@ -86,7 +86,7 @@ await expect(payload.findByID({ collection: 'organizations', id: draft.id,
 
 **Interfaces:** `protectDomainReferences: CollectionBeforeOperationHook` blocks deleting referenced draft metadata and organization changes that would reinterpret retained office references. `validateDomainReferences` is a `CollectionBeforeChangeHook`; it receives Payload's full native candidate and current request/transaction. No separate pool or client-supplied ownership.
 
-- [ ] RED: missing/cross-organization parent, self/multi-node cycles, concurrent reciprocal-parent writes, missing references, invalid term/event dates, end-before-start, forged user links, referenced deletion and retained office organization changes. A source branch remains optional; CSGs gain no default branch structure.
+- [x] RED: missing/cross-organization parent, self/multi-node cycles, concurrent reciprocal-parent writes, missing references, invalid term/event dates, end-before-start, forged user links, referenced deletion and retained office organization changes. A source branch remains optional; CSGs gain no default branch structure.
 
 ```ts
 await expect(payload.update({ collection: 'offices', id: office.id, draft: true,
@@ -94,8 +94,8 @@ await expect(payload.update({ collection: 'offices', id: office.id, draft: true,
   data: { parent: office.id } })).rejects.toMatchObject({ status: 400 })
 ```
 
-- [ ] Implement the three collections and shared reference checks under the account lock. Resolve parents from canonical and latest draft state; never accept a cycle through either. Terms reference public People separately from Users. Unknown dates/time/location stay unset. Delete checks inspect retained native versions as well as current rows; bounded batches must not silently omit references.
-- [ ] Generate/review migration, prove rollback and the concurrent cycle with an observed DB wait, then focused/full checks. Commit `feat(domain): model offices people and activities`; independent review.
+- [x] Implement the three collections and shared reference checks under the account lock. Resolve parents from canonical and latest draft state; never accept a cycle through either. Terms reference public People separately from Users. Unknown dates/time/location stay unset. Delete checks inspect retained native versions as well as current rows; bounded batches must not silently omit references.
+- [x] Generate/review migration, prove rollback and the concurrent cycle with an observed DB wait, then focused/full checks. Commit `feat(domain): model offices people and activities`; independent review.
 
 ## Task 3: Formal record schemas and sealed Documents
 
