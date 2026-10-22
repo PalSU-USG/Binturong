@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task4 review pending           | Number integrity and reference retention                                       |
+| 2: execution              | Phase02 Tasks1–4 accepted              | Reviewed transitions and scheduling next                                       |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,7 +17,7 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
-  Tasks1-3 accepted. Task4 implemented and awaiting independent review; Tasks5-6 pending.
+  Tasks1-4 independently accepted. Tasks5-6 pending.
 - Active Task4: `C:/Users/Hawksprey/orca/workspaces/Binturong/record-integrity`,
   branch `Hawksprey420/record-integrity`, base `c092ac16fd6c1091e14bed1fecda3321c18cbb39`.
   Native worktree; existing dependencies moved intact, private env copies hash-verified.
@@ -63,10 +63,14 @@ changed. The current checkpoint below records subsequent approved execution.
   stash restoration. dev `9141209`; stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`
   retained. Official storage/writes/delivery/publication remain sealed. Browser/build
   and full lint remain Task6; inherited5 errors/10warnings are not a green suite.
-- Task4 source committed; no remaining app/owner dirty files. This checkpoint is
-  committed separately as documentation. Independent Task4 acceptance is pending.
-- Next action: independent Task4 review of runtime `351ae3a5ea50892c3f03ca68c418fbdda834d16f`
-  against accepted Task3 base `c092ac16fd6c1091e14bed1fecda3321c18cbb39`.
+- Task4 independently accepted by `/root/review_record_integrity` at checkpoint
+  `395dc5c`:67 native tests across4 files, types, changed lint, snapshot comparison
+  and guarded DB assertions pass. No finding. Migration/mutation evidence inspected,
+  not independently repeated. Source unchanged and test database explicitly released.
+  Report: `.superpowers/sdd/2026-10-20-domain-foundations/task4-review-result.md`.
+- Task4 source committed; no remaining app/owner dirty files. This acceptance is
+  documentation only. Next action: create Task5 `domain-transitions` native worktree
+  from the accepted Task4 head and record its contracts/checks before implementation.
 
 ## Sources and reconnaissance snapshot
 

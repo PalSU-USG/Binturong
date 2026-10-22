@@ -126,16 +126,18 @@ await expect(payload.create({ collection: 'documents', data: {
 
 **Interfaces:** `normalizeDocumentNumber(value: string): string` preserves punctuation/leading zeros, normalizes NFC, trims/collapses whitespace, lowercases and returns NFC again. Persist server-controlled nullable `normalizedNumber`; the key is organization/type/seriesYear/normalizedNumber. Complete keys must be unique; incomplete drafts may have null keys. Advisory without a source number leaves both number and normalized key unset.
 
-- [ ] RED: Unicode/whitespace/case equivalents collide; `001` differs from `1`, punctuation remains significant, fractional years fail, and a client cannot forge the normalized field. Two concurrent same-key saves produce one success. Native SQL rejects duplicate canonical tuples with SQLSTATE23505.
+- [x] RED: Unicode/whitespace/case equivalents collide; `001` differs from `1`, punctuation remains significant, fractional years fail, and a client cannot forge the normalized field. Two concurrent same-key saves produce one success. Native SQL rejects duplicate canonical tuples with SQLSTATE23505.
 
 ```ts
 expect(normalizeDocumentNumber('  EO\t 001-A ')).toBe('eo 001-a')
 expect(normalizeDocumentNumber('001')).not.toBe(normalizeDocumentNumber('1'))
 ```
 
-- [ ] Check other canonical rows **and** latest draft candidates under the shared account lock; exclude the current parent ID. Add the native compound unique index on canonical rows, not version history. Canonical reservations remain until a later publication replaces them or an unreferenced draft is deleted; draft edits alone do not free the old canonical key. Return a field error for this reservation, not an unexplained SQL exception. Cover native tied-version timestamps without trusting `latest=true` to be unique.
-- [ ] Block deleting metadata/files referenced by retained record versions. Add withdrawal validation for organizations/offices required by canonical published records, using published snapshots rather than newer drafts; prove the isolated rules now. Task5 must wire it to reviewed transitions, verify ending CSG participation blocks subsequent publications without filtering historical public reads, and prove concurrent publication/reference changes and rollback with lock barriers.
-- [ ] Generate/review index migration, fresh/upgrade/repeat proof, focused/full checks. Commit `feat(records): enforce numbering and retained references`; independent review.
+- [x] Check other canonical rows **and** latest draft candidates under the shared account lock; exclude the current parent ID. Add the native compound unique index on canonical rows, not version history. Canonical reservations remain until a later publication replaces them or an unreferenced draft is deleted; draft edits alone do not free the old canonical key. Return a field error for this reservation, not an unexplained SQL exception. Cover native tied-version timestamps without trusting `latest=true` to be unique.
+- [x] Block deleting metadata/files referenced by retained record versions. Add withdrawal validation for organizations/offices required by canonical published records, using published snapshots rather than newer drafts; prove the isolated rules now. Task5 must wire it to reviewed transitions, verify ending CSG participation blocks subsequent publications without filtering historical public reads, and prove concurrent publication/reference changes and rollback with lock barriers.
+- [x] Generate/review index migration, fresh/upgrade/repeat proof, focused/full checks. Commit `feat(records): enforce numbering and retained references`; independent review.
+
+**Acceptance:** Runtime `351ae3a`, checkpoint `395dc5c`; independently accepted by `/root/review_record_integrity` on22 October2026. Fresh67 native tests, types, changed lint, snapshot and guarded DB assertions pass, no finding. Implementer155 tests, five migration modes and six guard proofs remain separate evidence. Task5 dependencies below remain open.
 
 ## Task 5: Reviewed transitions, audit and scheduling
 
