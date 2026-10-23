@@ -8,6 +8,7 @@ import {
   removeTestAccounts,
 } from '../helpers/accessFixtures'
 import { login } from '../helpers/login'
+import { syntheticContent } from '../helpers/contentFixtures'
 
 test.describe('native reviewed domain controls', () => {
   test.setTimeout(180000)
@@ -15,6 +16,8 @@ test.describe('native reviewed domain controls', () => {
   let fixtures: Awaited<ReturnType<typeof createAccessFixtures>>
   let id: number
   let officialID: number
+  let activityID: number
+  let postIDs: number[]
   const name = `Synthetic browser review ${randomUUID()}`
   test.beforeAll(async () => {
     payload = await getPayload({ config })
@@ -22,6 +25,8 @@ test.describe('native reviewed domain controls', () => {
   })
   test.beforeEach(async () => {
     officialID = 0
+    activityID = 0
+    postIDs = []
     const doc = await payload.create({
       collection: 'organizations',
       draft: true,
@@ -32,6 +37,23 @@ test.describe('native reviewed domain controls', () => {
     id = doc.id
   })
   test.afterEach(async () => {
+    if (activityID) {
+      await payload.db.deleteVersions({
+        collection: 'activities',
+        where: { parent: { equals: activityID } },
+      })
+      await payload.db.deleteOne({
+        collection: 'activities',
+        where: { id: { equals: activityID } },
+      })
+    }
+    for (const postID of postIDs) {
+      await payload.db.deleteVersions({
+        collection: 'posts',
+        where: { parent: { equals: postID } },
+      })
+      await payload.db.deleteOne({ collection: 'posts', where: { id: { equals: postID } } })
+    }
     if (officialID) {
       await payload.db.deleteVersions({
         collection: 'issuances',
@@ -201,6 +223,106 @@ test.describe('native reviewed domain controls', () => {
     await expect
       .poll(async () => (await (await request.get(`/api/organizations/${id}`)).json()).name)
       .toBe(name)
+  })
+
+  test('shows exact saved internal link targets in Activity review and history', async ({
+    page,
+    request,
+  }) => {
+    const user = { ...fixtures.users.editor, collection: 'users' as const }
+    for (const suffix of ['first', 'second']) {
+      const post = await payload.create({
+        collection: 'posts',
+        draft: true,
+        overrideAccess: false,
+        user,
+        data: { title: `Synthetic review link ${suffix}`, content: syntheticContent },
+      })
+      postIDs.push(post.id)
+    }
+    const description = (postID: number) => ({
+      root: {
+        ...syntheticContent.root,
+        children: [
+          {
+            type: 'paragraph',
+            version: 1,
+            textFormat: 0,
+            format: '' as const,
+            indent: 0,
+            direction: null,
+            children: [
+              {
+                type: 'link',
+                version: 3,
+                format: '',
+                indent: 0,
+                direction: null,
+                fields: {
+                  linkType: 'internal',
+                  newTab: false,
+                  doc: { relationTo: 'posts', value: postID },
+                },
+                children: [
+                  {
+                    type: 'text',
+                    version: 1,
+                    text: 'Read the announcement',
+                    format: 0,
+                    detail: 0,
+                    mode: 'normal',
+                    style: '',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    })
+    const activity = await payload.create({
+      collection: 'activities',
+      draft: true,
+      overrideAccess: false,
+      user,
+      data: {
+        title: 'Synthetic saved link Activity',
+        organization: id,
+        eventDate: '2026-10-23',
+        description: description(postIDs[0]),
+      },
+    })
+    activityID = activity.id
+    await login({
+      page,
+      user: { email: fixtures.users.publisher.email, password: fixturePassword },
+    })
+    await page.goto(`/admin/collections/activities/${activityID}`)
+    const original = await (await page.request.get(`/api/activities/${activityID}/review`)).json()
+    await page.getByRole('button', { name: 'Review saved revision', exact: true }).click()
+    const content = page.getByTestId('domain-reviewed-content')
+    await expect(content).toContainText('Read the announcement')
+    await expect(content).toContainText(`posts: record ${postIDs[0]}`)
+    await expect(content.locator('a[href="#"]')).toHaveCount(0)
+    const saved = await page.request.patch(`/api/activities/${activityID}?draft=true`, {
+      data: { description: description(postIDs[1]) },
+    })
+    expect(saved.ok()).toBe(true)
+    await expect(content).toContainText(`posts: record ${postIDs[0]}`)
+    await expect(content).not.toContainText(`posts: record ${postIDs[1]}`)
+    await page.getByRole('button', { name: 'Review latest saved revision', exact: true }).click()
+    await expect(content).toContainText(`posts: record ${postIDs[1]}`)
+    await expect(content).not.toContainText(`posts: record ${postIDs[0]}`)
+    await page.getByLabel('Historical version', { exact: true }).click()
+    await page
+      .getByRole('option')
+      .filter({ hasText: `(version ${original.reviewed.versionID})` })
+      .click()
+    await page.getByRole('button', { name: 'Review selected version', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Historical content to restore' })).toBeVisible()
+    await expect(content).toContainText(`posts: record ${postIDs[0]}`)
+    await expect(content).not.toContainText(`posts: record ${postIDs[1]}`)
+    expect((await request.get(`/api/activities/${activityID}`)).status()).toBe(404)
   })
 
   test('allows editor review and displays complete official publication errors', async ({

@@ -17,7 +17,7 @@ import {
   useModal,
   useServerFunctions,
 } from '@payloadcms/ui'
-import { RichText } from '@payloadcms/richtext-lexical/react'
+import { ReviewRichText } from './ReviewRichText'
 import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 import type { ClientField } from 'payload'
 import { hasRole } from '@/access/roles'
@@ -65,7 +65,7 @@ function ReviewFields({ fields, data }: { fields: ClientField[]; data: Record<st
               : label(value)
         }
         if (field.type === 'richText' && value && typeof value === 'object')
-          content = <RichText data={value as DefaultTypedEditorState} />
+          content = <ReviewRichText data={value as DefaultTypedEditorState} />
         if (field.type === 'array' && Array.isArray(value))
           content = value.length ? (
             <ol>
