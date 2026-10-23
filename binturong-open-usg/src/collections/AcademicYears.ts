@@ -1,3 +1,9 @@
+import {
+  domainPublicationFields,
+  retainDomainAudit,
+  domainTransitionComponents,
+} from './shared/domainPublicationFields'
+import { domainTransitionEndpoints } from './shared/domainTransitionEndpoints'
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '@/access/authenticated'
@@ -8,7 +14,12 @@ import { protectDomainReferences, validateDomainReferences } from './shared/prot
 
 export const AcademicYears: CollectionConfig = {
   slug: 'academic-years',
-  admin: { useAsTitle: 'label', defaultColumns: ['label', 'startDate', 'endDate', '_status'] },
+  endpoints: domainTransitionEndpoints('academic-years'),
+  admin: {
+    components: domainTransitionComponents,
+    useAsTitle: 'label',
+    defaultColumns: ['label', 'startDate', 'endDate', '_status'],
+  },
   access: {
     create: authenticated,
     read: readPublishedOrStaff,
@@ -17,6 +28,7 @@ export const AcademicYears: CollectionConfig = {
     delete: deleteDraftContent,
   },
   fields: [
+    ...domainPublicationFields,
     { name: 'label', type: 'text', required: true },
     { name: 'startDate', type: 'date', admin: { date: { pickerAppearance: 'dayOnly' } } },
     { name: 'endDate', type: 'date', admin: { date: { pickerAppearance: 'dayOnly' } } },
@@ -24,7 +36,7 @@ export const AcademicYears: CollectionConfig = {
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],
-    beforeChange: [validateDomainReferences],
+    beforeChange: [retainDomainAudit, validateDomainReferences],
   },
-  versions: { drafts: { autosave: false, schedulePublish: false }, maxPerDoc: 50 },
+  versions: { drafts: { autosave: false, schedulePublish: true }, maxPerDoc: 50 },
 }

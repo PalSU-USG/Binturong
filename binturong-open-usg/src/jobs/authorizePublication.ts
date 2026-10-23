@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import {
   APIError,
   commitTransaction,
@@ -11,59 +10,36 @@ import {
 
 import { hasRole } from '@/access/roles'
 import { lockAccounts } from '@/collections/Users/accountProvisioning'
+import { isDomainCollection } from '@/collections/shared/domainCollections'
+import { transitionDomainRecord } from '@/collections/shared/transitionDomainRecord'
+import {
+  latestPublicationVersion,
+  serialID,
+  type PublicationCollection,
+} from './publicationRevision'
+export { latestPublicationVersion, positiveID } from './publicationRevision'
 
 export type PublicationProof = {
   accountID: number
-  collection: 'pages' | 'posts'
+  collection: PublicationCollection
   documentID: number
   versionID: number
   versionHash: string
 }
 
-export const positiveID = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isSafeInteger(value) && value > 0
-
 function validProof(value: unknown): value is PublicationProof & Record<string, unknown> {
   if (!value || typeof value !== 'object') return false
   const proof = value as Partial<PublicationProof>
   return (
-    positiveID(proof.accountID) &&
-    positiveID(proof.documentID) &&
-    positiveID(proof.versionID) &&
-    (proof.collection === 'pages' || proof.collection === 'posts') &&
+    serialID(proof.accountID) &&
+    serialID(proof.documentID) &&
+    serialID(proof.versionID) &&
+    (proof.collection === 'pages' ||
+      proof.collection === 'posts' ||
+      isDomainCollection(proof.collection)) &&
     typeof proof.versionHash === 'string' &&
     /^[a-f0-9]{64}$/.test(proof.versionHash)
   )
-}
-
-export async function latestPublicationVersion(
-  req: PayloadRequest,
-  collection: 'pages' | 'posts',
-  documentID: number,
-) {
-  const result = await req.payload.findVersions({
-    collection,
-    where: { parent: { equals: documentID } },
-    sort: ['-updatedAt', '-id'],
-    depth: 0,
-    limit: 1,
-    overrideAccess: false,
-    req,
-  })
-  const version = result.docs[0]
-  if (!version) throw new APIError('Save the document before scheduling it', 409)
-  return {
-    ...version,
-    id: Number(version.id),
-    hash: createHash('sha256')
-      .update(
-        JSON.stringify({
-          version: version.version,
-          updatedAt: version.updatedAt,
-        }),
-      )
-      .digest('hex'),
-  }
 }
 
 export async function authorizePublication(
@@ -132,21 +108,30 @@ export const scheduledPublication: TaskHandler<'schedulePublish'> = async ({
     }
     await authorizePublication(req, proof)
     if (!hasReceipt) {
-      const reviewed = await latestPublicationVersion(req, input.collection, input.documentID)
-      const data = {
-        ...reviewed.version,
-        _status: input.type === 'publish' ? ('published' as const) : ('draft' as const),
+      if (isDomainCollection(input.collection)) {
+        await transitionDomainRecord(req, {
+          collection: input.collection,
+          documentID: input.documentID,
+          action: input.type === 'publish' ? 'publish' : 'withdraw',
+          expected: { versionID: input.versionID, versionHash: input.versionHash },
+        })
+      } else {
+        const reviewed = await latestPublicationVersion(req, input.collection, input.documentID)
+        const data = {
+          ...reviewed.version,
+          _status: input.type === 'publish' ? ('published' as const) : ('draft' as const),
+        }
+        if ('populatedAuthors' in data) delete data.populatedAuthors
+        await req.payload.update({
+          collection: input.collection,
+          id: input.documentID,
+          data,
+          depth: 0,
+          draft: false,
+          overrideAccess: false,
+          req,
+        })
       }
-      if ('populatedAuthors' in data) delete data.populatedAuthors
-      await req.payload.update({
-        collection: input.collection,
-        id: input.documentID,
-        data,
-        depth: 0,
-        draft: false,
-        overrideAccess: false,
-        req,
-      })
       await requireTransaction()
       const applied = await latestPublicationVersion(req, input.collection, input.documentID)
       await req.payload.update({

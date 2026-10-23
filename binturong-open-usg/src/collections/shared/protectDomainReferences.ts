@@ -16,7 +16,7 @@ type DomainCollection =
   | 'issuances'
   | 'reports'
   | 'posts'
-const references: Partial<
+export const references: Partial<
   Record<DomainCollection, Record<string, DomainCollection | DomainCollection[]>>
 > = {
   offices: { organization: 'organizations', parent: 'offices' },
@@ -45,7 +45,7 @@ function invalid(req: PayloadRequest, collection: string, path: string, message:
   throw new ValidationError({ collection, req, errors: [{ path, message }] })
 }
 
-function referenceID(value: unknown): number | undefined {
+export function referenceID(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') return
   if (typeof value === 'object' && 'id' in value) return referenceID(value.id)
   const id = typeof value === 'string' && /^[1-9]\d*$/.test(value) ? Number(value) : value
@@ -54,7 +54,11 @@ function referenceID(value: unknown): number | undefined {
     : undefined
 }
 
-function valuesAt(data: unknown, path: string, prefix = ''): { path: string; value: unknown }[] {
+export function valuesAt(
+  data: unknown,
+  path: string,
+  prefix = '',
+): { path: string; value: unknown }[] {
   if (Array.isArray(data))
     return data.flatMap((row, index) => valuesAt(row, path, `${prefix}${index}.`))
   if (!data || typeof data !== 'object') return []
@@ -122,13 +126,13 @@ export async function validateDomainWithdrawal(
   target: 'organizations' | 'offices',
   id: number,
 ): Promise<void> {
-  for (const collection of ['issuances', 'reports'] as const) {
-    const field =
-      target === 'organizations'
-        ? 'organization'
-        : collection === 'issuances'
-          ? 'issuingOffice'
-          : 'responsibleOffices'
+  for (const [source, paths] of Object.entries(references)) {
+    const collection = source as DomainCollection
+    if (!req.payload.collections[collection].config.versions) continue
+    const fields = Object.entries(paths)
+      .filter(([, referenced]) => referenced === target)
+      .map(([path]) => path)
+    if (!fields.length) continue
     const result = await req.payload.find({
       collection,
       req,
@@ -137,10 +141,15 @@ export async function validateDomainWithdrawal(
       depth: 0,
       limit: 1,
       select: { createdAt: true },
-      where: { and: [{ _status: { equals: 'published' } }, { [field]: { equals: id } }] },
+      where: {
+        and: [
+          { _status: { equals: 'published' } },
+          { or: fields.map((field) => ({ [field]: { equals: id } })) },
+        ],
+      },
     })
     if (result.docs.length)
-      throw new APIError('Published official records require this organization or office', 409)
+      throw new APIError('Published records require this organization or office', 409)
   }
 }
 

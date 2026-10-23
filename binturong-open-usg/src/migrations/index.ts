@@ -7,6 +7,7 @@ import * as migration_20261022_051329_domain_metadata from './20261022_051329_do
 import * as migration_20261022_071500_domain_directory from './20261022_071500_domain_directory'
 import * as migration_20261022_075642_formal_record_drafts from './20261022_075642_formal_record_drafts'
 import * as migration_20261022_110027_record_integrity from './20261022_110027_record_integrity'
+import * as migration_20261023_010945_reviewed_domain_transitions from './20261023_010945_reviewed_domain_transitions'
 
 export const migrations = [
   {
@@ -53,5 +54,10 @@ export const migrations = [
     up: migration_20261022_110027_record_integrity.up,
     down: migration_20261022_110027_record_integrity.down,
     name: '20261022_110027_record_integrity',
+  },
+  {
+    up: migration_20261023_010945_reviewed_domain_transitions.up,
+    down: migration_20261023_010945_reviewed_domain_transitions.down,
+    name: '20261023_010945_reviewed_domain_transitions',
   },
 ]

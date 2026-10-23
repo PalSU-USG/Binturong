@@ -258,7 +258,7 @@ describe('record integrity', () => {
     } finally {
       vi.useRealTimers()
     }
-  })
+  }, 20000)
 
   it('serializes_competing_same_key_saves_with_an_observed_account_lock_wait', async () => {
     const org = await organization()

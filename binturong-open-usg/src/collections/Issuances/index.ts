@@ -1,3 +1,9 @@
+import {
+  domainPublicationFields,
+  retainDomainAudit,
+  domainTransitionComponents,
+} from '../shared/domainPublicationFields'
+import { domainTransitionEndpoints } from '../shared/domainTransitionEndpoints'
 import type { CollectionConfig, NumberFieldValidation, TextFieldSingleValidation } from 'payload'
 import { authenticated } from '@/access/authenticated'
 import { deleteDraftContent, readPublishedOrStaff } from '@/access/contentAccess'
@@ -20,8 +26,10 @@ const hasDocumentNumber = (data: unknown) =>
 
 export const Issuances: CollectionConfig = {
   slug: 'issuances',
+  endpoints: domainTransitionEndpoints('issuances'),
   indexes: [{ fields: ['organization', 'type', 'seriesYear', 'normalizedNumber'], unique: true }],
   admin: {
+    components: domainTransitionComponents,
     useAsTitle: 'title',
     defaultColumns: ['title', 'type', 'documentNumber', 'seriesYear', '_status'],
   },
@@ -33,6 +41,7 @@ export const Issuances: CollectionConfig = {
     delete: deleteDraftContent,
   },
   fields: [
+    ...domainPublicationFields,
     { name: 'title', type: 'text', required: true },
     {
       name: 'organization',
@@ -89,7 +98,7 @@ export const Issuances: CollectionConfig = {
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences, validateNumberInput],
-    beforeChange: [validateDomainReferences, validateNumber],
+    beforeChange: [retainDomainAudit, validateDomainReferences, validateNumber],
   },
-  versions: { drafts: { autosave: false, schedulePublish: false }, maxPerDoc: 0 },
+  versions: { drafts: { autosave: false, schedulePublish: true }, maxPerDoc: 0 },
 }

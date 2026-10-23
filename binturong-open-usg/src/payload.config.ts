@@ -24,6 +24,7 @@ import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { publishContent } from './access/contentAccess'
 import { scheduledPublication } from './jobs/authorizePublication'
+import { domainCollections } from './collections/shared/domainCollections'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -122,7 +123,11 @@ export default buildConfig({
           name: 'doc',
           type: 'group',
           fields: [
-            { name: 'relationTo', type: 'select', options: ['pages', 'posts'] },
+            {
+              name: 'relationTo',
+              type: 'select',
+              options: ['pages', 'posts', ...domainCollections],
+            },
             { name: 'value', type: 'text' },
           ],
         }

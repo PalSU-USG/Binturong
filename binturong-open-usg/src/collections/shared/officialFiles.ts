@@ -1,6 +1,7 @@
 import { ValidationError, type PayloadRequest, type Validate } from 'payload'
 
 import { validateDomainReferences } from './protectDomainReferences'
+import type { DomainCollection } from './domainCollections'
 
 export async function requireOfficialFiles(
   req: PayloadRequest,
@@ -22,6 +23,24 @@ export async function validateOfficialCandidate(
   collectionSlug: 'issuances' | 'reports',
   data: Record<string, unknown>,
 ): Promise<never> {
+  await validateSavedCandidateFields(req, collectionSlug, data)
+  const collection = req.payload.collections[collectionSlug].config
+  await validateDomainReferences({
+    collection,
+    data,
+    originalDoc: data,
+    operation: 'update',
+    context: req.context,
+    req,
+  })
+  return requireOfficialFiles(req, data)
+}
+
+export async function validateSavedCandidateFields(
+  req: PayloadRequest,
+  collectionSlug: DomainCollection,
+  data: Record<string, unknown>,
+): Promise<void> {
   const collection = req.payload.collections[collectionSlug].config
   const errors: { path: string; message: string }[] = []
   // Reuse sanitized schema validators without rerunning field hooks or saving a revision.
@@ -67,13 +86,4 @@ export async function validateOfficialCandidate(
     if (typeof result === 'string') errors.push({ path: field.name, message: result })
   }
   if (errors.length) throw new ValidationError({ collection: collectionSlug, req, errors })
-  await validateDomainReferences({
-    collection,
-    data,
-    originalDoc: data,
-    operation: 'update',
-    context: req.context,
-    req,
-  })
-  return requireOfficialFiles(req, data)
 }

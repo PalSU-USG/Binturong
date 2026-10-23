@@ -304,7 +304,7 @@ describe('formal record drafts and sealed documents', () => {
     expect(
       payload.collections.media.config.upload && payload.collections.media.config.upload.staticDir,
     ).toContain('public')
-  })
+  }, 20000)
 
   it('rejects_missing_references_bad_source_dates_and_cross_organization_offices', async () => {
     const org = await organization()

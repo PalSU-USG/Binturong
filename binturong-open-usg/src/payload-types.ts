@@ -798,6 +798,16 @@ export interface Form {
  */
 export interface Organization {
   id: number;
+  publishedAt?: string | null;
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
   name: string;
   kind: 'usg' | 'csg' | 'university_unit';
   participating?: boolean | null;
@@ -816,6 +826,16 @@ export interface Organization {
  */
 export interface AcademicYear {
   id: number;
+  publishedAt?: string | null;
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
   label: string;
   startDate?: string | null;
   endDate?: string | null;
@@ -834,6 +854,16 @@ export interface AcademicYear {
  */
 export interface Office {
   id: number;
+  publishedAt?: string | null;
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
   name: string;
   organization: number | Organization;
   parent?: (number | null) | Office;
@@ -853,6 +883,16 @@ export interface Office {
  */
 export interface Person {
   id: number;
+  publishedAt?: string | null;
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
   name: string;
   terms?:
     | {
@@ -878,6 +918,16 @@ export interface Person {
  */
 export interface Activity {
   id: number;
+  publishedAt?: string | null;
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
   title: string;
   organization: number | Organization;
   academicYear?: (number | null) | AcademicYear;
@@ -932,6 +982,16 @@ export interface Document {
  */
 export interface Issuance {
   id: number;
+  publishedAt?: string | null;
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
   title: string;
   organization: number | Organization;
   issuingOffice?: (number | null) | Office;
@@ -994,6 +1054,16 @@ export interface Issuance {
  */
 export interface Report {
   id: number;
+  publishedAt?: string | null;
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
   title: string;
   organization: number | Organization;
   responsibleOffices?: (number | Office)[] | null;
@@ -1665,6 +1735,18 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "organizations_select".
  */
 export interface OrganizationsSelect<T extends boolean = true> {
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
   name?: T;
   kind?: T;
   participating?: T;
@@ -1679,6 +1761,18 @@ export interface OrganizationsSelect<T extends boolean = true> {
  * via the `definition` "academic-years_select".
  */
 export interface AcademicYearsSelect<T extends boolean = true> {
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
   label?: T;
   startDate?: T;
   endDate?: T;
@@ -1693,6 +1787,18 @@ export interface AcademicYearsSelect<T extends boolean = true> {
  * via the `definition` "offices_select".
  */
 export interface OfficesSelect<T extends boolean = true> {
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
   name?: T;
   organization?: T;
   parent?: T;
@@ -1708,6 +1814,18 @@ export interface OfficesSelect<T extends boolean = true> {
  * via the `definition` "people_select".
  */
 export interface PeopleSelect<T extends boolean = true> {
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
   name?: T;
   terms?:
     | T
@@ -1729,6 +1847,18 @@ export interface PeopleSelect<T extends boolean = true> {
  * via the `definition` "activities_select".
  */
 export interface ActivitiesSelect<T extends boolean = true> {
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
   title?: T;
   organization?: T;
   academicYear?: T;
@@ -1764,6 +1894,18 @@ export interface DocumentsSelect<T extends boolean = true> {
  * via the `definition` "issuances_select".
  */
 export interface IssuancesSelect<T extends boolean = true> {
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
   title?: T;
   organization?: T;
   issuingOffice?: T;
@@ -1789,6 +1931,18 @@ export interface IssuancesSelect<T extends boolean = true> {
  * via the `definition` "reports_select".
  */
 export interface ReportsSelect<T extends boolean = true> {
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
   title?: T;
   organization?: T;
   responsibleOffices?: T;
@@ -2206,7 +2360,19 @@ export interface TaskSchedulePublish {
     type?: ('publish' | 'unpublish') | null;
     locale?: string | null;
     doc?: {
-      relationTo?: ('pages' | 'posts') | null;
+      relationTo?:
+        | (
+            | 'pages'
+            | 'posts'
+            | 'organizations'
+            | 'academic-years'
+            | 'offices'
+            | 'people'
+            | 'activities'
+            | 'issuances'
+            | 'reports'
+          )
+        | null;
       value?: string | null;
     };
     global?: string | null;

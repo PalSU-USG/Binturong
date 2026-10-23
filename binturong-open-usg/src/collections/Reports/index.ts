@@ -1,3 +1,9 @@
+import {
+  domainPublicationFields,
+  retainDomainAudit,
+  domainTransitionComponents,
+} from '../shared/domainPublicationFields'
+import { domainTransitionEndpoints } from '../shared/domainTransitionEndpoints'
 import type { CollectionConfig } from 'payload'
 import { authenticated } from '@/access/authenticated'
 import { deleteDraftContent, readPublishedOrStaff } from '@/access/contentAccess'
@@ -10,7 +16,12 @@ import {
 
 export const Reports: CollectionConfig = {
   slug: 'reports',
-  admin: { useAsTitle: 'title', defaultColumns: ['title', 'type', 'reportingPeriod', '_status'] },
+  endpoints: domainTransitionEndpoints('reports'),
+  admin: {
+    components: domainTransitionComponents,
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'type', 'reportingPeriod', '_status'],
+  },
   access: {
     create: authenticated,
     read: readPublishedOrStaff,
@@ -19,6 +30,7 @@ export const Reports: CollectionConfig = {
     delete: deleteDraftContent,
   },
   fields: [
+    ...domainPublicationFields,
     { name: 'title', type: 'text', required: true },
     {
       name: 'organization',
@@ -53,7 +65,7 @@ export const Reports: CollectionConfig = {
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],
-    beforeChange: [validateDomainReferences],
+    beforeChange: [retainDomainAudit, validateDomainReferences],
   },
-  versions: { drafts: { autosave: false, schedulePublish: false }, maxPerDoc: 0 },
+  versions: { drafts: { autosave: false, schedulePublish: true }, maxPerDoc: 0 },
 }
