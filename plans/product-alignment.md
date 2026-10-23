@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task6 in progress               | Whole-slice browser, migration and handoff verification                         |
+| 2: execution              | Phase02 Task6 verified; review pending  | Whole-slice browser, migration and handoff verification                         |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,101 +15,52 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
-  and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
-  Tasks1-5 independently accepted; Task5's sole P2 is addressed in fix round1.
-  Independent re-review passes specification and quality with no new finding.
-  Task6 whole-slice verification is active; private storage remains unstarted.
+- Phase02 is Slice1b domain/schema. Follow the approved
+  [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md) and
+  [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md). Tasks1-5 are
+  independently accepted historically, including Task5 correction `11392f8` at
+  `adbf956`. Task6 traces independently confirmed a new editor-review P2;
+  its correction is self-verified, with the affected gate pending independent review.
+  Official storage, public records/search and deployment remain unstarted.
 - Active Task6: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-verification`,
-  branch `Hawksprey420/domain-verification`, accepted base
-  `1cc2248b82ea1da218d44f18bc1e3c6d07e3d009`. Native Orca child of accepted Task5;
-  dependencies moved intact and private environment copies hash-matched. No install.
-  Scope: `tests/e2e/domain.e2e.spec.ts`, `tests/int/domain-migrations.int.spec.ts`,
-  narrowly needed synthetic fixture helpers and `docs/local-development.md`.
-  Preserve IDs, credentials, relationships, URLs, sealed official files and fresh
-  role/revision enforcement. Guarded test DB has one writer; main/cloud data excluded.
-  Checks: `npm test`, `npm exec -- tsc --noEmit --incremental false`, `npm run lint`,
-  explicit changed-file ESLint `--max-warnings=0`, and
-  `npm run test:e2e -- --config=playwright.production.config.ts` (guarded build/cache).
-  Add fresh/populated disposable migration, repeat, preservation, constraint, actual
-  restricted-role and rollback proofs. No down over retained records; no bare build.
-- Accepted Task5: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-transitions`,
-  branch `Hawksprey420/domain-transitions`, accepted base `f36259082216f8859396246d9edc7fbaace50548`,
-  kickoff `2de45abc5b6ecd3f0a88ff41ac0bfbbbe8e2f315`. Verified runtime commit
-  `89d38e7de2e878559df98f81122a4c8c8f67914d`, original checkpoint `31c23fa`.
-  Review fix `11392f894ece737d352bef59d632591934c48f6e` changes only the review
-  renderer/caller and focused renderer/Activity browser regressions; task tree clean.
-  The native task worktree and dependency baseline were retained; no integration or push.
-- Acceptance,23 October: reviewer `/root/review_domain_transitions` checked clean
-  HEAD `adbf956f033dc7bf4f6d95ef510b72e91d6ff5d3`; its fresh renderer5/5, types and
-  four-file lint pass. Original43 native tests/snapshot and scoped fix evidence are
-  separate checks. Original review and fix-round report remain in the ignored task
-  ledger. Reviewer released source/process/guarded DB ownership; no finding remains.
-- Accepted runtimes: Task1 `8c9381d`, Task2 `5111c04`, Task3 `582ac3a`, Task4
-  `351ae3a` (acceptance `f362590`). Task5 adds the reviewed revision service,
-  native review/restore/scheduling controls, protected first-publication/audit fields,
-  canonical withdrawal/reference protection, stable slugs, and atomic job receipts.
-  Direct CRUD/native restore, forged audit/context, stale proof, revoked authority,
-  invalid references and official publication remain denied at server boundaries.
-- Fix round1, 23 October: supported internal Pages/Posts rich-text links previously
-  rendered identical `href="#"` for different depth-zero saved targets. A review-only
-  converter now shows the exact saved collection/record ID beside the formatted label;
-  native external-link conversion is retained. No target fetch, guessed slug route,
-  proof/security/schema/dependency change. Actual shipped-renderer RED4fail/1pass,
-  then GREEN5/5. All3 domain browser cases pass, including Activity latest/historical
-  targets; final typed Activity fixture passes1/1. Types/changed4-file lint and guarded
-  production build/cache1/1 pass. Initial browser readiness timeout executed0tests;
-  initial fixture type error (missing native paragraph textFormat) was corrected.
-  Old failed evidence is retained; final release check confirms exact new fixtures
-  and versions absent, no jobs/barriers/other guarded or proof sessions.
-- Original runtime verification, 23 October: `npm run test:int` passes181/181 in16files,
-  including155 predecessor cases; `npm exec -- tsc --noEmit --incremental false`
-  and explicit changed-source ESLint `--max-warnings=0` pass. Generated contracts
-  were reviewed/formatted. Two existing stress cases alone retain measured20s limits.
-- Relevant native Playwright suite passes2/2: exact displayed content, stale409/public
-  isolation, two Save Draft200 cycles without serialized audit fields, narrow drawer,
-  focus/Escape, confirmed/conflicting/cancelled schedules, historical restore, editor
-  denial and official field errors. `npm run test:e2e -- --config=playwright.production.config.ts`
-  passes1/1 and includes the guarded production build/postbuild and warmed Posts-cache
-  withdrawal proof. The latter preserves existing Posts behavior; no new public routes.
-- Nine targeted guard mutations fail intended assertions and restore exact bytes:
-  queue-abort, persisted-job int4, expected hash, replay predecessor, private grant,
-  canonical withdrawal, first-published slug, current CSG participation and private audit.
-  Strengthened the synthetic forgery fixture so native required-field validation cannot
-  mask the private-grant bypass. Restored full suite passes afterward.
-- New migration `20261023_010945_reviewed_domain_transitions` adds exactly112 nullable
-  columns/14enums; predecessor snapshot otherwise identical. Ten native migrations
-  pass on retained fresh and populated nine-migration proof databases, repeat no-op,
-  additive DDL rollback, old-column/ID/password-verifier/relationship/URL/history
-  preservation and actual anon/authenticated SELECT denial. No down over retained data.
-  First fresh proof passed assertions but its helper process timed out on open adapter
-  handles; corrected helper teardown then both modes exited0. Applied only locally.
-- Actual Orca inspection used a private synthetic record with real REST-session login200.
-  Reviewed desktop1280x900/narrow390x844 screenshots and saved-content/history/date/empty
-  states; focus, Tab within drawer and Escape close worked. Orca ref click/Enter did not
-  activate some React controls; invoked the mounted review button's click handler for
-  rendering inspection. Native mouse/login proof comes from Playwright, not this limit.
-  Narrow drawer adds no overflow (own0; inherited root410px at390px, same when closed).
-  Native12px admin type and shell overflow remain; no institutional visual approval or
-  complete zoom/contrast certification is claimed.
-- Retained failed evidence is scoped: initial endpoint/slug/provenance REDs, first full
-  run176/181, and invalid old queue-hook injection. The hook never ran because native
-  queueing bypasses collection hooks; corrected injection performs the real insert,
-  proves request identity, kills its transaction and asserts injection occurred.
-  See ignored `.superpowers/sdd/2026-10-20-domain-foundations/task5-implementer-report.md`
-  and its exact logs/helpers for current evidence.
-- Cleanup verified: exact owned orphan jobs674/678/722 removed only after ID/time/full-input
-  and absent fixture-account/record assertions; Orca record1263/versions/four accounts
-  removed; no jobs, cache barrier/function, guarded/proof database sessions, server on
-  ports3003/3004 or worktree browser tabs remain. Exclusive DB ownership released.
-- Official file writes/delivery and successful official publish/restore remain sealed
-  until private storage verification. No main/cloud/branch-data writes, dependencies,
-  Task6 implementation, integration/push or owner-stash changes. Owner stash
-  `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains. Full lint was not rerun here;
-  prior whole-app5 errors/10warnings remain separate from clean changed-source lint.
-- Next action: implement Task6's browser and durable migration regressions, run the
-  whole-slice checks above and request independent whole-slice review. Record actual
-  failures/skips separately from acceptance. No storage, integration or push here.
+  branch `Hawksprey420/domain-verification`; accepted base
+  `1cc2248b82ea1da218d44f18bc1e3c6d07e3d009`, kickoff `0bebed6`.
+  Implementation commits: `c8eafd2` fixes editor review without publisher-only
+  scheduling; `dbf3814` adds whole-slice tests, guarded synthetic migration proofs,
+  documentation and the supported optional native lock takeover in the access test.
+  Existing server authorization/proofs and publisher scheduling are unchanged.
+- Final `npm test`: 188/188 integration in 18 files (191.75s), 12/12 browser (5.4m).
+  Guarded production Playwright builds successfully and passes the cache race case
+  (1/1, 1.4m). Types and strict lint across all six changed source/test files pass.
+  Full lint remains failed: 5 inherited Header/Card/Theme errors and 10 warnings.
+- Migration tests pass fresh and populated (2/2): all ten migrations, repeat no-op,
+  old IDs/password verifier/relationships/Post URL, number/history adoption, canonical
+  uniqueness/FK denial and additive DDL rollback. Restricted-role checks include
+  all 21 domain tables/20 sequences and actual anon/authenticated CRUD denial.
+  Six intact synthetic proof databases and two deliberately altered sensitivity
+  artifacts remain; both guard mutations failed as intended, helper bytes restored.
+- Meaningful editor-review regression RED observed the settled permission alert;
+  focused GREEN passes all four transition cases, including publisher scheduling.
+  Initial whole run (188 integration, 8/11 browser), native-lock/readiness/geometry
+  failures, one read ECONNRESET and a zero-test server timeout remain in private logs.
+  Final GREEN supersedes those runs without erasing their evidence.
+- Actual Orca inspection confirms settled editor review without alerts/scheduling,
+  narrow drawer overflow zero, Tab to the history combobox and Escape dismissal.
+  Desktop capture remains tiled; mounted click was needed for Orca React activation.
+  Native interaction proof is Playwright. The inherited 20px shell overflow remains.
+- Exact Orca fixtures/accounts and browser fixtures are removed; jobs/barriers and
+  guarded/proof DB sessions are zero, with ten test migration receipts retained.
+  Owned browser tab/server are closed; ports 3003/3004 and worktree Node processes
+  are clear. Source/process/guarded DB ownership is released for independent review.
+  Generated types were restored after matching the HEAD blob; import map and
+  dependency baseline are unchanged. No main/cloud/branch-data writes occurred.
+- Detailed commands, failures, traces and the eight-database inventory belong to ignored
+  `.superpowers/sdd/2026-10-20-domain-foundations/task6-implementer-report.md` and its
+  linked logs. Earlier Task5 evidence remains in its report and Git history.
+  Owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` is preserved.
+- Next action: independently review the P2 correction and whole slice at the recorded
+  commits; the following documentation commit records this handoff. No merge,
+  push, deployment, main/cloud/branch-data writes or private-storage implementation.
 
 ## Sources and reconnaissance snapshot
 
