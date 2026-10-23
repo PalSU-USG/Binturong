@@ -325,6 +325,46 @@ test.describe('native reviewed domain controls', () => {
     expect((await request.get(`/api/activities/${activityID}`)).status()).toBe(404)
   })
 
+  test('editor reviews saved, latest and historical content without scheduling access', async ({
+    page,
+  }) => {
+    await login({ page, user: { email: fixtures.users.editor.email, password: fixturePassword } })
+    await page.goto(`/admin/collections/organizations/${id}`)
+    const original = await (await page.request.get(`/api/organizations/${id}/review`)).json()
+    const schedulingRequests: string[] = []
+    page.on('request', (request) => {
+      if (request.postData()?.includes('get-upcoming-scheduled-publish'))
+        schedulingRequests.push(request.url())
+    })
+    const drawer = page.locator('.domain-review')
+    async function expectEditorReview() {
+      await expect(page.getByTestId('domain-reviewed-content')).toContainText(name)
+      await expect(drawer.getByRole('status')).toBeHidden({ timeout: 15000 })
+      await expect(drawer.getByRole('alert')).toHaveCount(0)
+      await expect(drawer).toContainText('A publisher can publish')
+      await expect(
+        drawer.getByRole('heading', { name: 'Scheduled changes', exact: true }),
+      ).toHaveCount(0)
+      await expect(drawer.getByText('No scheduled changes.', { exact: true })).toHaveCount(0)
+      await expect(
+        drawer.getByRole('button', { name: /^(Publish|Restore|Schedule|Cancel) reviewed/ }),
+      ).toHaveCount(0)
+      expect(schedulingRequests).toEqual([])
+    }
+    await page.getByRole('button', { name: 'Review saved revision', exact: true }).click()
+    await expectEditorReview()
+    await page.getByRole('button', { name: 'Review latest saved revision', exact: true }).click()
+    await expectEditorReview()
+    await page.getByLabel('Historical version', { exact: true }).click()
+    await page
+      .getByRole('option')
+      .filter({ hasText: `(version ${original.reviewed.versionID})` })
+      .click()
+    await page.getByRole('button', { name: 'Review selected version', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Historical content to restore' })).toBeVisible()
+    await expectEditorReview()
+  })
+
   test('allows editor review and displays complete official publication errors', async ({
     page,
     request,

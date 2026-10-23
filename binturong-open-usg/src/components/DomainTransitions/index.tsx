@@ -217,8 +217,10 @@ export default function DomainTransitions() {
       setSavedAt(data?.updatedAt)
       setMode(versionID ? 'restore' : 'publish')
       setSelected(versionID ?? '')
-      const jobs = await getUpcomingScheduledPublish({ collectionSlug, id })
-      if (Array.isArray(jobs)) setUpcoming(jobs)
+      if (canPublish) {
+        const jobs = await getUpcomingScheduledPublish({ collectionSlug, id })
+        if (Array.isArray(jobs)) setUpcoming(jobs)
+      }
     } catch (error) {
       setError(
         error instanceof Error
@@ -419,27 +421,31 @@ export default function DomainTransitions() {
                   </Button>
                 </>
               )}
-              <h3>Scheduled changes</h3>
-              {!upcoming.length ? (
-                <p>No scheduled changes.</p>
-              ) : (
-                <ul>
-                  {upcoming.map((job) => (
-                    <li key={job.id}>
-                      {job.input.type === 'unpublish' ? 'Withdrawal' : 'Publication'}:{' '}
-                      {new Date(job.waitUntil).toLocaleString()}
-                      {canPublish && (
-                        <Button
-                          buttonStyle="secondary"
-                          disabled={busy}
-                          onClick={() => void schedule(job.id)}
-                        >
-                          Cancel scheduled change
-                        </Button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+              {canPublish && (
+                <>
+                  <h3>Scheduled changes</h3>
+                  {!upcoming.length ? (
+                    <p>No scheduled changes.</p>
+                  ) : (
+                    <ul>
+                      {upcoming.map((job) => (
+                        <li key={job.id}>
+                          {job.input.type === 'unpublish' ? 'Withdrawal' : 'Publication'}:{' '}
+                          {new Date(job.waitUntil).toLocaleString()}
+                          {canPublish && (
+                            <Button
+                              buttonStyle="secondary"
+                              disabled={busy}
+                              onClick={() => void schedule(job.id)}
+                            >
+                              Cancel scheduled change
+                            </Button>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
               )}
             </>
           )}
