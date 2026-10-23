@@ -189,9 +189,18 @@ scopes. Whole-slice verification is Task6; official storage remains sealed.
 
 **Files:** create `tests/e2e/domain.e2e.spec.ts`, `tests/int/domain-migrations.int.spec.ts`; update `docs/local-development.md` and `plans/product-alignment.md` with actual evidence, not copied completion claims. Extend test helpers only for private synthetic fixtures; no production provisioning bypass.
 
-- [ ] Browser: editor saves organization/year/office/person/activity/record drafts; publisher reviews/publishes metadata; stale proof and editor transitions fail; known-invalid records show field errors; official file controls remain unavailable. Assert actual API/public state, keyboard/focus and narrow-screen behavior. No institutional visual approval is claimed.
-- [ ] Apply all migrations to fresh and populated disposable predecessors; repeat no-op; preserve existing IDs, password verifiers, relationships, URLs and main/cloud data. Prove canonical unique/FK constraints, denied direct DB-role grants and representative rollback. No down migration over retained records.
-- [ ] Run `npm test`, types, full lint, changed lint, production-cache check and production build. Record inherited lint errors separately; new source failures block acceptance. Review generated types/import map, final diff, private exclusions and owner stash preservation.
+Verification scope extension,24 October: actual browser evidence independently
+confirmed a P2 in editor review: it calls publisher-only scheduling and shows a
+permission error/unsupported empty list. Parent authorized a separate fix commit
+in `DomainTransitions/index.tsx` plus a focused browser regression, preserving
+editor latest/history review and publisher/server behavior. Historical Tasks1-5
+acceptance remains recorded; this newly discovered defect reopens the affected
+whole-slice gate until corrected and independently reviewed. The existing access
+browser test also needs the native optional lock takeover before publisher Save.
+
+- [x] Browser: editor saves organization/year/office/person/activity/record drafts; publisher reviews/publishes metadata; stale proof and editor transitions fail; known-invalid records show field errors; official file controls remain unavailable. Assert actual API/public state, keyboard/focus and narrow-screen behavior. No institutional visual approval is claimed.
+- [x] Apply all migrations to fresh and populated disposable predecessors; repeat no-op; preserve existing IDs, password verifiers, relationships, URLs and main/cloud data. Prove canonical unique/FK constraints, denied direct DB-role grants and representative rollback. No down migration over retained records.
+- [x] Run `npm test`, types, full lint, changed lint, production-cache check and production build. Record inherited lint errors separately; new source failures block acceptance. Review generated types/import map, final diff, private exclusions and owner stash preservation.
 - [ ] Request independent whole-slice review. Record accepted commits, real test counts, failed/skipped checks and remaining storage/deployment gates. Commit `test(domain): verify domain schemas and publication boundaries`. Do not merge/push automatically. Next approved roadmap item is private durable storage, followed by public records/search.
 
 ## Inspection sources and scope limits

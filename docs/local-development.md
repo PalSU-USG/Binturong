@@ -97,6 +97,52 @@ server uses port 3003. Neither server reuses the owner's application on port 300
 These checks verify access behavior, not the approved institutional design. Public
 screens still use the Payload template; the design-system and shell slices follow.
 
+## Domain verification
+
+Apply all ten reviewed Payload migrations before running the domain workflow.
+Keep automatic schema push disabled. Run the checks from the task checkout with
+its private `.env.test`; a copied `.env` may still target an older branch schema.
+Do not run a bare production build against that file. The production Playwright
+command above loads and guards the test environment before building and starting.
+
+```powershell
+npm run test:int -- tests/int/domain-migrations.int.spec.ts
+npm run test:e2e -- tests/e2e/domain.e2e.spec.ts tests/e2e/domain-transitions.e2e.spec.ts
+npm test
+npm exec -- tsc --noEmit --incremental false
+npm run lint
+npm exec -- eslint src/components/DomainTransitions/index.tsx tests/e2e/domain-transitions.e2e.spec.ts tests/int/domain-migrations.int.spec.ts tests/helpers/domainMigrations.mjs tests/e2e/domain.e2e.spec.ts tests/e2e/access.e2e.spec.ts --max-warnings=0
+npm run test:e2e -- --config=playwright.production.config.ts
+```
+
+The migration suite requires local database-creation permission. After checking
+the exact `binturong_test` source URL, it creates uniquely named
+`binturong_domain_proof_fresh_*` and `binturong_domain_proof_populated_*` databases.
+Only those generated destinations receive migration fixtures. Every run retains
+them and prints their names for review; it never resets or drops an existing
+database or runs a down migration. Their later removal needs a separate deliberate
+cleanup. The populated case starts from the original baseline, retains a working
+synthetic password verifier and Post author/URL, then adopts directory/formal-record,
+number-normalization and audit migrations over retained records and history.
+It verifies repeat no-op, database constraints, actual restricted-role denial and
+rollback after additive DDL. This proves synthetic adoption, not hosted adoption
+or the accuracy of real institutional content.
+
+The browser workflow uses real editor/publisher login and native draft, lock
+takeover and reviewed-publication controls. Editors save all seven domain types;
+publishers publish metadata in reference order. It checks anonymous API output,
+published/draft separation, denied editor transitions, visible formal-record field
+errors, sealed document creation, keyboard actions and a 390px review drawer.
+The separate transition suite covers stale displayed revisions, history/restore,
+publisher scheduling and editor review without publisher-only scheduling requests.
+Official PDF writes/delivery and official-record publication stay
+blocked until the private-storage slice; these tests create no ready-file bypass.
+
+Run writers serially, including the production-cache barrier test. Full lint still
+has inherited Header/Card/Theme errors and migration/frontend warnings; record its
+actual result separately from strict changed-file lint. Passing these checks does
+not authorize storage, cloud adoption, integration, deployment or visual approval.
+
 ## First local super-admin
 
 The account migration makes existing users active editors; it promotes nobody.
