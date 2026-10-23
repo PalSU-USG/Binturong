@@ -21,7 +21,8 @@ changed. The current checkpoint below records subsequent approved execution.
   Task6 whole-slice verification and private storage remain unstarted.
 - Active Task5: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-transitions`,
   branch `Hawksprey420/domain-transitions`, accepted base `f36259082216f8859396246d9edc7fbaace50548`,
-  kickoff `2de45abc5b6ecd3f0a88ff41ac0bfbbbe8e2f315`. Runtime commit pending below.
+  kickoff `2de45abc5b6ecd3f0a88ff41ac0bfbbbe8e2f315`. Verified runtime commit
+  `89d38e7de2e878559df98f81122a4c8c8f67914d`; tracked task tree clean after commit.
   The native task worktree and dependency baseline were retained; no integration or push.
 - Accepted runtimes: Task1 `8c9381d`, Task2 `5111c04`, Task3 `582ac3a`, Task4
   `351ae3a` (acceptance `f362590`). Task5 adds the reviewed revision service,
