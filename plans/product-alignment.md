@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task5 awaits independent review | Reviewed transitions, audit and scheduling                                     |
+| 2: execution              | Phase02 Task5 fix awaits re-review      | Reviewed transitions, audit and scheduling                                     |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,12 +17,15 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
-  Tasks1-4 independently accepted; Task5 verified implementation awaits independent review.
+  Tasks1-4 independently accepted; initial Task5 review requested one P2 correction.
+  Fix round1 is verified and awaits independent re-review; Task5 is not accepted.
   Task6 whole-slice verification and private storage remain unstarted.
 - Active Task5: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-transitions`,
   branch `Hawksprey420/domain-transitions`, accepted base `f36259082216f8859396246d9edc7fbaace50548`,
   kickoff `2de45abc5b6ecd3f0a88ff41ac0bfbbbe8e2f315`. Verified runtime commit
-  `89d38e7de2e878559df98f81122a4c8c8f67914d`; tracked task tree clean after commit.
+  `89d38e7de2e878559df98f81122a4c8c8f67914d`, original checkpoint `31c23fa`.
+  Review fix `11392f894ece737d352bef59d632591934c48f6e` changes only the review
+  renderer/caller and focused renderer/Activity browser regressions; task tree clean.
   The native task worktree and dependency baseline were retained; no integration or push.
 - Accepted runtimes: Task1 `8c9381d`, Task2 `5111c04`, Task3 `582ac3a`, Task4
   `351ae3a` (acceptance `f362590`). Task5 adds the reviewed revision service,
@@ -30,7 +33,18 @@ changed. The current checkpoint below records subsequent approved execution.
   canonical withdrawal/reference protection, stable slugs, and atomic job receipts.
   Direct CRUD/native restore, forged audit/context, stale proof, revoked authority,
   invalid references and official publication remain denied at server boundaries.
-- Latest verified source, 23 October: `npm run test:int` passes181/181 in16files,
+- Fix round1, 23 October: supported internal Pages/Posts rich-text links previously
+  rendered identical `href="#"` for different depth-zero saved targets. A review-only
+  converter now shows the exact saved collection/record ID beside the formatted label;
+  native external-link conversion is retained. No target fetch, guessed slug route,
+  proof/security/schema/dependency change. Actual shipped-renderer RED4fail/1pass,
+  then GREEN5/5. All3 domain browser cases pass, including Activity latest/historical
+  targets; final typed Activity fixture passes1/1. Types/changed4-file lint and guarded
+  production build/cache1/1 pass. Initial browser readiness timeout executed0tests;
+  initial fixture type error (missing native paragraph textFormat) was corrected.
+  Old failed evidence is retained; final release check confirms exact new fixtures
+  and versions absent, no jobs/barriers/other guarded or proof sessions.
+- Original runtime verification, 23 October: `npm run test:int` passes181/181 in16files,
   including155 predecessor cases; `npm exec -- tsc --noEmit --incremental false`
   and explicit changed-source ESLint `--max-warnings=0` pass. Generated contracts
   were reviewed/formatted. Two existing stress cases alone retain measured20s limits.
@@ -75,8 +89,10 @@ changed. The current checkpoint below records subsequent approved execution.
   Task6 implementation, integration/push or owner-stash changes. Owner stash
   `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains. Full lint was not rerun here;
   prior whole-app5 errors/10warnings remain separate from clean changed-source lint.
-- Next action: parent dispatches independent Task5 review from accepted base to the
-  verified runtime/checkpoint commits. Do not treat implementer evidence as acceptance.
+- Next action: parent arranges focused independent re-review of `31c23fa..11392f8`
+  and this checkpoint, retaining the original review/evidence scopes. Full integration
+  and migration proofs were not repeated for this renderer-only repair. Do not treat
+  implementer verification as Task5 acceptance or start Task6/private storage here.
 
 ## Sources and reconnaissance snapshot
 
