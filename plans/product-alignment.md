@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Tasks1-5 accepted               | Task6 whole-slice verification next                                             |
+| 2: execution              | Phase02 Task6 in progress               | Whole-slice browser, migration and handoff verification                         |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -19,7 +19,20 @@ changed. The current checkpoint below records subsequent approved execution.
   and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
   Tasks1-5 independently accepted; Task5's sole P2 is addressed in fix round1.
   Independent re-review passes specification and quality with no new finding.
-  Task6 whole-slice verification and private storage remain unstarted.
+  Task6 whole-slice verification is active; private storage remains unstarted.
+- Active Task6: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-verification`,
+  branch `Hawksprey420/domain-verification`, accepted base
+  `1cc2248b82ea1da218d44f18bc1e3c6d07e3d009`. Native Orca child of accepted Task5;
+  dependencies moved intact and private environment copies hash-matched. No install.
+  Scope: `tests/e2e/domain.e2e.spec.ts`, `tests/int/domain-migrations.int.spec.ts`,
+  narrowly needed synthetic fixture helpers and `docs/local-development.md`.
+  Preserve IDs, credentials, relationships, URLs, sealed official files and fresh
+  role/revision enforcement. Guarded test DB has one writer; main/cloud data excluded.
+  Checks: `npm test`, `npm exec -- tsc --noEmit --incremental false`, `npm run lint`,
+  explicit changed-file ESLint `--max-warnings=0`, and
+  `npm run test:e2e -- --config=playwright.production.config.ts` (guarded build/cache).
+  Add fresh/populated disposable migration, repeat, preservation, constraint, actual
+  restricted-role and rollback proofs. No down over retained records; no bare build.
 - Accepted Task5: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-transitions`,
   branch `Hawksprey420/domain-transitions`, accepted base `f36259082216f8859396246d9edc7fbaace50548`,
   kickoff `2de45abc5b6ecd3f0a88ff41ac0bfbbbe8e2f315`. Verified runtime commit
@@ -94,10 +107,9 @@ changed. The current checkpoint below records subsequent approved execution.
   Task6 implementation, integration/push or owner-stash changes. Owner stash
   `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains. Full lint was not rerun here;
   prior whole-app5 errors/10warnings remain separate from clean changed-source lint.
-- Next action: create native `domain-verification` worktree from this accepted Task5
-  branch for Task6. Transfer the unchanged dependency baseline/private test environment,
-  record its exact base/path and run the plan's whole-slice checks there. No storage,
-  integration or push is authorized by this acceptance.
+- Next action: implement Task6's browser and durable migration regressions, run the
+  whole-slice checks above and request independent whole-slice review. Record actual
+  failures/skips separately from acceptance. No storage, integration or push here.
 
 ## Sources and reconnaissance snapshot
 
