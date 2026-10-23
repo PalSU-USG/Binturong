@@ -175,7 +175,15 @@ expect((await payload.countVersions({ collection: 'organizations',
 - [x] Enforce published slug stability in the shared slug field hook after native generation, including explicit slug edits, forced `generateSlug`, draft saves and restored snapshots. Return a field error if the first published slug would change; corrections require an explicit redirect migration. Native slug uniqueness alone does not establish this guard.
 - [x] Extend complete-candidate checks to published metadata and current CSG participation. On office publication/restore, compare the candidate organization with the canonical snapshot and block changes that reinterpret retained references, even when the latest draft already uses the new organization. Ordinary name-only draft edits remain allowed. Official publish/restore remains blocked by `requireOfficialFiles`; successful metadata transitions prove the shared transaction/audit path. File verification/successful official publication stay in Slice2's acceptance.
 - [x] Replace only new collections' `admin.components.edit.PublishButton`/`UnpublishButton`; put reviewed restore controls in supported `beforeDocumentControls`. Use installed `Button`, `useFormModified`, `useDocumentInfo` and form hooks. Bind proof to the saved revision actually displayed, never silently fetch a newer proof on click. Require a saved, unmodified reviewed form, show field/conflict errors and reload on success. Test another staff save between opening the form and publishing:409, no automatic retry or publication of unseen edits. Keep Pages/Posts UI unchanged. For new-domain scheduling, the control must carry the displayed `expected: RevisionProof` to the server; extend the typed native wrapper to validate that proof under the same lock before queueing. Missing/stale proof cannot silently select a newer saved revision. Preserve old Pages/Posts scheduling contracts. Extend execution receipts to new collections; jobs use the same transition service and recheck files/references/actor at execution. Preserve existing88 regressions.
-- [ ] Add rollback/retry, identical/concurrent transition, audit-forgery, relationship/privacy, job/autosave revision and withdrawal/cache tests. Generate/review artifacts; run focused/full integration, types, changed lint, build and browser checks. Commit `feat(publication): add reviewed domain transitions`; independent review.
+- [x] Add rollback/retry, identical/concurrent transition, audit-forgery, relationship/privacy, job/autosave revision and withdrawal/cache tests. Generate/review artifacts; run focused/full integration, types, changed lint, build and browser checks. Commit `feat(publication): add reviewed domain transitions`; independent review.
+
+**Acceptance:** Runtime `89d38e7`, review correction `11392f8`, checkpoint `adbf956`;
+independently accepted by `/root/review_domain_transitions` on23 October2026.
+Original43 native checks and snapshot comparison passed. Its sole P2 (hidden internal
+rich-text targets) is addressed; scoped re-review passes5 renderer tests, types and
+changed lint, with no new finding. Implementer181 integration cases,3 browser cases,
+guarded production build/cache, migrations and nine guard proofs retain their recorded
+scopes. Whole-slice verification is Task6; official storage remains sealed.
 
 ## Task 6: Whole-slice verification and handoff
 

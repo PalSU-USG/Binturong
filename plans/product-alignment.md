@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task5 fix awaits re-review      | Reviewed transitions, audit and scheduling                                     |
+| 2: execution              | Phase02 Tasks1-5 accepted               | Task6 whole-slice verification next                                             |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -17,16 +17,21 @@ changed. The current checkpoint below records subsequent approved execution.
 
 - Phase02 is Slice1b domain/schema. Follow the approved [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md)
   and [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md).
-  Tasks1-4 independently accepted; initial Task5 review requested one P2 correction.
-  Fix round1 is verified and awaits independent re-review; Task5 is not accepted.
+  Tasks1-5 independently accepted; Task5's sole P2 is addressed in fix round1.
+  Independent re-review passes specification and quality with no new finding.
   Task6 whole-slice verification and private storage remain unstarted.
-- Active Task5: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-transitions`,
+- Accepted Task5: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-transitions`,
   branch `Hawksprey420/domain-transitions`, accepted base `f36259082216f8859396246d9edc7fbaace50548`,
   kickoff `2de45abc5b6ecd3f0a88ff41ac0bfbbbe8e2f315`. Verified runtime commit
   `89d38e7de2e878559df98f81122a4c8c8f67914d`, original checkpoint `31c23fa`.
   Review fix `11392f894ece737d352bef59d632591934c48f6e` changes only the review
   renderer/caller and focused renderer/Activity browser regressions; task tree clean.
   The native task worktree and dependency baseline were retained; no integration or push.
+- Acceptance,23 October: reviewer `/root/review_domain_transitions` checked clean
+  HEAD `adbf956f033dc7bf4f6d95ef510b72e91d6ff5d3`; its fresh renderer5/5, types and
+  four-file lint pass. Original43 native tests/snapshot and scoped fix evidence are
+  separate checks. Original review and fix-round report remain in the ignored task
+  ledger. Reviewer released source/process/guarded DB ownership; no finding remains.
 - Accepted runtimes: Task1 `8c9381d`, Task2 `5111c04`, Task3 `582ac3a`, Task4
   `351ae3a` (acceptance `f362590`). Task5 adds the reviewed revision service,
   native review/restore/scheduling controls, protected first-publication/audit fields,
@@ -89,10 +94,10 @@ changed. The current checkpoint below records subsequent approved execution.
   Task6 implementation, integration/push or owner-stash changes. Owner stash
   `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains. Full lint was not rerun here;
   prior whole-app5 errors/10warnings remain separate from clean changed-source lint.
-- Next action: parent arranges focused independent re-review of `31c23fa..11392f8`
-  and this checkpoint, retaining the original review/evidence scopes. Full integration
-  and migration proofs were not repeated for this renderer-only repair. Do not treat
-  implementer verification as Task5 acceptance or start Task6/private storage here.
+- Next action: create native `domain-verification` worktree from this accepted Task5
+  branch for Task6. Transfer the unchanged dependency baseline/private test environment,
+  record its exact base/path and run the plan's whole-slice checks there. No storage,
+  integration or push is authorized by this acceptance.
 
 ## Sources and reconnaissance snapshot
 
