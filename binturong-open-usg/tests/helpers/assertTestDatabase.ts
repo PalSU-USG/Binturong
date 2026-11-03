@@ -1,5 +1,5 @@
 export function assertTestDatabase(connectionString: string | undefined): void {
-  const message = 'Tests require the local binturong_test database on port 55322'
+  const message = 'Tests require the local binturong_test database on port 55322 or 56322'
   let target: URL
 
   try {
@@ -11,7 +11,7 @@ export function assertTestDatabase(connectionString: string | undefined): void {
   if (
     !['postgres:', 'postgresql:'].includes(target.protocol) ||
     !['127.0.0.1', 'localhost'].includes(target.hostname) ||
-    target.port !== '55322' ||
+    !['55322', '56322'].includes(target.port) ||
     target.pathname !== '/binturong_test' ||
     target.search !== '' ||
     target.hash !== ''

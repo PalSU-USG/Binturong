@@ -30,6 +30,28 @@ and create `.env.test` with a `DATABASE_URL` targeting
 `127.0.0.1:55322/binturong_test`, its own `PAYLOAD_SECRET`, `PREVIEW_SECRET`,
 `CRON_SECRET`, and `NEXT_PUBLIC_SERVER_URL=http://localhost:3000`.
 
+## Temporary database port recovery
+
+If Windows reserves port 55322, the owner-approved fallback is loopback port 56322.
+The current `binturong-domain-review-db-56322` container reuses the exact original
+database image, environment, startup command, and named volume
+`supabase_db_binturong-open-usg`; the original container remains stopped.
+Never run both containers against that volume simultaneously. No volume was reset
+or migrated to establish this alternate binding. Supabase CLI configuration stays
+at its normal port; this temporary container is managed directly with Docker:
+
+```powershell
+docker start binturong-domain-review-db-56322
+docker stop binturong-domain-review-db-56322
+```
+
+For this checkout only, `.env.test` targets `127.0.0.1:56322/binturong_test` with
+its existing credentials. Test, migration-proof and account-provisioning guards
+accept exactly 55322 or 56322, retaining their hostname, database-name and URL-option
+checks. Other private environments and shared services remain unchanged.
+To return to the normal port once available, stop the temporary container first,
+start the original `supabase_db_binturong-open-usg`, and restore `.env.test` to 55322.
+
 ## Application migrations
 
 Payload owns its application tables and migration history. Automatic schema push

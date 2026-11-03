@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task6 review resumed; acceptance open | Live database/browser verification unavailable                           |
+| 2: execution              | Phase02 live verification resumed; acceptance open | Guarded alternate database port 56322 works                          |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,105 +15,52 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Active follow-up: `Hawksprey420/domain-participation-proof`, base `6068c74`,
-  checkout `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-participation-proof`.
-  Owner approved the direct-ownership participation rule on 3 November 2026.
-  Scope: specification clarification and `domain-publication.int.spec.ts` coverage;
-  no runtime, migration, dependency, authorization or API contract change.
-  Existing dependencies are reused by a local junction; only ignored `.env.test`
-  was copied from Task6, with its guarded local test target unchanged.
-- Follow-up checks: `npm exec -- tsc --noEmit --incremental false` and
-  `npm exec -- eslint tests/int/domain-publication.int.spec.ts --max-warnings=0`
-  pass. `npm run test:int -- tests/int/test-database.int.spec.ts
-  tests/int/roles.int.spec.ts tests/int/domain-review-richtext.int.spec.ts`
-  passes 16/16 in three files. The focused new case command
-  `npm run test:int -- tests/int/domain-publication.int.spec.ts -t
-  publishes_and_restores_shared_people_with_active_and_inactive_csg_office_terms`
-  exits 1 during suite setup: `ECONNREFUSED 127.0.0.1:55322`, all 27 cases skipped,
-  with an initialization unhandled rejection. No case body or fixture write ran.
-  This is infrastructure failure, not a behavioral RED or a passing regression.
-- Independent follow-up review (`review_participation_rule`) found no static
-  defect: all three publication paths use the shared candidate validator,
-  anonymous output checks exact office IDs, reverse cleanup preserves reference
-  order, and adjacent direct-owned publication/restore denial remains covered.
-  Runtime acceptance and sensitivity proof remain unavailable pending the DB.
-- Review resumed on 3 November 2026 at runtime/handoff `edf2f01` in the Task6
-  checkout below. Fresh types and strict six-file changed lint pass. Independent
-  database-free checks pass 16/16 (role policy, database guard, saved rich-text
-  review); these do not replace database/browser verification. Earlier counts
-  below remain historical results at the recorded commits.
-- Independent source review found no confirmed code defect in resolved contracts;
-  editor-review P2 is addressed in source and historical RED/GREEN evidence.
-  Final acceptance remains open. Review and explicit limitations:
-  Task6 checkout's ignored
-  `.superpowers/sdd/2026-10-20-domain-foundations/task6-independent-review-2026-11-03.md`.
-  Its later-slice exclusions remain deferred under the approved plan; snapshot
-  preservation and historical logs do not establish fresh live acceptance.
-- The existing local database container is stopped. Starting only
-  `supabase_db_binturong-open-usg` fails because Windows excludes TCP ports
-  55294–55393, including required port 55322 (IPv4 and IPv6). No test guard,
-  environment, host reservation, shared service or database data was changed.
-- Participation decision: current CSG participation gates directly owned records.
-  People remain shared identities and may reference published offices of inactive
-  CSGs, including mixed participating/inactive terms. The spec now makes this
-  explicit. Added characterization coverage for initial publication, later edit
-  publication and historical restore; existing direct-owned rejection coverage is
-  retained. No runtime correction or behavioral RED is claimed: this preserves
-  existing behavior. The new database-backed case is not yet executed because
-  guarded port 55322 is unavailable; its type/lint checks are separate evidence.
-- In the original Task6 checkout, `src/payload-types.ts` retains its pre-existing modified flag but has no content
-  diff and hashes to HEAD blob `2ba50503fc095e86901a4ede19917a589c4127d4`.
-  It was not restored, staged or regenerated during this review.
-
-- Phase02 is Slice1b domain/schema. Follow the approved
-  [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md) and
-  [plan](../docs/superpowers/plans/2026-10-20-domain-foundations.md). Tasks1-5 are
-  independently accepted historically, including Task5 correction `11392f8` at
-  `adbf956`. Task6 traces independently confirmed a new editor-review P2;
-  its correction is self-verified, with the affected gate pending independent review.
-  Official storage, public records/search and deployment remain unstarted.
-- Active Task6: `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-verification`,
-  branch `Hawksprey420/domain-verification`; accepted base
-  `1cc2248b82ea1da218d44f18bc1e3c6d07e3d009`, kickoff `0bebed6`.
-  Implementation commits: `c8eafd2` fixes editor review without publisher-only
-  scheduling; `dbf3814` adds whole-slice tests, guarded synthetic migration proofs,
-  documentation and the supported optional native lock takeover in the access test.
-  Existing server authorization/proofs and publisher scheduling are unchanged.
-- Final `npm test`: 188/188 integration in 18 files (191.75s), 12/12 browser (5.4m).
-  Guarded production Playwright builds successfully and passes the cache race case
-  (1/1, 1.4m). Types and strict lint across all six changed source/test files pass.
-  Full lint remains failed: 5 inherited Header/Card/Theme errors and 10 warnings.
-- Migration tests pass fresh and populated (2/2): all ten migrations, repeat no-op,
-  old IDs/password verifier/relationships/Post URL, number/history adoption, canonical
-  uniqueness/FK denial and additive DDL rollback. Restricted-role checks include
-  all 21 domain tables/20 sequences and actual anon/authenticated CRUD denial.
-  Six intact synthetic proof databases and two deliberately altered sensitivity
-  artifacts remain; both guard mutations failed as intended, helper bytes restored.
-- Meaningful editor-review regression RED observed the settled permission alert;
-  focused GREEN passes all four transition cases, including publisher scheduling.
-  Initial whole run (188 integration, 8/11 browser), native-lock/readiness/geometry
-  failures, one read ECONNRESET and a zero-test server timeout remain in private logs.
-  Final GREEN supersedes those runs without erasing their evidence.
-- Actual Orca inspection confirms settled editor review without alerts/scheduling,
-  narrow drawer overflow zero, Tab to the history combobox and Escape dismissal.
-  Desktop capture remains tiled; mounted click was needed for Orca React activation.
-  Native interaction proof is Playwright. The inherited 20px shell overflow remains.
-- Exact Orca fixtures/accounts and browser fixtures are removed; jobs/barriers and
-  guarded/proof DB sessions are zero, with ten test migration receipts retained.
-  Owned browser tab/server are closed; ports 3003/3004 and worktree Node processes
-  are clear. Source/process/guarded DB ownership is released for independent review.
-  Generated types were restored after matching the HEAD blob; import map and
-  dependency baseline are unchanged. No main/cloud/branch-data writes occurred.
-- Detailed commands, failures, traces and the eight-database inventory belong to ignored
-  `.superpowers/sdd/2026-10-20-domain-foundations/task6-implementer-report.md` and its
-  linked logs. Earlier Task5 evidence remains in its report and Git history.
-  Owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` is preserved.
-- Next action: restore availability of guarded local port 55322, execute the new
-  People characterization and related domain publication/reference/integrity tests
-  in this follow-up, then complete independent browser/whole-slice acceptance.
-  Host networking recovery can affect running Bintanong containers; permission
-  to restart WinNAT is pending. No merge, push, deployment, main/cloud/branch-data
-  writes or private-storage implementation.
+- Active task: `Hawksprey420/domain-test-port`, base `b520f61`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-test-port`.
+  Phase01 is integrated at `00f3b1f`; Phase02 domain foundations remain outside
+  `dev`. Tasks1–5 were independently accepted; Task6 runtime `c8eafd2` and
+  verification/handoff `dbf3814`/`edf2f01` await final whole-slice acceptance.
+- Owner approved direct-owned-only CSG participation gating. `b520f61` clarifies
+  the spec and adds shared People initial publish/edit/restore coverage across
+  mixed active/inactive CSG office terms. That case now passes in the full suite.
+  Existing directly owned publication/restore denial remains covered.
+- Owner authorized a temporary database port after Windows excluded 55322.
+  `binturong-domain-review-db-56322` binds only `127.0.0.1:56322`, reusing the
+  stopped original's exact image, environment, entrypoint, command and volume
+  `supabase_db_binturong-open-usg`. Never run both containers on this volume.
+  Independent Docker inspection confirmed those facts. No WinNAT restart, database
+  reset, cloud action, original private-environment change or dependency upgrade.
+  Only this checkout's ignored `.env.test` uses the alternate port.
+- Test, migration-child and local provisioning guards accept exactly 55322/56322;
+  hostname, database name, query and fragment checks remain enforced. Regression
+  RED rejected the authorized alternate port (1 failure/14 passes); GREEN passes
+  15/15. Removing only the port guard caused two wrong-port assertions to fail;
+  original bytes were restored. No bypass remains.
+- Fresh full integration passes 195/195 in 18 files, including both migration proofs,
+  credential/ID/history preservation, rollback, actual restricted-role denial,
+  account bootstrap and the shared People case. New retained proof databases:
+  `binturong_domain_proof_fresh_f3c470e2617d472484c67edc` and
+  `binturong_domain_proof_populated_9af00043b662470998f66849`.
+  Types and strict changed-file lint pass; full lint retains 5 inherited errors and
+  10 warnings. Browser verification is running; production-cache proof is next.
+- The first browser attempt ran zero cases because Turbopack rejected the external
+  dependency junction. It was replaced with a local copy of the same installed
+  dependency baseline, without installation or manifest/lockfile changes.
+  Preserve this setup failure separately from the browser rerun result.
+- Independent source review found no confirmed issue with the port guards, shared
+  People rule or editor-review correction. Fresh independent integration/browser
+  checks are queued after the parent releases the guarded database; no parallel
+  writers. This is not final whole-slice acceptance yet.
+- Detailed private results: ignored `.superpowers/sdd/2026-11-03-port-recovery/`
+  (`full-test.log`, `browser.log`, `full-lint.log`, `port-guard-mutation.log`,
+  `independent-review.md`). Earlier Task6 evidence remains in its original checkout.
+  Generated types currently show only the known stat/line-ending artifact and
+  normalize to HEAD blob `2ba50503fc095e86901a4ede19917a589c4127d4`.
+  Owner changes/stash in other checkouts remain untouched.
+- Next action: finish the browser rerun and guarded production-cache check, then
+  release the database for independent live acceptance. Official file operations
+  remain sealed; no storage implementation, integration, push, deployment, real
+  account promotion or main/cloud data operation is authorized.
 
 ## Sources and reconnaissance snapshot
 

@@ -84,6 +84,11 @@ describe('explicit local super-admin bootstrap', () => {
         'postgresql://localhost:55322/postgres',
         'postgresql://example.invalid:55322/binturong_test',
         'postgresql://127.0.0.1:54322/binturong_test',
+        'postgresql://localhost:56322/postgres',
+        'postgresql://example.invalid:56322/binturong_test',
+        'postgresql://127.0.0.1:56323/binturong_test',
+        'postgresql://localhost:56322/binturong_test?host=example.invalid',
+        'postgresql://localhost:56322/binturong_test#override',
       ]) {
         process.env.DATABASE_URL = url
         expect(() => assertLocalAccountDatabase()).toThrow()
