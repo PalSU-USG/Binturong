@@ -602,6 +602,68 @@ describe('reviewed domain publication', () => {
       }),
     ).rejects.toMatchObject({ status: 400 })
   })
+  it('publishes_and_restores_shared_people_with_active_and_inactive_csg_office_terms', async () => {
+    const inactive = await draft({ kind: 'csg', participating: true })
+    const active = await draft({ kind: 'csg', participating: true })
+    const offices = []
+    for (const organization of [inactive, active]) {
+      await transition('organizations', organization.id)
+      const office = await create('offices', {
+        name: `Synthetic shared term ${randomUUID()}`,
+        organization: organization.id,
+      })
+      await transition('offices', office.id)
+      offices.push(office.id)
+    }
+    await payload.update({
+      collection: 'organizations',
+      id: inactive.id,
+      draft: true,
+      user: actor('editor'),
+      overrideAccess: false,
+      data: { participating: false },
+    })
+    await transition('organizations', inactive.id)
+    const name = `Synthetic shared person ${randomUUID()}`
+    const person = await create('people', {
+      name,
+      terms: offices.map((office) => ({ office })),
+    })
+    await transition('people', person.id)
+    expect(
+      await payload.findByID({ collection: 'people', id: person.id, overrideAccess: false }),
+    ).toMatchObject({ name, _status: 'published' })
+    const req = await createLocalReq({ user: actor() }, payload)
+    const historical = await latestPublicationVersion(req, 'people', person.id)
+    await payload.update({
+      collection: 'people',
+      id: person.id,
+      draft: true,
+      user: actor('editor'),
+      overrideAccess: false,
+      data: { name: `${name} corrected` },
+    })
+    await transition('people', person.id)
+    expect(
+      await payload.findByID({ collection: 'people', id: person.id, overrideAccess: false }),
+    ).toMatchObject({ name: `${name} corrected`, _status: 'published' })
+    const current = await latestPublicationVersion(req, 'people', person.id)
+    await transitionDomainRecord(req, {
+      collection: 'people',
+      documentID: person.id,
+      action: 'restore',
+      expected: { versionID: current.id, versionHash: current.hash },
+      restore: { versionID: historical.id, versionHash: historical.hash },
+    })
+    const published = await payload.findByID({
+      collection: 'people',
+      id: person.id,
+      overrideAccess: false,
+      depth: 0,
+    })
+    expect(published).toMatchObject({ name, _status: 'published' })
+    expect(published.terms?.map(({ office }) => office)).toEqual(offices)
+  })
   it('rechecks_office_organization_against_canonical_even_after_a_newer_unreferenced_draft', async () => {
     const first = await draft()
     const second = await draft()

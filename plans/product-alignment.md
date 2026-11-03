@@ -15,6 +15,28 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+- Active follow-up: `Hawksprey420/domain-participation-proof`, base `6068c74`,
+  checkout `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-participation-proof`.
+  Owner approved the direct-ownership participation rule on 3 November 2026.
+  Scope: specification clarification and `domain-publication.int.spec.ts` coverage;
+  no runtime, migration, dependency, authorization or API contract change.
+  Existing dependencies are reused by a local junction; only ignored `.env.test`
+  was copied from Task6, with its guarded local test target unchanged.
+- Follow-up checks: `npm exec -- tsc --noEmit --incremental false` and
+  `npm exec -- eslint tests/int/domain-publication.int.spec.ts --max-warnings=0`
+  pass. `npm run test:int -- tests/int/test-database.int.spec.ts
+  tests/int/roles.int.spec.ts tests/int/domain-review-richtext.int.spec.ts`
+  passes 16/16 in three files. The focused new case command
+  `npm run test:int -- tests/int/domain-publication.int.spec.ts -t
+  publishes_and_restores_shared_people_with_active_and_inactive_csg_office_terms`
+  exits 1 during suite setup: `ECONNREFUSED 127.0.0.1:55322`, all 27 cases skipped,
+  with an initialization unhandled rejection. No case body or fixture write ran.
+  This is infrastructure failure, not a behavioral RED or a passing regression.
+- Independent follow-up review (`review_participation_rule`) found no static
+  defect: all three publication paths use the shared candidate validator,
+  anonymous output checks exact office IDs, reverse cleanup preserves reference
+  order, and adjacent direct-owned publication/restore denial remains covered.
+  Runtime acceptance and sensitivity proof remain unavailable pending the DB.
 - Review resumed on 3 November 2026 at runtime/handoff `edf2f01` in the Task6
   checkout below. Fresh types and strict six-file changed lint pass. Independent
   database-free checks pass 16/16 (role policy, database guard, saved rich-text
@@ -23,21 +45,23 @@ changed. The current checkpoint below records subsequent approved execution.
 - Independent source review found no confirmed code defect in resolved contracts;
   editor-review P2 is addressed in source and historical RED/GREEN evidence.
   Final acceptance remains open. Review and explicit limitations:
-  ignored `.superpowers/sdd/2026-10-20-domain-foundations/task6-independent-review-2026-11-03.md`.
+  Task6 checkout's ignored
+  `.superpowers/sdd/2026-10-20-domain-foundations/task6-independent-review-2026-11-03.md`.
   Its later-slice exclusions remain deferred under the approved plan; snapshot
   preservation and historical logs do not establish fresh live acceptance.
 - The existing local database container is stopped. Starting only
   `supabase_db_binturong-open-usg` fails because Windows excludes TCP ports
   55294–55393, including required port 55322 (IPv4 and IPv6). No test guard,
   environment, host reservation, shared service or database data was changed.
-- Participation scope needs an owner decision: spec lines 105/138 block new CSG
-  publications, while People are shared identities with potentially historical
-  terms across organizations. Current publication validation gates direct
-  organization references, not a Person's indirect office organizations. Proposed
-  treatment: gate directly owned records only; document and regression-test the
-  shared People exception after confirmation. No behavior change is authorized
-  by this proposal alone.
-- `src/payload-types.ts` retains its pre-existing modified flag but has no content
+- Participation decision: current CSG participation gates directly owned records.
+  People remain shared identities and may reference published offices of inactive
+  CSGs, including mixed participating/inactive terms. The spec now makes this
+  explicit. Added characterization coverage for initial publication, later edit
+  publication and historical restore; existing direct-owned rejection coverage is
+  retained. No runtime correction or behavioral RED is claimed: this preserves
+  existing behavior. The new database-backed case is not yet executed because
+  guarded port 55322 is unavailable; its type/lint checks are separate evidence.
+- In the original Task6 checkout, `src/payload-types.ts` retains its pre-existing modified flag but has no content
   diff and hashes to HEAD blob `2ba50503fc095e86901a4ede19917a589c4127d4`.
   It was not restored, staged or regenerated during this review.
 
@@ -84,10 +108,12 @@ changed. The current checkpoint below records subsequent approved execution.
   `.superpowers/sdd/2026-10-20-domain-foundations/task6-implementer-report.md` and its
   linked logs. Earlier Task5 evidence remains in its report and Git history.
   Owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` is preserved.
-- Next action: resolve the People participation rule with the owner, then restore
-  availability of guarded local port 55322 and complete independent database/browser
-  verification before whole-slice acceptance. No merge, push, deployment,
-  main/cloud/branch-data writes or private-storage implementation.
+- Next action: restore availability of guarded local port 55322, execute the new
+  People characterization and related domain publication/reference/integrity tests
+  in this follow-up, then complete independent browser/whole-slice acceptance.
+  Host networking recovery can affect running Bintanong containers; permission
+  to restart WinNAT is pending. No merge, push, deployment, main/cloud/branch-data
+  writes or private-storage implementation.
 
 ## Sources and reconnaissance snapshot
 
