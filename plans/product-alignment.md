@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 integration verified; dev advance next | Accepted application preserved; private-storage design proposed         |
+| 2: execution              | Phase02 merged into dev; Slice2 starting | Accepted application preserved; private-storage design proposed         |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -14,6 +14,15 @@ application code, database state, dependencies, commits, branches, or remote set
 changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
+
+- Phase02 merge `6ec04277224902bac0af4a4edf42d4b82a12ead3` is now on local
+  `dev` after independent combined-tree acceptance and fast-forward. Existing
+  owner app instructions, ignore edits and private environments were preserved
+  byte-for-byte; owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains.
+  No main/cloud application migration, push or deployment occurred.
+- Owner approved private-storage design `3f9d9c6` on 3 November 2026: Supabase
+  private bucket, resumable PDFs up to 50,000,000 bytes, verified immutable files
+  and controlled downloads. Next is its implementation plan and isolated task.
 
 - Integration authorized on 3 November 2026. Active checkout:
   `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-integration`, branch
@@ -29,13 +38,13 @@ changed. The current checkpoint below records subsequent approved execution.
 - The owner selected Supabase private storage and larger PDFs for Slice2. Proposed
   design `3f9d9c6` is in the phase02 planning checkout at
   `docs/superpowers/specs/2026-11-03-private-documents-design.md`; its 50 MB limit,
-  resumable upload, verification and controlled-delivery contracts await design
+  resumable upload, verification and controlled-delivery contracts have design
   approval. Existing official-file writes/publication remain sealed until that
   slice is implemented and independently verified.
 
 - Active task: `Hawksprey420/domain-test-port`, base `b520f61`, checkout
   `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-test-port`.
-  Phase01 is integrated at `00f3b1f`; Phase02 domain foundations remain outside
+  Phase01 is integrated at `00f3b1f`; Phase02 domain foundations are now integrated into
   `dev`. Tasks1–5 were independently accepted; Task6 runtime `c8eafd2` and
   verification/handoff `dbf3814`/`edf2f01` are included in final whole-slice
   acceptance at runtime `f2cf24e` on 3 November 2026.
@@ -87,9 +96,9 @@ changed. The current checkpoint below records subsequent approved execution.
   routes, institutional visual certification and deployment remain later slices.
   Inherited lint/layout limitations retain their scope; acceptance does not claim
   clean full lint, production-data validation or successful official-file delivery.
-- Next action: finish the verified integration merge and fast-forward `dev`,
-  preserving owner changes and private environments. Then execute the approved
-  private-storage plan in a separate task checkout. No push, deployment, real
+- Next action: write and execute the approved private-storage implementation plan,
+  preserving owner changes and private environments. Execute in a new task from
+  integrated dev, with the current checkpoint updated to its exact path. No push, deployment, real
   account promotion or main/cloud database operation is authorized.
 
 ## Sources and reconnaissance snapshot
