@@ -29,7 +29,11 @@ export async function enforceEditorialWrites({
       typeof transaction.execute !== 'function'
     )
       throw new APIError('Draft deletion requires a database transaction', 500)
-    const table = req.payload.db.tables[args.collection.config.slug]
+    const tableName = req.payload.db.tableNameMap.get(
+      args.collection.config.slug.replaceAll('-', '_'),
+    )
+    const table = tableName && req.payload.db.tables[tableName]
+    if (!table) throw new APIError('The collection database table is unavailable', 500)
     // Recheck the status under a row lock, after any concurrent publication commits.
     await transaction.execute(sql`select id from ${table} where id = ${id} for update`)
   }

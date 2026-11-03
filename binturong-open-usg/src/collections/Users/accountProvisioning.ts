@@ -12,7 +12,7 @@ export function assertLocalAccountDatabase(): void {
   if (
     !['postgres:', 'postgresql:'].includes(target.protocol) ||
     !['127.0.0.1', 'localhost'].includes(target.hostname) ||
-    target.port !== '55322' ||
+    !['55322', '56322'].includes(target.port) ||
     !['/binturong_domain', '/binturong_test'].includes(target.pathname) ||
     target.search ||
     target.hash

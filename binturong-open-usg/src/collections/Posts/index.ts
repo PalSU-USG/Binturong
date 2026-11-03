@@ -13,6 +13,7 @@ import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import { deleteDraftContent } from '@/access/contentAccess'
 import { enforceEditorialWrites } from '@/hooks/enforceEditorialWrites'
+import { protectDomainReferences } from '../shared/protectDomainReferences'
 import { Banner } from '../../blocks/Banner/config'
 import { Code } from '../../blocks/Code/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
@@ -221,7 +222,7 @@ export const Posts: CollectionConfig<'posts'> = {
     slugField(),
   ],
   hooks: {
-    beforeOperation: [enforceEditorialWrites],
+    beforeOperation: [enforceEditorialWrites, protectDomainReferences],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidateDelete],

@@ -102,8 +102,12 @@ including fields absent from a partial update. Return field-specific errors:
 - Leave unknown source dates, summaries/abstracts, offices, years, and version labels
   unset. Do not invent institutional content.
 - Referenced offices must belong to the record's organization. Office parents stay
-  within that organization and cannot form cycles. New CSG publications require
-  explicit participation; do not assume CSGs copy USG branches.
+  within that organization and cannot form cycles. Publishing records directly
+  owned by a CSG requires that CSG's current participation. People are shared
+  directory identities: their terms may reference published offices of inactive
+  CSGs, including alongside offices of participating organizations. This also
+  applies to later People publication and restore; referenced offices must still
+  be published. Do not assume CSGs copy USG branches.
 
 Use Payload's draft/version workflow:
 
@@ -135,8 +139,9 @@ higher roles may delete unreferenced draft-only records. Block deletion of refer
 metadata/files and withdrawal of organizations/offices required by published records.
 Block office organization changes while retained records reference it; migrate those
 references deliberately. Protect these checks against concurrent publication and
-preserve acyclic office parents. Ending CSG participation blocks new publications
-while leaving historical records visible until explicitly withdrawn.
+preserve acyclic office parents. Ending CSG participation blocks new publication
+and restore of directly owned records while leaving historical records visible
+until explicitly withdrawn. It does not block publication of shared People records.
 
 ## File storage and delivery
 

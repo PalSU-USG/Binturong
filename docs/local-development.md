@@ -30,6 +30,28 @@ and create `.env.test` with a `DATABASE_URL` targeting
 `127.0.0.1:55322/binturong_test`, its own `PAYLOAD_SECRET`, `PREVIEW_SECRET`,
 `CRON_SECRET`, and `NEXT_PUBLIC_SERVER_URL=http://localhost:3000`.
 
+## Temporary database port recovery
+
+If Windows reserves port 55322, the owner-approved fallback is loopback port 56322.
+The current `binturong-domain-review-db-56322` container reuses the exact original
+database image, environment, startup command, and named volume
+`supabase_db_binturong-open-usg`; the original container remains stopped.
+Never run both containers against that volume simultaneously. No volume was reset
+or migrated to establish this alternate binding. Supabase CLI configuration stays
+at its normal port; this temporary container is managed directly with Docker:
+
+```powershell
+docker start binturong-domain-review-db-56322
+docker stop binturong-domain-review-db-56322
+```
+
+For this checkout only, `.env.test` targets `127.0.0.1:56322/binturong_test` with
+its existing credentials. Test, migration-proof and account-provisioning guards
+accept exactly 55322 or 56322, retaining their hostname, database-name and URL-option
+checks. Other private environments and shared services remain unchanged.
+To return to the normal port once available, stop the temporary container first,
+start the original `supabase_db_binturong-open-usg`, and restore `.env.test` to 55322.
+
 ## Application migrations
 
 Payload owns its application tables and migration history. Automatic schema push
@@ -96,6 +118,52 @@ server uses port 3003. Neither server reuses the owner's application on port 300
 
 These checks verify access behavior, not the approved institutional design. Public
 screens still use the Payload template; the design-system and shell slices follow.
+
+## Domain verification
+
+Apply all ten reviewed Payload migrations before running the domain workflow.
+Keep automatic schema push disabled. Run the checks from the task checkout with
+its private `.env.test`; a copied `.env` may still target an older branch schema.
+Do not run a bare production build against that file. The production Playwright
+command above loads and guards the test environment before building and starting.
+
+```powershell
+npm run test:int -- tests/int/domain-migrations.int.spec.ts
+npm run test:e2e -- tests/e2e/domain.e2e.spec.ts tests/e2e/domain-transitions.e2e.spec.ts
+npm test
+npm exec -- tsc --noEmit --incremental false
+npm run lint
+npm exec -- eslint src/components/DomainTransitions/index.tsx tests/e2e/domain-transitions.e2e.spec.ts tests/int/domain-migrations.int.spec.ts tests/helpers/domainMigrations.mjs tests/e2e/domain.e2e.spec.ts tests/e2e/access.e2e.spec.ts --max-warnings=0
+npm run test:e2e -- --config=playwright.production.config.ts
+```
+
+The migration suite requires local database-creation permission. After checking
+the exact `binturong_test` source URL, it creates uniquely named
+`binturong_domain_proof_fresh_*` and `binturong_domain_proof_populated_*` databases.
+Only those generated destinations receive migration fixtures. Every run retains
+them and prints their names for review; it never resets or drops an existing
+database or runs a down migration. Their later removal needs a separate deliberate
+cleanup. The populated case starts from the original baseline, retains a working
+synthetic password verifier and Post author/URL, then adopts directory/formal-record,
+number-normalization and audit migrations over retained records and history.
+It verifies repeat no-op, database constraints, actual restricted-role denial and
+rollback after additive DDL. This proves synthetic adoption, not hosted adoption
+or the accuracy of real institutional content.
+
+The browser workflow uses real editor/publisher login and native draft, lock
+takeover and reviewed-publication controls. Editors save all seven domain types;
+publishers publish metadata in reference order. It checks anonymous API output,
+published/draft separation, denied editor transitions, visible formal-record field
+errors, sealed document creation, keyboard actions and a 390px review drawer.
+The separate transition suite covers stale displayed revisions, history/restore,
+publisher scheduling and editor review without publisher-only scheduling requests.
+Official PDF writes/delivery and official-record publication stay
+blocked until the private-storage slice; these tests create no ready-file bypass.
+
+Run writers serially, including the production-cache barrier test. Full lint still
+has inherited Header/Card/Theme errors and migration/frontend warnings; record its
+actual result separately from strict changed-file lint. Passing these checks does
+not authorize storage, cloud adoption, integration, deployment or visual approval.
 
 ## First local super-admin
 

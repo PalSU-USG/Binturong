@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase01 merged; phase02 planning       | Accounts/access integrated; domain/schema plan is next                         |
+| 2: execution              | Phase02 integration verified; dev advance next | Accepted application preserved; private-storage design proposed         |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,25 +15,82 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Phase01 (Slice1a accounts/access) merged into `dev` through the independently
-  reviewed integration checkout: `00f3b1f4196ddcfceb402b0896714755df01af32`.
-  Only documentation conflicted; the application matches reviewed head `95fdfad`.
-- Combined-tree checks passed:88 integration tests,7 Chromium tests, types, and
-  the production-cache regression after a fresh production build/sitemap.
-  Prior full lint remains5 errors/10 warnings; it was not rerun for this merge.
-- Active phase02 (Slice1b domain/schema) branch:
-  `Hawksprey420/phase02-domain-schema`, based on merge `00f3b1f`, checkpoint commit
-  `9218162`. Checkout:
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/phase02-domain-schema`.
-  Its `plans/product-alignment.md` is the authoritative continuation checkpoint.
-  Existing dependencies/private environments/media were prepared there without
-  installation, cloud copying or database resets. No domain implementation yet.
-- Owner numeric-ID edits are retained in reviewed generated types; original bytes
-  remain in a private backup and stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc`.
-- Next action: write and review the short domain/schema implementation plan in
-  phase02. Keep official file operations disabled until storage is verified.
-- No push, main/cloud database migration, real account promotion or deployment.
-  Main-data/cloud rollout remains separate; see [setup evidence](local-supabase-setup.md).
+- Integration authorized on 3 November 2026. Active checkout:
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-integration`, branch
+  `Hawksprey420/domain-integration`, base `dev` at `9141209`, incoming `2d2b44f`.
+  Only the obsolete product checkpoint conflicted. Its newer accepted task state
+  preserves Phase01 integration history; the entire application matches the
+  independently accepted incoming tree exactly. No runtime/schema correction.
+- Fresh independent combined-tree checks pass: 76/76 integration in five files,
+  4/4 domain-transition browser cases, and types. Prior same-application evidence
+  remains 195 integration, 12 browser, production-build/cache 1/1, with inherited
+  full lint 5 errors/10 warnings. Detailed integration evidence is ignored
+  `.superpowers/sdd/2026-11-03-domain-integration/review.md` and linked logs.
+- The owner selected Supabase private storage and larger PDFs for Slice2. Proposed
+  design `3f9d9c6` is in the phase02 planning checkout at
+  `docs/superpowers/specs/2026-11-03-private-documents-design.md`; its 50 MB limit,
+  resumable upload, verification and controlled-delivery contracts await design
+  approval. Existing official-file writes/publication remain sealed until that
+  slice is implemented and independently verified.
+
+- Active task: `Hawksprey420/domain-test-port`, base `b520f61`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-test-port`.
+  Phase01 is integrated at `00f3b1f`; Phase02 domain foundations remain outside
+  `dev`. Tasks1–5 were independently accepted; Task6 runtime `c8eafd2` and
+  verification/handoff `dbf3814`/`edf2f01` are included in final whole-slice
+  acceptance at runtime `f2cf24e` on 3 November 2026.
+- Owner approved direct-owned-only CSG participation gating. `b520f61` clarifies
+  the spec and adds shared People initial publish/edit/restore coverage across
+  mixed active/inactive CSG office terms. That case now passes in the full suite.
+  Existing directly owned publication/restore denial remains covered.
+- Owner authorized a temporary database port after Windows excluded 55322.
+  `binturong-domain-review-db-56322` binds only `127.0.0.1:56322`, reusing the
+  stopped original's exact image, environment, entrypoint, command and volume
+  `supabase_db_binturong-open-usg`. Never run both containers on this volume.
+  Independent Docker inspection confirmed those facts. No WinNAT restart, database
+  reset, cloud action, original private-environment change or dependency upgrade.
+  Only this checkout's ignored `.env.test` uses the alternate port.
+- Test, migration-child and local provisioning guards accept exactly 55322/56322;
+  hostname, database name, query and fragment checks remain enforced. Regression
+  RED rejected the authorized alternate port (1 failure/14 passes); GREEN passes
+  15/15. Removing only the port guard caused two wrong-port assertions to fail;
+  original bytes were restored. No bypass remains.
+- Fresh full integration passes 195/195 in 18 files, including both migration proofs,
+  credential/ID/history preservation, rollback, actual restricted-role denial,
+  account bootstrap and the shared People case. New retained proof databases:
+  `binturong_domain_proof_fresh_f3c470e2617d472484c67edc` and
+  `binturong_domain_proof_populated_9af00043b662470998f66849`.
+  Types and strict changed-file lint pass; full lint retains 5 inherited errors and
+  10 warnings. Browser rerun passes 12/12 (5.1m); guarded production build/postbuild
+  and cache-race verification pass 1/1 (1.1m).
+- The first browser attempt ran zero cases because Turbopack rejected the external
+  dependency junction. It was replaced with a local copy of the same installed
+  dependency baseline, without installation or manifest/lockfile changes.
+  Preserve this setup failure separately from the browser rerun result.
+- Independent source review found no confirmed issue with the port guards, shared
+  People rule or editor-review correction. Fresh independent checks at `f2cf24e`
+  pass 76/76 across guard/bootstrap/publication/reference/integrity suites and
+  4/4 domain-transition browser cases. Reviewer `review_port_recovery` recommends
+  ACCEPT for Phase02 Task6 / whole-domain foundations; editor-review P2 is
+  ADDRESSED. Checks ran serially against the guarded test database. Parent-owned
+  full-suite, migration and production evidence is attributed separately.
+- Detailed private results: ignored `.superpowers/sdd/2026-11-03-port-recovery/`
+  (`full-test.log`, `browser.log`, `full-lint.log`, `port-guard-mutation.log`,
+  `independent-review.md`). Earlier Task6 evidence remains in its original checkout.
+  Generated types matched HEAD blob `2ba50503fc095e86901a4ede19917a589c4127d4`
+  with no content diff and were restored to clear the generated status artifact.
+  Owner changes/stash in other checkouts remain untouched. Reviewer released
+  ownership: other test DB sessions, jobs and barrier functions are zero; ten
+  migration receipts remain, browser ports are clear. A pre-existing synthetic
+  account from 19 October remains preserved. Temporary database stays running.
+- Ruling on review exclusions: storage/PDF delivery, new public-record search and
+  routes, institutional visual certification and deployment remain later slices.
+  Inherited lint/layout limitations retain their scope; acceptance does not claim
+  clean full lint, production-data validation or successful official-file delivery.
+- Next action: finish the verified integration merge and fast-forward `dev`,
+  preserving owner changes and private environments. Then execute the approved
+  private-storage plan in a separate task checkout. No push, deployment, real
+  account promotion or main/cloud database operation is authorized.
 
 ## Sources and reconnaissance snapshot
 

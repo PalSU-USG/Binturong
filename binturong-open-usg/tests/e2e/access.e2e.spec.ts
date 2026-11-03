@@ -79,6 +79,11 @@ test.describe('CMS permission boundaries', () => {
         user: { email: fixtures.users.publisher.email, password: fixturePassword },
       })
       await publishPage.goto(`/admin/collections/posts/${postID}`)
+      const lock = publishPage.getByRole('dialog', { name: 'document-locked', exact: true })
+      await publishPage.addLocatorHandler(lock, async () => {
+        await lock.getByRole('button', { name: 'Take over', exact: true }).click()
+      })
+      await expect(publishPage.locator('#action-save')).toBeEnabled({ timeout: 15000 })
       await expect(publishPage.locator('#field-title')).toHaveValue(
         'Synthetic reviewed browser draft',
       )
