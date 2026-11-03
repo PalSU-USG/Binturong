@@ -52,6 +52,33 @@ checks. Other private environments and shared services remain unchanged.
 To return to the normal port once available, stop the temporary container first,
 start the original `supabase_db_binturong-open-usg`, and restore `.env.test` to 55322.
 
+## Private Storage development
+
+The active storage task uses `binturong-document-storage-56321`, an isolated
+instance of the existing Storage API image bound only to `127.0.0.1:56321`.
+It reuses the original local Storage volume; the original Storage container stays
+stopped. Its database points to the existing database fallback inside Docker.
+Never run the original and fallback instances against the same volume together.
+No hosted credentials, bucket or provider policy were changed for this setup.
+
+The task's ignored `.env.test` contains `OFFICIAL_STORAGE_URL`,
+`OFFICIAL_STORAGE_SERVICE_KEY`, `OFFICIAL_STORAGE_BUCKET=binturong-documents-test`,
+and local provider-role fixtures. Live tests reject any other origin or bucket.
+The synthetic bucket is private, allows only `application/pdf`, and limits files
+to exactly 50,000,000 bytes. Service credentials stay server-side. Signed TUS
+uploads use `/upload/resumable/sign` with an exact-path `x-signature` token.
+
+```powershell
+docker start binturong-domain-review-db-56322
+docker start binturong-document-storage-56321
+npm run test:int -- tests/int/document-storage.int.spec.ts tests/int/document-storage-live.int.spec.ts
+```
+
+These provider/PDF checks alone do not enable official document CRUD or publication.
+The upload-session, publication and controlled-delivery steps must pass separately.
+Test cleanup removes only exact synthetic object keys owned by that run; there is
+no automatic cleanup of failed uploads, prior official versions or real content.
+
 ## Application migrations
 
 Payload owns its application tables and migration history. Automatic schema push

@@ -35,18 +35,34 @@ changed. The current checkpoint below records subsequent approved execution.
   `127.0.0.1:56322/binturong_test`. Original DB container stays stopped while
   `binturong-domain-review-db-56322` uses its existing volume. Other checkouts'
   environments/instructions/ignore edits and owner stash remain unchanged.
-- No storage product code or new migration yet. Planned approved dependencies are
-  pinned registry versions `pdf-lib@1.17.1` and `tus-js-client@4.3.1`; preserve
-  unrelated lockfile baseline. Original local Storage container exists/stopped;
-  isolated local provider setup and actual denial proof are still required.
+- Provider/PDF milestone implemented: `src/storage/officialStorage.ts`,
+  `documentLimits.ts`, `verifyPDF.ts`, guarded provider fixtures and two focused
+  suites. Initial missing-module RED observed; final 14/14 tests, types and strict
+  changed-file lint pass. Bucket-privacy bypass and actual overwrite mutations
+  each fail their focused regression; exact source bytes restored afterward.
+- Local Storage fallback `binturong-document-storage-56321` is running on loopback
+  56321, using the existing Storage image/volume and fallback database host. Its
+  original remains stopped. Synthetic bucket `binturong-documents-test` is private,
+  PDF-only and exactly 50,000,000 bytes. Actual signed TUS upload uses `/sign`;
+  byte identity/immutable collision, upload-token read denial and real anonymous/
+  authenticated RLS denial pass. Only owned synthetic keys are cleaned up.
+- Approved libraries installed: `pdf-lib@1.17.1`, `tus-js-client@4.3.1` and 24 new
+  lock entries. All pre-existing locked package versions are unchanged. npm audit
+  reports 34 inherited advisories (2 critical/6 high/24 moderate/2 low), none on
+  newly added dependency nodes; no unrelated upgrade/audit fix was performed.
+  No Documents schema change yet; ordinary CRUD and official publication stay sealed.
 - Trust boundaries: browser input/Payload authentication, pending upload tokens,
   private provider bytes, worker resource limits, immutable readiness and current
   publication references. Only server capabilities may mutate Documents; ordinary
   CRUD remains sealed. No real uploads, bucket/policy cloud writes, main CMS data
   migration, automatic object cleanup, storage integration, push or deployment.
 - Private evidence belongs to ignored `.superpowers/sdd/2026-11-03-private-documents/`.
-  Next action: write and observe the provider/PDF guard regression RED, implement
-  the bounded adapter/worker, then prove real local signed upload and denial paths.
+  Exact commands/results and retained failures live there (`provider-red.log`,
+  `provider-final.log`, `provider-live.log`, `bucket-privacy-mutation.log`,
+  `immutable-object-mutation.log`, `dependency-audit.json`). The initial live run
+  exposed the required signed TUS `/sign` route; final real-provider checks pass.
+  Next action: write upload-session/forgery/concurrent-finalization regression RED,
+  then add protected session fields and the reviewed additive Payload migration.
 
 ## Sources and reconnaissance snapshot
 

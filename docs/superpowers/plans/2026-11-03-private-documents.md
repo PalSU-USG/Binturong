@@ -71,15 +71,15 @@ uses a worker with explicit termination and the approved resource bounds.
 Use `OFFICIAL_STORAGE_URL`, `OFFICIAL_STORAGE_SERVICE_KEY`,
 `OFFICIAL_STORAGE_BUCKET`; production HTTPS or explicit local loopback HTTP only.
 
-- [ ] Write focused regressions; observe missing implementation RED. Reject
+- [x] Write focused regressions; observe missing implementation RED. Reject
   public buckets, redirects, malformed config, over-limit/chunked reads, corrupt/
   encrypted/empty PDFs, worker timeout and saturation. Compare hashes to original
   synthetic bytes. Test exact signed upload path and immutable collision behavior.
-- [ ] Implement minimum adapter/worker and inspect installed parser/TUS source.
+- [x] Implement minimum adapter/worker and inspect installed parser/TUS source.
   Start an isolated local Storage API using existing image/secrets safely; retain
   originals. Provision a synthetic private bucket through provider API. Verify
   real signed TUS upload and anonymous/authenticated read/list/write/delete denial.
-- [ ] Run focused GREEN, types and changed lint; commit the verified provider unit.
+- [x] Run focused GREEN (14/14), types and strict changed lint; commit the verified provider unit.
 
 ### 2. Upload sessions, immutable Documents and admin upload
 
