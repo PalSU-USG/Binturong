@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 Task6 verified; review pending  | Whole-slice browser, migration and handoff verification                         |
+| 2: execution              | Phase02 Task6 review resumed; acceptance open | Live database/browser verification unavailable                           |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -14,6 +14,32 @@ application code, database state, dependencies, commits, branches, or remote set
 changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
+
+- Review resumed on 3 November 2026 at runtime/handoff `edf2f01` in the Task6
+  checkout below. Fresh types and strict six-file changed lint pass. Independent
+  database-free checks pass 16/16 (role policy, database guard, saved rich-text
+  review); these do not replace database/browser verification. Earlier counts
+  below remain historical results at the recorded commits.
+- Independent source review found no confirmed code defect in resolved contracts;
+  editor-review P2 is addressed in source and historical RED/GREEN evidence.
+  Final acceptance remains open. Review and explicit limitations:
+  ignored `.superpowers/sdd/2026-10-20-domain-foundations/task6-independent-review-2026-11-03.md`.
+  Its later-slice exclusions remain deferred under the approved plan; snapshot
+  preservation and historical logs do not establish fresh live acceptance.
+- The existing local database container is stopped. Starting only
+  `supabase_db_binturong-open-usg` fails because Windows excludes TCP ports
+  55294–55393, including required port 55322 (IPv4 and IPv6). No test guard,
+  environment, host reservation, shared service or database data was changed.
+- Participation scope needs an owner decision: spec lines 105/138 block new CSG
+  publications, while People are shared identities with potentially historical
+  terms across organizations. Current publication validation gates direct
+  organization references, not a Person's indirect office organizations. Proposed
+  treatment: gate directly owned records only; document and regression-test the
+  shared People exception after confirmation. No behavior change is authorized
+  by this proposal alone.
+- `src/payload-types.ts` retains its pre-existing modified flag but has no content
+  diff and hashes to HEAD blob `2ba50503fc095e86901a4ede19917a589c4127d4`.
+  It was not restored, staged or regenerated during this review.
 
 - Phase02 is Slice1b domain/schema. Follow the approved
   [spec](../docs/superpowers/specs/2026-10-19-domain-publication-design.md) and
@@ -58,9 +84,10 @@ changed. The current checkpoint below records subsequent approved execution.
   `.superpowers/sdd/2026-10-20-domain-foundations/task6-implementer-report.md` and its
   linked logs. Earlier Task5 evidence remains in its report and Git history.
   Owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` is preserved.
-- Next action: independently review the P2 correction and whole slice at the recorded
-  commits; the following documentation commit records this handoff. No merge,
-  push, deployment, main/cloud/branch-data writes or private-storage implementation.
+- Next action: resolve the People participation rule with the owner, then restore
+  availability of guarded local port 55322 and complete independent database/browser
+  verification before whole-slice acceptance. No merge, push, deployment,
+  main/cloud/branch-data writes or private-storage implementation.
 
 ## Sources and reconnaissance snapshot
 
