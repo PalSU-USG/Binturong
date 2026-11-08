@@ -52,6 +52,22 @@ checks. Other private environments and shared services remain unchanged.
 To return to the normal port once available, stop the temporary container first,
 start the original `supabase_db_binturong-open-usg`, and restore `.env.test` to 55322.
 
+## Second isolated test database
+
+The owner approved a second test database so two implementation tasks can run
+database suites at the same time. `binturong-test-db-56323` uses the same image,
+environment and startup command as the fallback above, but its own new volume
+`binturong-test-db-56323`, bound only to `127.0.0.1:56323`. It shares no data with
+the other databases. Its `binturong_test` was created empty and migrated with
+Payload. Guards accept exactly 55322, 56322 or 56323. Give each concurrent task
+its own port in that checkout's ignored `.env.test`; never point two running tasks
+at the same database.
+
+```powershell
+docker start binturong-test-db-56323
+node --env-file=.env.test --no-deprecation node_modules/payload/bin.js migrate
+```
+
 ## Application migrations
 
 Payload owns its application tables and migration history. Automatic schema push
