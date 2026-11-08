@@ -1,6 +1,6 @@
 # Public search
 
-Status: **Draft for owner review.** Proposes behavior only; nothing is implemented.
+Status: **Approved by the owner on 9 November 2026** (decisions recorded at the end). Not yet implemented.
 Parent: [Domain and publication foundations](2026-10-19-domain-publication-design.md)
 (search, publication and delivery-order sections). Base: `dev` `da406cf`.
 
@@ -181,13 +181,13 @@ through `payload.update` removes the row inside its transaction; `in: []` handli
 when a collection has no published records; null `publishedAt` on legacy Posts;
 real query timing; the live behavior of any of the above.
 
-## Open owner decisions
+## Owner decisions (9 November 2026)
 
-1. Issuances and Reports before their pages exist: index now but hide from results
-   until routes land (recommended), or build minimal stub detail pages in this slice?
-2. Empty or one-character query: show a prompt only (recommended), or list the
-   latest published records?
-3. Anchor of "Recent": CMS `publishedAt` (recommended; backfilled records show
-   as recent on import day) or the source `issuedDate`, which may be unknown?
-4. Should search match document numbers as typed ("12" or "EO 12")? Recommended:
-   substring on the number as entered; no alias table until real data shows need.
+1. Issuances and Reports: index now, hide from results until their detail routes land.
+2. Empty or one-character query: show a prompt only; run no query.
+3. "Recent" is anchored on CMS `publishedAt`.
+4. Document numbers: substring match on a normalized form (case, spaces and
+   punctuation ignored, e.g. "Res. No. 2026-014" ≈ "res no 2026014"), plus a small
+   fixed, reviewed alias list for record-type prefixes (e.g. Res/Resolution,
+   EO/Executive Order). Keep the alias list in code with tests; no editor-managed
+   alias table. Raw entered numbers stay stored and displayed unchanged.

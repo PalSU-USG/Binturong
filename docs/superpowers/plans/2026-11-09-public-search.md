@@ -61,7 +61,12 @@ new Payload migration, JSON snapshot, `src/migrations/index.ts`; extend
 `{ label, path(slug), live }` (`live` true only for posts). Helpers:
 `searchCanonicalPath(relationTo, slug)` returns an encoded path or throws for an
 unregistered collection; `indexedCollections`. New row fields: `identifier`,
-`summary` (at most 300 plain characters), `publishedAt`, `sortAt` (indexed).
+`identifierKey` (indexed; `normalizeIdentifier(identifier)`), `summary` (at most
+300 plain characters), `publishedAt`, `sortAt` (indexed). Create
+`src/search/identifier.ts`: `normalizeIdentifier(s)` lowercases, NFC-normalizes and
+drops spaces/punctuation, then maps a fixed, reviewed prefix alias list
+(e.g. `resolution`→`res`, `executiveorder`→`eo`) to one canonical form. The raw
+`identifier` stays stored and displayed unchanged.
 `beforeSync` builds rows from an allowlist per collection and never spreads the
 source. `publishedSearchAccess` builds `or` of
 `{ doc.relationTo = c, doc.value in publishedIDs(c) }`, skipping empty sets; when
@@ -105,6 +110,10 @@ prompt, results, no-results; errors propagate to `error.tsx`.
 - [ ] RED (`parseSearchParams`): arrays, empty, one character, 101 characters,
   whitespace runs, NFC/NFD, `%` `_` `\`, markup, bad `type`/`page` (0, -1, 1.5, `abc`,
   huge). Each fails before the module exists.
+- [ ] RED (`normalizeIdentifier`, pure): case/space/punctuation variants and each
+  alias collapse to one key ("Res. No. 2026-014", "resolution no 2026014");
+  unrelated prefixes don't collide; empty/markup-only input yields no key. Query
+  side: when the normalized query is non-empty, also substring-match `identifierKey`.
 - [ ] RED (`runSearch`, real DB and roles): title/identifier/summary/slug matches;
   multi-word AND; wildcard input cannot widen results; `type` filter; stable
   paging across equal dates; past-last-page; non-live types absent even when rows
