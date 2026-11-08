@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { PDFDocument } from 'pdf-lib'
+import { PDFDocument, PDFName } from 'pdf-lib'
 import { createLocalReq, type Payload } from 'payload'
 
 import { withAccountProvisioning } from '@/collections/Users/accountProvisioning'
@@ -98,4 +98,20 @@ export async function disableAccount(payload: Payload, id: number): Promise<void
   await withAccountProvisioning(req, () =>
     payload.update({ collection: 'users', id, req, data: { disabled: true } }),
   )
+}
+
+/** Valid, loadable synthetic PDF of about `bytes` bytes (deterministic filler in an unused stream). */
+export async function largeSyntheticPDF(
+  bytes: number,
+  label = 'Synthetic large',
+): Promise<Uint8Array> {
+  const pdf = await PDFDocument.create()
+  pdf.setTitle(label)
+  const page = pdf.addPage([612, 792])
+  page.drawText(label)
+  const filler = new Uint8Array(bytes)
+  for (let i = 0; i < filler.length; i++) filler[i] = (i * 2654435761) >>> 24
+  const stream = pdf.context.stream(filler)
+  page.node.set(PDFName.of('SyntheticFiller'), pdf.context.register(stream))
+  return pdf.save({ useObjectStreams: false })
 }

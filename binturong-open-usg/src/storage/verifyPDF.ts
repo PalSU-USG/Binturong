@@ -1,10 +1,13 @@
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
+import { join } from 'node:path'
 import { Worker } from 'node:worker_threads'
 import { APIError } from 'payload'
 import { MAX_DOCUMENT_BYTES, PDF_WORKER_TIMEOUT_MS } from './documentLimits'
 
-const require = createRequire(import.meta.url)
+// Anchored at the server's working directory, not import.meta.url: bundlers rewrite a static
+// require.resolve to a virtual module id, which the worker thread cannot load.
+const parserPath = () => createRequire(join(process.cwd(), 'package.json')).resolve('pdf-lib')
 const program = `
 const { parentPort, workerData } = require('node:worker_threads');
 const { PDFDocument, ParseSpeeds } = require(workerData.parser);
@@ -32,7 +35,7 @@ export async function verifyPDF(bytes: Uint8Array): Promise<{
     try {
       worker = new Worker(program, {
         eval: true,
-        workerData: { parser: require.resolve('pdf-lib'), bytes: workerBytes },
+        workerData: { parser: parserPath(), bytes: workerBytes },
         transferList: [workerBytes.buffer],
         resourceLimits: { maxOldGenerationSizeMb: 128 },
       })
@@ -55,13 +58,15 @@ export async function verifyPDF(bytes: Uint8Array): Promise<{
       PDF_WORKER_TIMEOUT_MS,
     )
     worker.once('message', (message) => finish(message?.ok === true ? undefined : invalid()))
-    worker.once('error', (error) =>
+    worker.once('error', (error) => {
+      if (!('code' in error) || error.code !== 'ERR_WORKER_OUT_OF_MEMORY')
+        console.error('PDF verification worker failed:', error.message)
       finish(
         'code' in error && error.code === 'ERR_WORKER_OUT_OF_MEMORY'
           ? invalid()
           : new APIError('PDF verification is unavailable. Try again later.', 503),
-      ),
-    )
+      )
+    })
     worker.once('exit', () => finish(invalid()))
   })
   return {
