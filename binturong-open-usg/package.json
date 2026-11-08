@@ -5,6 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "documents:manifest": "node --import=tsx scripts/document-manifest.ts",
     "bootstrap:super-admin": "node --import=tsx scripts/bootstrap-super-admin.ts",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
