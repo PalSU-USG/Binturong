@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto'
+import { deflateSync } from 'node:zlib'
 import { PDFDocument } from 'pdf-lib'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -92,13 +93,11 @@ describe('private official storage and PDF verification', () => {
 
   it('issues only exact pending-path upload capabilities and never ready-path capabilities', async () => {
     const key = objectKey('pending')
-    const fetch = vi
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(
-        Response.json({
-          url: `/object/upload/sign/synthetic-documents/${key}?token=synthetic-token`,
-        }),
-      )
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      Response.json({
+        url: `/object/upload/sign/synthetic-documents/${key}?token=synthetic-token`,
+      }),
+    )
     await expect(getOfficialStorage().createUploadToken(key)).resolves.toEqual('synthetic-token')
     await expect(getOfficialStorage().createUploadToken(objectKey('ready'))).rejects.toMatchObject({
       status: 400,
@@ -187,6 +186,33 @@ describe('private official storage and PDF verification', () => {
     expect(workerControl.terminations).toBe(before + 1)
   })
 
+  it('rejects a compressed object stream that inflates far past the worker memory budget', async () => {
+    const inflated = 300 * 1_000_000
+    const stream = deflateSync(Buffer.concat([Buffer.from('5 0 '), Buffer.alloc(inflated, 0x20)]), {
+      level: 9,
+    })
+    const bomb = Buffer.concat([
+      Buffer.from(
+        '%PDF-1.5\n1 0 obj\n<</Type/Catalog/Pages 2 0 R>>\nendobj\n' +
+          '2 0 obj\n<</Type/Pages/Kids[3 0 R]/Count 1>>\nendobj\n' +
+          '3 0 obj\n<</Type/Page/Parent 2 0 R/MediaBox[0 0 10 10]>>\nendobj\n' +
+          `4 0 obj\n<</Type/ObjStm/N 1/First 4/Filter/FlateDecode/Length ${stream.length}>>\nstream\n`,
+      ),
+      stream,
+      Buffer.from('\nendstream\nendobj\ntrailer\n<</Root 1 0 R/Size 6>>\n%%EOF\n'),
+    ])
+    expect(bomb.byteLength).toBeLessThan(1_000_000)
+    const baseline = process.memoryUsage().rss
+    let peak = baseline
+    const sampler = setInterval(() => (peak = Math.max(peak, process.memoryUsage().rss)), 10)
+    try {
+      await expect(verifyPDF(bomb)).rejects.toMatchObject({ status: 422 })
+    } finally {
+      clearInterval(sampler)
+    }
+    // The JS heap limit does not cover typed-array growth; the worker must stop decoding itself.
+    expect(peak - baseline).toBeLessThan(350 * 1024 * 1024)
+  })
   it('limits process concurrency and releases slots exactly once', () => {
     const first = acquireDocumentSlot()
     const second = acquireDocumentSlot()

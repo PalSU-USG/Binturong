@@ -3,7 +3,12 @@ import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { Worker } from 'node:worker_threads'
 import { APIError } from 'payload'
-import { MAX_DOCUMENT_BYTES, PDF_WORKER_TIMEOUT_MS } from './documentLimits'
+import {
+  MAX_DOCUMENT_BYTES,
+  PDF_DECODED_STREAM_LIMIT_BYTES,
+  PDF_DECODED_TOTAL_LIMIT_BYTES,
+  PDF_WORKER_TIMEOUT_MS,
+} from './documentLimits'
 
 // Anchored at the server's working directory, not import.meta.url: bundlers rewrite a static
 // require.resolve to a virtual module id, which the worker thread cannot load.
@@ -11,6 +16,17 @@ const parserPath = () => createRequire(join(process.cwd(), 'package.json')).reso
 const program = `
 const { parentPort, workerData } = require('node:worker_threads');
 const { PDFDocument, ParseSpeeds } = require(workerData.parser);
+// Every pdf-lib stream decoder grows its output through ensureBuffer; a compressed object stream
+// can inflate by orders of magnitude, and typed arrays are not bounded by the heap limit.
+const decoder = require(require('node:path').join(require('node:path').dirname(workerData.parser), 'core/streams/DecodeStream.js')).default.prototype;
+const ensureBuffer = decoder.ensureBuffer;
+if (typeof ensureBuffer !== 'function') throw new Error('unsupported pdf-lib');
+let decodedTotal = 0;
+decoder.ensureBuffer = function (requested) {
+  decodedTotal += Math.max(0, requested - (this.buffer ? this.buffer.length : 0));
+  if (requested > workerData.streamLimit || decodedTotal > workerData.totalLimit) throw new Error('decoded size limit');
+  return ensureBuffer.call(this, requested);
+};
 (async () => {
   try {
     const pdf = await PDFDocument.load(workerData.bytes, {
@@ -35,7 +51,12 @@ export async function verifyPDF(bytes: Uint8Array): Promise<{
     try {
       worker = new Worker(program, {
         eval: true,
-        workerData: { parser: parserPath(), bytes: workerBytes },
+        workerData: {
+          parser: parserPath(),
+          bytes: workerBytes,
+          streamLimit: PDF_DECODED_STREAM_LIMIT_BYTES,
+          totalLimit: PDF_DECODED_TOTAL_LIMIT_BYTES,
+        },
         transferList: [workerBytes.buffer],
         resourceLimits: { maxOldGenerationSizeMb: 128 },
       })
