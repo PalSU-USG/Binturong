@@ -1,5 +1,6 @@
 import { APIError, type Endpoint } from 'payload'
 import { serialID } from '@/jobs/publicationRevision'
+import { downloadDocument } from './documentDelivery'
 import {
   beginDocumentUpload,
   finalizeDocumentUpload,
@@ -41,6 +42,11 @@ export function documentEndpoints(): Endpoint[] {
         const result = await finalizeDocumentUpload(req, id)
         return Response.json(result, { headers: { 'Cache-Control': 'private, no-store' } })
       },
+    },
+    {
+      path: '/:id/file',
+      method: 'get',
+      handler: (req) => downloadDocument(req, parseDocumentRouteID(req.routeParams?.id)),
     },
   ]
 }

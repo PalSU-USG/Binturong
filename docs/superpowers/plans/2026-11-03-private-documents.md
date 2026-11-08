@@ -134,15 +134,17 @@ without a valid preflight fail closed. Do not weaken Pages/Posts or metadata pat
 staff/published-reference authorization and streams the verified buffer with
 private/no-store attachment headers. Release resource slots on cancel/error/end.
 
-- [ ] RED: missing/public/corrupt storage, unverified/wrong-org main/attachments,
+- [x] RED: missing/public/corrupt storage, unverified/wrong-org main/attachments,
   stale preflight, revocation and joined transaction bypass. Schedule and restore
   use the same file proof, with receipt/retry integrity preserved.
-- [ ] RED: guessed IDs, drafts/historical-only references, newer draft replacement,
+- [x] RED: guessed IDs, drafts/historical-only references, newer draft replacement,
   shared published references, withdrawn last reference, disabled actors, tampered
   keys, corrupt bytes and cancelled/saturated large downloads.
-- [ ] Implement smallest shared enforcement; add mutation sensitivity and observed
+- [x] Implement smallest shared enforcement; add mutation sensitivity and observed
   concurrency/lock proof. Run GREEN and existing role/history/cache regressions.
   Commit the complete publication/delivery contract.
+
+  Outcome (2026-11-09): RED observed (17/24 failed; module-missing and publish-denied; wrong-org cases were corrected afterward because draft saves already reject cross-organization files, so the test tampers the row). Implemented `officialPublication.ts` (out-of-lock preflight bound to exact revision + file identities, request-bound single-use proof; locked `requireOfficialFiles` is DB-only), auto-preflight in `transitionDomainRecord` outside any transaction, explicit preflight at schedule and job entry, and `documentDelivery.ts` + `GET /api/documents/:id/file`. Joined transactions without a matching proof fail closed. GREEN: full `test:int` 23 files / 239 tests; tsc and eslint clean. Mutations: skipping the locked identity recheck, skipping the post-verification authorization recheck, and adding provider I/O under the lock each fail exactly their pinned test (files restored byte-identical). Lock proof observes `pg_locks` advisory lock (20261020,1) at every storage fetch (0 held) with a control showing 1 when held. Logs: `.superpowers/sdd/2026-11-03-private-documents/milestone-3-*.log`.
 
 ### 4. Full workflow, recovery and independent acceptance
 
