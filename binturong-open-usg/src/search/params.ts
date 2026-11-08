@@ -9,18 +9,23 @@ const MAX_PAGE = 10_000
 
 const first = (value: RawValue): string | undefined => (Array.isArray(value) ? value[0] : value)
 
+/** Normalizes user text for matching: NFC, no LIKE wildcards or control characters, bounded. */
+export function cleanQueryText(raw: string): string {
+  const text = raw
+    .normalize('NFC')
+    .replace(/[%_\\\\]/g, '')
+    .replace(/[\p{Cc}\s]+/gu, ' ')
+    .trim()
+  return Array.from(text).slice(0, MAX_QUERY_LENGTH).join('').trim()
+}
+
 /** Applies the public-search URL rules; never throws. A null `q` means "show the prompt". */
 export function parseSearchParams(raw: {
   q?: RawValue
   type?: RawValue
   page?: RawValue
 }): SearchParams {
-  const text = (first(raw.q) ?? '')
-    .normalize('NFC')
-    .replace(/[%_\\]/g, '')
-    .replace(/[\p{Cc}\s]+/gu, ' ')
-    .trim()
-  const q = Array.from(text).slice(0, MAX_QUERY_LENGTH).join('').trim()
+  const q = cleanQueryText(first(raw.q) ?? '')
 
   const type = TYPES.find((candidate) => candidate === first(raw.type)) ?? 'all'
 

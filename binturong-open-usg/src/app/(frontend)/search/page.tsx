@@ -1,65 +1,24 @@
 import type { Metadata } from 'next/types'
 
-import { CollectionArchive } from '@/components/CollectionArchive'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
+import { SearchResults } from '@/search/SearchResults'
+import { parseSearchParams } from '@/search/params'
+import { runSearch } from '@/search/query'
 import PageClient from './page.client'
-import { CardPostData } from '@/components/Card'
 
 type Args = {
-  searchParams: Promise<{
-    q: string
-  }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
-export default async function Page({ searchParams: searchParamsPromise }: Args) {
-  const { q: query } = await searchParamsPromise
-  const payload = await getPayload({ config: configPromise })
 
-  const posts = await payload.find({
-    collection: 'search',
-    overrideAccess: false,
-    draft: false,
-    depth: 1,
-    limit: 12,
-    select: {
-      title: true,
-      slug: true,
-      categories: true,
-      meta: true,
-    },
-    // pagination: false reduces overhead if you don't need totalDocs
-    pagination: false,
-    ...(query
-      ? {
-          where: {
-            or: [
-              {
-                title: {
-                  like: query,
-                },
-              },
-              {
-                'meta.description': {
-                  like: query,
-                },
-              },
-              {
-                'meta.title': {
-                  like: query,
-                },
-              },
-              {
-                slug: {
-                  like: query,
-                },
-              },
-            ],
-          },
-        }
-      : {}),
-  })
+export default async function Page({ searchParams: searchParamsPromise }: Args) {
+  const { q, type, page } = parseSearchParams(await searchParamsPromise)
+  const results =
+    q === null
+      ? null
+      : await runSearch(await getPayload({ config: configPromise }), { q, type, page })
 
   return (
     <div className="pt-24 pb-24">
@@ -69,15 +28,17 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
           <h1 className="mb-8 lg:mb-16">Search</h1>
 
           <div className="max-w-[50rem] mx-auto">
-            <Search />
+            <Search q={q} type={type} />
           </div>
         </div>
       </div>
 
-      {posts.totalDocs > 0 ? (
-        <CollectionArchive posts={posts.docs as CardPostData[]} />
+      {q === null || results === null ? (
+        <div className="container" role="status">
+          <p>Enter at least two characters to search published updates by title or summary.</p>
+        </div>
       ) : (
-        <div className="container">No results found.</div>
+        <SearchResults q={q} type={type} results={results} />
       )}
     </div>
   )
@@ -85,6 +46,6 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
 export function generateMetadata(): Metadata {
   return {
-    title: `Payload Website Template Search`,
+    title: 'Search | Binturong',
   }
 }
