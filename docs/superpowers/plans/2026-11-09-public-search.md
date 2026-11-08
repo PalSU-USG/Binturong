@@ -18,8 +18,7 @@ Playwright. No new dependencies (plain-text extraction ships in
 `@payloadcms/richtext-lexical/plaintext`).
 
 **Spec:** [Public search design](../specs/2026-11-09-public-search-design.md).
-**Status: draft, not owner-approved. Do not execute until the open decisions
-there are answered or defaulted to their recommendations.**
+**Status: approved 9 November 2026; implemented on this branch (see the task note plans/public-search.md).**
 
 ## Global constraints
 
@@ -72,7 +71,7 @@ source. `publishedSearchAccess` builds `or` of
 `{ doc.relationTo = c, doc.value in publishedIDs(c) }`, skipping empty sets; when
 all are empty it returns a constraint that matches nothing.
 
-- [ ] RED: tests against the real hooks and roles, using the actual REST/GraphQL
+- [x] RED: tests against the real hooks and roles, using the actual REST/GraphQL
   path. Cover: publish creates one row; draft save keeps published text; later
   publish refreshes one row; withdraw removes the row and public reads; stale row
   from a failed sync is invisible; delete of a draft-only record leaves none;
@@ -80,16 +79,16 @@ all are empty it returns a constraint that matches nothing.
   Report holds `identifier`/`summary` but no Document id, filename or key. Empty
   published set returns an empty list, not an error. Each fails for the missing
   collections/fields before implementation.
-- [ ] RED: reindex accepts only indexed collections, rejects unknown/empty/duplicate,
+- [x] RED: reindex accepts only indexed collections, rejects unknown/empty/duplicate,
   deletes only those collections' rows, converges on all fields, and rolls back on a
   forced failure leaving the previous index intact.
-- [ ] GREEN: implement the minimum above. Inspect the plugin's `restoreVersion` and
+- [x] GREEN: implement the minimum above. Inspect the plugin's `restoreVersion` and
   `scheduled` sync paths in the installed source and by test; fix only what a test
   shows broken, in the shared layer.
-- [ ] Mutation check: temporarily drop the per-collection predicate and confirm the
+- [x] Mutation check: temporarily drop the per-collection predicate and confirm the
   stale-row test fails; restore it. Generate and review the migration; apply only to
   the guarded database; prove existing rows survive, repeat is a no-op.
-- [ ] Run focused GREEN, existing search suites, `npx tsc --noEmit`, changed-file
+- [x] Run focused GREEN, existing search suites, `npx tsc --noEmit`, changed-file
   lint; commit `feat(search): index published issuances and reports`.
 
 ### 2. Query module, page and form
@@ -107,42 +106,42 @@ page }` using `overrideAccess: false`, `draft: false`, `depth: 0`, explicit `sel
 `{ label, title, href, identifier, summary, publishedAt, recent }`. The page renders
 prompt, results, no-results; errors propagate to `error.tsx`.
 
-- [ ] RED (`parseSearchParams`): arrays, empty, one character, 101 characters,
+- [x] RED (`parseSearchParams`): arrays, empty, one character, 101 characters,
   whitespace runs, NFC/NFD, `%` `_` `\`, markup, bad `type`/`page` (0, -1, 1.5, `abc`,
   huge). Each fails before the module exists.
-- [ ] RED (`normalizeIdentifier`, pure): case/space/punctuation variants and each
+- [x] RED (`normalizeIdentifier`, pure): case/space/punctuation variants and each
   alias collapse to one key ("Res. No. 2026-014", "resolution no 2026014");
   unrelated prefixes don't collide; empty/markup-only input yields no key. Query
   side: when the normalized query is non-empty, also substring-match `identifierKey`.
-- [ ] RED (`runSearch`, real DB and roles): title/identifier/summary/slug matches;
+- [x] RED (`runSearch`, real DB and roles): title/identifier/summary/slug matches;
   multi-word AND; wildcard input cannot widen results; `type` filter; stable
   paging across equal dates; past-last-page; non-live types absent even when rows
   exist; draft/withdrawn/stale rows absent; every link is `/posts/{slug}` for a Post
   and never contains `/api/` or a Document id; record at day 29 and day 31 (injected
   clock) has the same href and result, only `recent` differs.
-- [ ] RED (`tests/e2e/search.e2e.spec.ts`, browser): GET form works with JavaScript
+- [x] RED (`tests/e2e/search.e2e.spec.ts`, browser): GET form works with JavaScript
   disabled; `q` with `&`, `#`, `%`, `<script>` is encoded and shown as text; no
   history entry per keystroke; empty, no-results and error states render; error
   state is not the no-results state (force a failed query via a test-only mock).
-- [ ] GREEN: implement the minimum. Replace the `CollectionArchive` usage on this
+- [x] GREEN: implement the minimum. Replace the `CollectionArchive` usage on this
   page with `SearchResults`; leave `CollectionArchive` and `Card` unchanged. Replace
   the template page title with the project name in `generateMetadata`.
-- [ ] Measure: `EXPLAIN (ANALYZE)` of the final query at 5,000 synthetic rows on the
+- [x] Measure: `EXPLAIN (ANALYZE)` of the final query at 5,000 synthetic rows on the
   guarded database; record the plan and timing in the slice record. Add no index
   unless the result justifies one.
-- [ ] Run focused GREEN, `npx tsc --noEmit`, changed-file lint, commit
+- [x] Run focused GREEN, `npx tsc --noEmit`, changed-file lint, commit
   `feat(search): add the public search page and query module`.
 
 ### 3. Full checks and whole-slice review
 
-- [ ] Run, serially: `npm run lint`, `npx tsc --noEmit`, `npm run test:int`,
+- [x] Run, serially: `npm run lint`, `npx tsc --noEmit`, `npm run test:int`,
   `npm run test:e2e`, `npm run build`. Read every result; report the pre-existing
   Header/Card/Theme lint errors recorded in `plans/product-alignment.md` separately
   from any new failure (unverified on this base).
 - [ ] Browser-check `/search` at narrow and desktop widths, 200% zoom and keyboard
   focus against the design guide. If a browser is unavailable, record it as
   unverified.
-- [ ] Update the task note under `plans/` with commits, commands, results, the
+- [x] Update the task note under `plans/` with commits, commands, results, the
   unverified list from the spec, and one next action. No push or integration.
 - [ ] Request one independent whole-slice review against the spec's review focus;
   record its findings and the fixes. Integration waits for owner authorization.
