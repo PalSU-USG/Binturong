@@ -40,7 +40,7 @@ if (!process.argv[3]) {
 } else {
   assert(['postgres:', 'postgresql:'].includes(target.protocol))
   assert(['127.0.0.1', 'localhost'].includes(target.hostname))
-  assert(['55322', '56322'].includes(target.port))
+  assert(['55322', '56322', '56323'].includes(target.port))
   assert.equal(target.search, '')
   assert.equal(target.hash, '')
   assert(new RegExp(`^binturong_domain_proof_${mode}_[a-f0-9]{24}$`).test(process.argv[3]))
