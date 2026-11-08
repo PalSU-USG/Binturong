@@ -152,14 +152,17 @@ private/no-store attachment headers. Release resource slots on cancel/error/end.
 `scripts/document-manifest.ts` and relevant recovery tests; update local guide,
 current checkpoint and plan checkboxes with actual outcomes.
 
-- [ ] Browser: real >4.5 MB PDF, interrupted/resumed TUS upload, server verification,
+- [x] Browser: real >4.5 MB PDF, interrupted/resumed TUS upload, server verification,
   denied forged metadata, immutable replacement, staff draft delivery, publisher
+  Outcome: `tests/e2e/documents.e2e.spec.ts` passes (13 MB PDF, abort then resume of the same TUS upload, forged metadata denied, replacement keeps old bytes, publication, withdrawal, restoration). Defects fixed: bundled `require.resolve` broke the verification worker (every finalize 503); decoded-stream memory was unbounded; `domain.e2e` expected field errors the file preflight now precedes.
   publication, anonymous exact bytes, withdrawal and history restoration.
-- [ ] Generate manifest with document ID/org/key/size/hash/previousVersion; prove
+- [x] Generate manifest with document ID/org/key/size/hash/previousVersion; prove
   backup/restore byte equality against original synthetic inputs. No deletion of
+  Outcome: `scripts/document-manifest.ts` + `src/storage/documentManifest.ts`; `tests/int/document-manifest.int.spec.ts` (3 tests) proves backup, loss, restore and byte equality with the original synthetic inputs, tampered-backup refusal, no overwrite, and unreadable-not-ok.
   original/failed objects or real data; real inventory/offsite proof stays rollout.
-- [ ] Run full integration/browser, types, changed/full lint and guarded production
+- [x] Run full integration/browser, types, changed/full lint and guarded production
   build/cache/large-download/worker proof. Record inherited failures separately.
+  Outcome: full int suite 243/243 (24 files, serial); full browser suite 13/13; tsc clean; changed-file lint 0 errors (2 inherited warnings in untouched specs); full lint 5 errors/10 warnings (inherited baseline, untouched files). Guarded production build + built server: 13 MB upload/verify/publish/anonymous download exact bytes (finalize 1.7 s, download 0.9 s, server peak working set 221 MB); 50 MB maximum finalize 3.3 s, staff download exact bytes, peak 360 MB; hostile 50 MB object flood / non-PDF finalize 422 in 6.8 s / 1.6 s. Worker proof: 1 MB object-stream bomb grew the process 554 MB (300 MB inflated) and 1468 MB (1000 MB) before the decoded-size cap, 101/107 MB after. Logs in ignored `.superpowers/sdd/2026-11-03-private-documents/`.
 - [ ] Independent whole-branch spec/evidence/compatibility review at committed
   runtime; fix blockers with focused RED/GREEN. Record cleanup, ignored evidence,
   actual commit, remaining dirty files and one next action. Do not integrate/push

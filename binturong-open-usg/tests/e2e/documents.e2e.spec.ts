@@ -20,6 +20,8 @@ const LARGE_BYTES = 13_000_000 // > 4.5 MB request limit and > two 6 MiB TUS chu
 
 test.describe('private official documents end to end', () => {
   test.setTimeout(300000)
+  // Publication verifies each referenced PDF on a dev server that compiles routes on demand.
+  const slow = expect.configure({ timeout: 30000 })
   let payload: Payload
   let fixtures: Awaited<ReturnType<typeof createAccessFixtures>>
   let orgID: number
@@ -249,7 +251,7 @@ test.describe('private official documents end to end', () => {
     const publish = page.getByRole('button', { name: 'Publish reviewed revision', exact: true })
     await expect(publish).toBeEnabled({ timeout: 15000 })
     await publish.click()
-    await expect
+    await slow
       .poll(async () => (await request.get(`/api/issuances/${issuanceID}`)).status())
       .toBe(200)
     const downloaded = await request.get(`/api/documents/${firstID}/file`)
@@ -269,7 +271,7 @@ test.describe('private official documents end to end', () => {
     await page.getByRole('button', { name: 'Review saved revision', exact: true }).click()
     await page.getByRole('button', { name: 'Review withdrawal', exact: true }).click()
     await page.getByRole('button', { name: 'Withdraw published revision', exact: true }).click()
-    await expect
+    await slow
       .poll(async () => (await request.get(`/api/documents/${secondID}/file`)).status())
       .toBe(404)
     expect((await request.get(`/api/documents/${firstID}/file`)).status()).toBe(404)
@@ -288,7 +290,7 @@ test.describe('private official documents end to end', () => {
     await page.getByRole('button', { name: 'Review selected version', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Historical content to restore' })).toBeVisible()
     await page.getByRole('button', { name: 'Restore reviewed revision', exact: true }).click()
-    await expect
+    await slow
       .poll(async () => (await request.get(`/api/documents/${firstID}/file`)).status())
       .toBe(200)
     const restored = await request.get(`/api/documents/${firstID}/file`)
