@@ -98,21 +98,23 @@ Add nullable protected fields `uploadActor`, `uploadRequestId` (unique server
 creator/UUID key), `uploadRequestHash`, `stagingKey`, `uploadExpiresAt`, `verifiedAt`.
 Do not infer verification for old rows. Keep keys/session fields out of public output.
 
-- [ ] RED: native CRUD/forged ready and capabilities denied; malformed IDs/fields,
+- [x] RED: native CRUD/forged ready and capabilities denied; malformed IDs/fields,
   wrong organization/version, actor mismatch, duplicate conflicting request,
   pending quota, revoked/expired session, competing finalizers and interrupted
   commit. Use actual roles and observable barriers; assert persisted metadata/bytes.
-- [ ] Implement initialization under the account lock, provider work outside the
+- [x] Implement initialization under the account lock, provider work outside the
   lock, and final locked state/actor/expiry recheck. First immutable object wins;
   collisions/retries derive metadata only from independently verified canonical
   bytes. Transient provider/DB failures stay pending; deterministic invalid PDFs
   become failed. Expired pending sessions cannot become ready.
-- [ ] Add native admin list upload control with progress, resume/retry and clear
+- [x] Add native admin list upload control with progress, resume/retry and clear
   verification states; use installed Payload UI and TUS client, no custom uploader.
-- [ ] Generate/review/apply the additive migration only on guarded/disposable
+- [x] Generate/review/apply the additive migration only on guarded/disposable
   databases; prove old IDs/rows/history/roles preserved, repeat no-op and rollback.
   Extend the migration proof's exact migration count without weakening its guards.
   Run GREEN, broader integration, types/lint and commit.
+
+  Outcome (2026-11-09): RED observed (missing module). Root cause of GREEN failures: `consumeDocumentWrite` compared grant data by identity, but Payload's Local API deep-copies data before `beforeOperation`; now compared by content (single-use, req-bound, still denies forged/mismatched data). Test for disabled actors now uses a disposable disabled account. GREEN: document-uploads 6/6, domain-migrations 2/2 (fresh+populated, repeat no-op, rollback), document-storage suites 14/14; tsc and eslint clean. Logs: `.superpowers/sdd/2026-11-03-private-documents/milestone-2-final.log`.
 
 ### 3. Publication preflight and controlled delivery
 
