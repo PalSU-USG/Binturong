@@ -1,3 +1,4 @@
+import type { Where } from 'payload'
 import type { SearchType } from './params'
 
 type SearchTarget = {
@@ -36,3 +37,8 @@ export function searchCanonicalPath(relationTo: string, slug: string): string {
   if (typeof slug !== 'string' || slug.length === 0) throw new Error('A search result needs a slug')
   return searchTargets[relationTo].path(slug)
 }
+
+/** `doc.relationTo` supports `equals` only, so a set of collections is an `or` of equals. */
+export const relationIn = (collections: readonly SearchCollection[]): Where => ({
+  or: collections.map((collection) => ({ 'doc.relationTo': { equals: collection } })),
+})
