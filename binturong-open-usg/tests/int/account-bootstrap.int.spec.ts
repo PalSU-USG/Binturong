@@ -86,7 +86,9 @@ describe('explicit local super-admin bootstrap', () => {
         'postgresql://127.0.0.1:54322/binturong_test',
         'postgresql://localhost:56322/postgres',
         'postgresql://example.invalid:56322/binturong_test',
-        'postgresql://127.0.0.1:56323/binturong_test',
+        'postgresql://127.0.0.1:56324/binturong_test',
+        'postgresql://example.invalid:56323/binturong_test',
+        'postgresql://localhost:56323/postgres',
         'postgresql://localhost:56322/binturong_test?host=example.invalid',
         'postgresql://localhost:56322/binturong_test#override',
       ]) {
