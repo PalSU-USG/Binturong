@@ -85,6 +85,23 @@ describe('public search query', () => {
     expect((await search(`nomatch${tag}`)).totalDocs).toBe(0)
     expect((await search('%')).totalDocs).toBe(0)
     expect((await search('_')).totalDocs).toBe(0)
+    // With real terms a query does run; a wildcard in it must not match arbitrary characters.
+    expect((await search(`W_ld${tag}`)).totalDocs).toBe(0)
+    expect((await search(`Wi%d${tag}`)).totalDocs).toBe(0)
+    expect((await search(`Wild${tag}%`)).totalDocs).toBe(1)
+  })
+
+  it('counts_only_rows_that_can_be_shown', async () => {
+    const shown = await post(`Slugless${tag} shown`)
+    const broken = await post(`Slugless${tag} broken`)
+    await payload.db.updateOne({
+      collection: 'search',
+      where: { 'doc.relationTo': { equals: 'posts' }, 'doc.value': { equals: broken.id } },
+      data: { slug: null },
+    })
+    const result = await search(`slugless${tag}`)
+    expect(result.hits.map((h) => h.title)).toEqual([shown.title])
+    expect(result.totalDocs).toBe(1)
   })
 
   it('filters_by_type_and_never_lists_non_live_collections', async () => {

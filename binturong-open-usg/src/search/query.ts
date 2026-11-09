@@ -64,7 +64,15 @@ export async function runSearch(
   if (collections.length === 0 || !q)
     return { hits: [], totalDocs: 0, totalPages: 0, page: params.page }
 
-  const where: Where = { and: [relationIn(collections), textWhere(q)] }
+  // A row without a slug has no canonical page, so it is neither listed nor counted.
+  const where: Where = {
+    and: [
+      relationIn(collections),
+      { slug: { exists: true } },
+      { slug: { not_equals: '' } },
+      textWhere(q),
+    ],
+  }
   const result = await payload.find({
     collection: 'search',
     overrideAccess: false,
