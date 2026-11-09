@@ -1,6 +1,6 @@
 # Record pages and public sections
 
-Status: Draft for owner review. Not approved; nothing here is implemented.
+Status: Approved by the owner on 9 November 2026 (decisions recorded below). Not yet implemented.
 Parent: [Domain and publication foundations](2026-10-19-domain-publication-design.md).
 Written against `dev` `da406cf`; storage has since landed (`dev` `9fa9d98`). Closes the
 delivery order: record patterns, then Archives / Transparency / Government, as one slice.
@@ -176,7 +176,21 @@ placeholder styles only), non-record search, inline PDF viewer, bulk import, ten
 workspaces, Constitutional Commissions model, schema/migration changes, cloud data,
 Header edits (a publisher adds reviewed links afterward).
 
-## Open owner decisions
+## Owner decisions (9 November 2026)
+
+1. Record detail pages follow an arXiv-style abstract page: metadata block, summary as
+   abstract, one "Download PDF (size)" action through the controlled delivery route,
+   and a version history listing published versions only (number, date, size). The
+   narrow server-side `readPublicFileFacts` read is approved for this, extended to the
+   published version chain; it returns no storage keys and is covered by its own tests.
+2. Archives order by `publishedAt`; records without a branch appear only on `/archives`.
+3. Activities: plain list and detail pages; no calendar.
+4. Constitutional Commissions stay unlinked ("Not yet available" in review, hidden live).
+5. Current office holder is decided by term dates only.
+6. `/transparency` is its own overview page listing Financial and Accomplishment
+   Reports; intro copy is a content input (honest empty state until provided).
+
+## Original options considered
 
 1. **Archive ordering.** `publishedAt` (never null) or source date (nullable)?
    Recommend `publishedAt`, showing the source date in each row.
