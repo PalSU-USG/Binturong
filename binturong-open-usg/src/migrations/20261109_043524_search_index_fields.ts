@@ -35,5 +35,3 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   ALTER TABLE "search_rels" DROP COLUMN "issuances_id";
   ALTER TABLE "search_rels" DROP COLUMN "reports_id";`)
 }
-
-

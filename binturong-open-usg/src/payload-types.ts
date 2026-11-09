@@ -973,6 +973,12 @@ export interface Document {
   size?: number | null;
   sha256?: string | null;
   previousVersion?: (number | null) | Document;
+  uploadActor?: number | null;
+  uploadRequestId?: string | null;
+  uploadRequestHash?: string | null;
+  stagingKey?: string | null;
+  uploadExpiresAt?: string | null;
+  verifiedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1900,6 +1906,12 @@ export interface DocumentsSelect<T extends boolean = true> {
   size?: T;
   sha256?: T;
   previousVersion?: T;
+  uploadActor?: T;
+  uploadRequestId?: T;
+  uploadRequestHash?: T;
+  stagingKey?: T;
+  uploadExpiresAt?: T;
+  verifiedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

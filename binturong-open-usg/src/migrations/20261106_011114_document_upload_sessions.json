@@ -8082,6 +8082,42 @@
           "primaryKey": false,
           "notNull": false
         },
+        "upload_actor": {
+          "name": "upload_actor",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "upload_request_id": {
+          "name": "upload_request_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "upload_request_hash": {
+          "name": "upload_request_hash",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "staging_key": {
+          "name": "staging_key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "upload_expires_at": {
+          "name": "upload_expires_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -8124,6 +8160,36 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "documents_upload_actor_idx": {
+          "name": "documents_upload_actor_idx",
+          "columns": [
+            {
+              "expression": "upload_actor",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "documents_upload_request_id_idx": {
+          "name": "documents_upload_request_id_idx",
+          "columns": [
+            {
+              "expression": "upload_request_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -12940,36 +13006,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "identifier": {
-          "name": "identifier",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "identifier_key": {
-          "name": "identifier_key",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "summary": {
-          "name": "summary",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "published_at": {
-          "name": "published_at",
-          "type": "timestamp(3) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "sort_at": {
-          "name": "sort_at",
-          "type": "timestamp(3) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
         "slug": {
           "name": "slug",
           "type": "varchar",
@@ -13010,21 +13046,6 @@
         }
       },
       "indexes": {
-        "search_sort_at_idx": {
-          "name": "search_sort_at_idx",
-          "columns": [
-            {
-              "expression": "sort_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "search_slug_idx": {
           "name": "search_slug_idx",
           "columns": [
@@ -13140,18 +13161,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
-        },
-        "issuances_id": {
-          "name": "issuances_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reports_id": {
-          "name": "reports_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -13214,36 +13223,6 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
-        },
-        "search_rels_issuances_id_idx": {
-          "name": "search_rels_issuances_id_idx",
-          "columns": [
-            {
-              "expression": "issuances_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "search_rels_reports_id_idx": {
-          "name": "search_rels_reports_id_idx",
-          "columns": [
-            {
-              "expression": "reports_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
         }
       },
       "foreignKeys": {
@@ -13266,32 +13245,6 @@
           "tableTo": "posts",
           "columnsFrom": [
             "posts_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "search_rels_issuances_fk": {
-          "name": "search_rels_issuances_fk",
-          "tableFrom": "search_rels",
-          "tableTo": "issuances",
-          "columnsFrom": [
-            "issuances_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "search_rels_reports_fk": {
-          "name": "search_rels_reports_fk",
-          "tableFrom": "search_rels",
-          "tableTo": "reports",
-          "columnsFrom": [
-            "reports_id"
           ],
           "columnsTo": [
             "id"
@@ -16203,6 +16156,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "0e498f7c-9fc2-4a0d-acf5-b305ac7e48b8",
+  "id": "f942be35-1ebb-4768-90dc-dd69dd7895a2",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

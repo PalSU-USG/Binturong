@@ -9,6 +9,7 @@ import {
   removeTestAccounts,
 } from '../helpers/accessFixtures'
 import { login } from '../helpers/login'
+import { removeObjects, seedFile, type SeededFile } from '../helpers/officialFileFixtures'
 
 test.describe('domain editorial workflow', () => {
   test.setTimeout(240000)
@@ -16,6 +17,8 @@ test.describe('domain editorial workflow', () => {
   let fixtures: Awaited<ReturnType<typeof createAccessFixtures>>
   const records: { collection: DomainCollection; id: number; field: string; value: string }[] = []
   const suffix = randomUUID()
+  const tracker = { keys: [] as string[] }
+  let seeded: SeededFile | undefined
 
   test.beforeAll(async () => {
     payload = await getPayload({ config })
@@ -48,8 +51,11 @@ test.describe('domain editorial workflow', () => {
       location: 'Synthetic location',
     })
     await draft('issuances', 'title', { organization, issuingOffice: office, type: 'advisory' })
+    // A verified file makes the field-level report errors reachable past the file preflight.
+    seeded = await seedFile(payload, tracker, organization)
     await draft('reports', 'title', {
       organization,
+      mainDocument: seeded.id,
       responsibleOffices: [office],
       type: 'financial',
     })
@@ -57,6 +63,13 @@ test.describe('domain editorial workflow', () => {
 
   test.afterAll(async () => {
     for (const { collection, id } of [...records].reverse()) {
+      if (collection === 'organizations' && seeded) {
+        await payload.db.deleteOne({
+          collection: 'documents',
+          where: { id: { equals: seeded.id } },
+        })
+        await removeObjects(tracker.keys)
+      }
       await payload.db.deleteVersions({ collection, where: { parent: { equals: id } } })
       await payload.db.deleteOne({ collection, where: { id: { equals: id } } })
     }
@@ -201,8 +214,11 @@ test.describe('domain editorial workflow', () => {
         await expect(page.getByTestId('domain-reviewed-content')).toContainText(value)
         await page.getByRole('button', { name: 'Publish reviewed revision', exact: true }).click()
         const error = page.locator('.domain-review').getByRole('alert')
-        await expect(error).toContainText(/Main document/i)
-        if (collection === 'reports') await expect(error).toContainText(/Reporting period/i)
+        // Files are preflighted first, so each record shows its first failing stage.
+        await expect(error).toContainText(
+          collection === 'reports' ? /Reporting period/i : /Main document/i,
+        )
+        if (collection === 'reports') await expect(error).not.toContainText(/Main document/i)
         await expect(error).toBeFocused()
         expect((await request.get(`/api/${collection}/${id}`)).status()).toBe(404)
         await page.keyboard.press('Escape')

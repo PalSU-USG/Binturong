@@ -1,14 +1,15 @@
-import * as migration_20261019_151632_baseline from './20261019_151632_baseline'
-import * as migration_20261019_173146_access_roles from './20261019_173146_access_roles'
-import * as migration_20261019_180133_auth_authority_guard from './20261019_180133_auth_authority_guard'
-import * as migration_20261020_055631_auth_credential_guard from './20261020_055631_auth_credential_guard'
-import * as migration_20261020_060134_account_auth_revision from './20261020_060134_account_auth_revision'
-import * as migration_20261022_051329_domain_metadata from './20261022_051329_domain_metadata'
-import * as migration_20261022_071500_domain_directory from './20261022_071500_domain_directory'
-import * as migration_20261022_075642_formal_record_drafts from './20261022_075642_formal_record_drafts'
-import * as migration_20261022_110027_record_integrity from './20261022_110027_record_integrity'
-import * as migration_20261023_010945_reviewed_domain_transitions from './20261023_010945_reviewed_domain_transitions'
-import * as migration_20261108_202329_search_index_fields from './20261108_202329_search_index_fields'
+import * as migration_20261019_151632_baseline from './20261019_151632_baseline';
+import * as migration_20261019_173146_access_roles from './20261019_173146_access_roles';
+import * as migration_20261019_180133_auth_authority_guard from './20261019_180133_auth_authority_guard';
+import * as migration_20261020_055631_auth_credential_guard from './20261020_055631_auth_credential_guard';
+import * as migration_20261020_060134_account_auth_revision from './20261020_060134_account_auth_revision';
+import * as migration_20261022_051329_domain_metadata from './20261022_051329_domain_metadata';
+import * as migration_20261022_071500_domain_directory from './20261022_071500_domain_directory';
+import * as migration_20261022_075642_formal_record_drafts from './20261022_075642_formal_record_drafts';
+import * as migration_20261022_110027_record_integrity from './20261022_110027_record_integrity';
+import * as migration_20261023_010945_reviewed_domain_transitions from './20261023_010945_reviewed_domain_transitions';
+import * as migration_20261106_011114_document_upload_sessions from './20261106_011114_document_upload_sessions';
+import * as migration_20261109_043524_search_index_fields from './20261109_043524_search_index_fields';
 
 export const migrations = [
   {
@@ -62,8 +63,13 @@ export const migrations = [
     name: '20261023_010945_reviewed_domain_transitions',
   },
   {
-    up: migration_20261108_202329_search_index_fields.up,
-    down: migration_20261108_202329_search_index_fields.down,
-    name: '20261108_202329_search_index_fields',
+    up: migration_20261106_011114_document_upload_sessions.up,
+    down: migration_20261106_011114_document_upload_sessions.down,
+    name: '20261106_011114_document_upload_sessions',
   },
-]
+  {
+    up: migration_20261109_043524_search_index_fields.up,
+    down: migration_20261109_043524_search_index_fields.down,
+    name: '20261109_043524_search_index_fields'
+  },
+];

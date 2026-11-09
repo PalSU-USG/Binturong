@@ -13,11 +13,33 @@ import {
 } from './publicationRevision'
 import { isDomainCollection } from '@/collections/shared/domainCollections'
 import { validateDomainPublication } from '@/collections/shared/validateDomainPublication'
+import {
+  assertOfficialPreflight,
+  clearOfficialPreflight,
+  preflightOfficialPublication,
+} from '@/storage/officialPublication'
 
 type ScheduleArgs = Parameters<typeof schedulePublishHandler>[0] & { expected?: RevisionProof }
 type Schedule = (args: ScheduleArgs) => Promise<{ message: string }>
 
 export const authorizeScheduling: Schedule = async (args) => {
+  // Provider verification of an official publication happens before the transaction and lock.
+  const { doc, type, deleteID, expected } = args
+  if (
+    !deleteID &&
+    type === 'publish' &&
+    (doc?.relationTo === 'issuances' || doc?.relationTo === 'reports') &&
+    validRevisionProof(expected) &&
+    typeof doc.value === 'string' &&
+    /^[1-9][0-9]*$/.test(doc.value) &&
+    serialID(Number(doc.value))
+  )
+    await preflightOfficialPublication(args.req, {
+      collection: doc.relationTo,
+      documentID: Number(doc.value),
+      action: 'publish',
+      expected,
+    })
   const ownsTransaction = await initTransaction(args.req)
   const transactionID = await args.req.transactionID
   try {
@@ -38,6 +60,8 @@ export const authorizeScheduling: Schedule = async (args) => {
         await args.req.payload.db.rollbackTransaction(transactionID)
     }
     throw error
+  } finally {
+    clearOfficialPreflight(args.req)
   }
 }
 
@@ -118,6 +142,12 @@ const schedule: Schedule = async (args) => {
     if (reviewed.id !== args.expected.versionID || reviewed.hash !== args.expected.versionHash)
       throw new APIError('The reviewed revision changed. Review it again before scheduling.', 409)
     if (type === 'publish') {
+      assertOfficialPreflight(req, {
+        collection,
+        documentID,
+        action: 'publish',
+        expected: args.expected,
+      })
       const canonical = await req.payload.findByID({
         collection,
         id: documentID,
