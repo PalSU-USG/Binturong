@@ -6,7 +6,7 @@
 | ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
 | 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
 | 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Phase02 merged into dev; Slice2 starting | Accepted application preserved; private-storage design proposed         |
+| 2: execution              | Slices 1–2 integrated; search/navigation next | Storage integrated; later slices reviewed or drafting                    |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,54 +15,36 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Phase02 is integrated into local `dev`: merge `6ec0427`, integration checkpoint
-  `da406cf`. Independent combined-tree checks pass 76 integration, 4 browser and
-  types; application bytes match accepted `2d2b44f`. Earlier same-app evidence is
-  195 integration, 12 browser and production build/cache 1/1. Full lint retains
-  5 inherited errors/10 warnings. No main/cloud application migration or push.
-- Active Slice2 task: `Hawksprey420/private-documents`, checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/private-documents`, base `da406cf`.
-  Native inline execution with focused commits and independent whole-slice review.
-- Owner approved the private-storage design and requested implementation:
-  [design](../docs/superpowers/specs/2026-11-03-private-documents-design.md),
-  [implementation plan](../docs/superpowers/plans/2026-11-03-private-documents.md).
-  Supabase private bucket; resumable PDFs up to 50,000,000 bytes; actual bounded
-  PDF verification; immutable ready objects/metadata; controlled verified downloads.
-  The design-review findings about locks, canonical races, resources and recovery
-  are incorporated. No further content decision is pending.
-- Existing dependency bytes were copied locally; no external dependency junction.
-  Only this checkout has the copied ignored test environment, targeting
-  `127.0.0.1:56322/binturong_test`. Original DB container stays stopped while
-  `binturong-domain-review-db-56322` uses its existing volume. Other checkouts'
-  environments/instructions/ignore edits and owner stash remain unchanged.
-- Provider/PDF milestone implemented: `src/storage/officialStorage.ts`,
-  `documentLimits.ts`, `verifyPDF.ts`, guarded provider fixtures and two focused
-  suites. Initial missing-module RED observed; final 14/14 tests, types and strict
-  changed-file lint pass. Bucket-privacy bypass and actual overwrite mutations
-  each fail their focused regression; exact source bytes restored afterward.
-- Local Storage fallback `binturong-document-storage-56321` is running on loopback
-  56321, using the existing Storage image/volume and fallback database host. Its
-  original remains stopped. Synthetic bucket `binturong-documents-test` is private,
-  PDF-only and exactly 50,000,000 bytes. Actual signed TUS upload uses `/sign`;
-  byte identity/immutable collision, upload-token read denial and real anonymous/
-  authenticated RLS denial pass. Only owned synthetic keys are cleaned up.
-- Approved libraries installed: `pdf-lib@1.17.1`, `tus-js-client@4.3.1` and 24 new
-  lock entries. All pre-existing locked package versions are unchanged. npm audit
-  reports 34 inherited advisories (2 critical/6 high/24 moderate/2 low), none on
-  newly added dependency nodes; no unrelated upgrade/audit fix was performed.
-  No Documents schema change yet; ordinary CRUD and official publication stay sealed.
-- Trust boundaries: browser input/Payload authentication, pending upload tokens,
-  private provider bytes, worker resource limits, immutable readiness and current
-  publication references. Only server capabilities may mutate Documents; ordinary
-  CRUD remains sealed. No real uploads, bucket/policy cloud writes, main CMS data
-  migration, automatic object cleanup, storage integration, push or deployment.
-- Private evidence belongs to ignored `.superpowers/sdd/2026-11-03-private-documents/`.
-  Exact commands/results and retained failures live there (`provider-red.log`,
-  `provider-final.log`, `provider-live.log`, `bucket-privacy-mutation.log`,
-  `immutable-object-mutation.log`, `dependency-audit.json`). The initial live run
-  exposed the required signed TUS `/sign` route; final real-provider checks pass.
-  Next action: write upload-session/forgery/concurrent-finalization regression RED,
-  then add protected session fields and the reviewed additive Payload migration.
+Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
+
+- **Integrated:** Phase01 access (`00f3b1f`), Phase02 domain foundations (`6ec0427`),
+  Slice2 private documents (this merge). Storage evidence on the final tree: 258/258
+  integration (serial), 13/13 browser, types and changed-file lint clean; full lint
+  keeps 5 inherited errors/10 warnings. Opus and Codex whole-slice reviews, then a
+  focused re-check: all P1/P2 findings resolved. Evidence: ignored
+  `.superpowers/sdd/2026-11-03-private-documents/` in the task checkout.
+- **Storage follow-ups (owner: record, not blocking):** add a total download
+  deadline (~10 min) and per-IP rate limiting in front of `GET /api/documents/:id/file`;
+  give the post-verification authorization/bucket checks their own timeout; the
+  decoded-stream cap is conservative and may reject legitimate PDFs with very large
+  object streams; production serverless file tracing of the pdf-lib worker path is
+  untested; no real uploads or cloud bucket exist yet.
+- **Local services:** test DBs `binturong-domain-review-db-56322` (original volume)
+  and `binturong-test-db-56323` (owner-approved second isolated DB, own volume);
+  Storage API `binturong-document-storage-56321`. Never run the original
+  `supabase_db_binturong-open-usg` together with the 56322 container.
+- **Reviewed, awaiting integration (in order):** `Hawksprey420/public-search`
+  (owner decisions recorded; review fixes done, 246 int/18 browser), then
+  `Hawksprey420/navigation` (owner decisions recorded; 271 int/34 browser; review
+  P2 follow-ups pending). Each adds a Payload migration: update onto current `dev`,
+  regenerate its migration/snapshot and migration-count proof before integrating.
+- **Drafting:** `Hawksprey420/identity-home` (placeholder tokens + homepage) and
+  `Hawksprey420/record-sections` (record pages + Archives/Transparency/Government).
+  Brand seal, logo and palette are still needed from the owner.
+- **Workflow notes:** no AI attribution trailers (engineering workflow); Codex
+  sandbox needs the oh-my-posh cache, the repo `.git` and loopback network allowed,
+  and cannot write git metadata, so the coordinator commits its work.
+- **Next action:** integrate `Hawksprey420/public-search` onto this `dev`.
 
 ## Sources and reconnaissance snapshot
 
