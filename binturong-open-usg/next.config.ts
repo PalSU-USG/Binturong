@@ -44,6 +44,8 @@ const nextConfig: NextConfig = {
 
     return webpackConfig
   },
+  // The PDF verifier loads this package by resolved path inside a worker thread, which needs a real file path.
+  serverExternalPackages: ['pdf-lib'],
   reactStrictMode: true,
   redirects,
   turbopack: {

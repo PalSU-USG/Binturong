@@ -12,11 +12,17 @@ describe('Payload domain migration adoption', () => {
         ['--import=tsx', 'tests/helpers/domainMigrations.mjs', predecessor],
         { timeout: 150000, windowsHide: true, maxBuffer: 2 * 1024 * 1024 },
       )
-      expect(stdout).toContain('PASS ten migrations and repeat no-op')
+      expect(stdout).toContain('PASS thirteen migrations and repeat no-op')
       expect(stdout).toContain('PASS canonical uniqueness, foreign keys and restricted roles')
+      expect(stdout).toContain('PASS authored section links, enum constraint and cascade')
+      expect(stdout).toContain('PASS rollback refuses authored section data')
       if (predecessor === 'populated') {
+        expect(stdout).toContain('PASS search rows survive additive index fields')
         expect(stdout).toContain('PASS credentials, IDs, relationships, URLs and retained history')
         expect(stdout).toContain('PASS atomic additive migration rollback')
+        expect(stdout).toContain(
+          'PASS legacy Header rows keep IDs, order, stored strings and resolved URLs',
+        )
       }
       console.info(stdout)
     }, 160000)

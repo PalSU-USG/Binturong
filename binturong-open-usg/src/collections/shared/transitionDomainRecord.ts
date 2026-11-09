@@ -15,6 +15,12 @@ import {
   versionHash,
   type RevisionProof,
 } from '@/jobs/publicationRevision'
+import {
+  assertOfficialPreflight,
+  clearOfficialPreflight,
+  matchesOfficialPreflight,
+  preflightOfficialPublication,
+} from '@/storage/officialPublication'
 import { isDomainCollection, type DomainCollection } from './domainCollections'
 import { validateDomainPublication } from './validateDomainPublication'
 import { validateDomainWithdrawal } from './protectDomainReferences'
@@ -86,6 +92,10 @@ export async function transitionDomainRecord(req: PayloadRequest, input: Transit
     (input.action === 'restore' ? !validRevisionProof(input.restore) : input.restore !== undefined)
   )
     throw new APIError('Choose a saved record, action and reviewed revision', 400)
+  // Provider I/O happens here, before any transaction or lock. A caller that already holds a
+  // transaction must have preflighted its own request; otherwise the locked recheck fails closed.
+  if (!req.transactionID && !matchesOfficialPreflight(req, input))
+    await preflightOfficialPublication(req, input)
   const ownsTransaction = await initTransaction(req)
   const transactionID = await req.transactionID
   const requireTransaction = async () => {
@@ -172,7 +182,11 @@ export async function transitionDomainRecord(req: PayloadRequest, input: Transit
     if (action === 'withdraw') {
       if (collection === 'organizations' || collection === 'offices')
         await validateDomainWithdrawal(req, collection, documentID)
-    } else await validateDomainPublication(req, collection, candidate, { ...canonical })
+    } else {
+      // Official files must be preflighted for exactly this reviewed revision.
+      assertOfficialPreflight(req, input)
+      await validateDomainPublication(req, collection, candidate, { ...canonical })
+    }
     const at = new Date().toISOString()
     for (const field of ['id', 'createdAt', 'updatedAt', 'lastTransition', 'publishedAt'])
       delete candidate[field]
@@ -211,5 +225,6 @@ export async function transitionDomainRecord(req: PayloadRequest, input: Transit
     throw error
   } finally {
     grants.delete(req)
+    clearOfficialPreflight(req)
   }
 }
