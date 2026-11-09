@@ -1,6 +1,6 @@
 # Primary navigation and section orientation
 
-Status: Draft for owner review
+Status: Approved by the owner on 9 November 2026 (decisions at the end). Not yet implemented.
 
 ## Goal and basis
 
@@ -168,3 +168,12 @@ and external references were not re-inspected; use the recorded repository findi
 5. **Colors:** supply authoritative PalSU/USG palette values and permitted combinations.
    Default: existing neutral semantic styles subject to contrast verification; no
    screenshot sampling, invented brand palette or new tokens in this slice.
+
+## Owner decisions (9 November 2026)
+
+1. The seven destinations, their order and child links are approved as proposed above.
+2. Build with placeholders: plain-text institutional wordmark and existing neutral styles;
+   no recreated marks or invented palette. Real seal, logo and colors arrive in the later
+   tokens/identity slice.
+3. Content links: keep verified existing links; anything unknown stays unavailable in
+   review and is omitted from live navigation until the owner provides it.
