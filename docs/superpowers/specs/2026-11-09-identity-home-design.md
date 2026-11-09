@@ -1,6 +1,6 @@
 # Placeholder identity and institutional homepage
 
-Status: Draft for owner review. Nothing here is implemented or approved.
+Status: Approved by the owner on 9 November 2026 (decisions recorded below). Not yet implemented.
 
 ## Goal and basis
 
@@ -142,7 +142,14 @@ Real seal/logo/palette, photography, record detail/archive/government pages, act
 calendar, dark-mode toggle redesign, search changes, navigation changes, admin theming,
 Bintanong, new fonts or component libraries, publishing any content.
 
-## Open owner decisions
+## Owner decisions (9 November 2026)
+
+Approved as recommended: notice = newest published Post in a "Notice" category from the
+last 14 days (no schema change); statement "Official information, student services and
+institutional records."; code-owned front page (stored `home` Page untouched and not
+rendered at `/`); 5 rows per section; upcoming activities only.
+
+## Original options considered
 
 1. **Official notice source.** No model exists. Recommended: a Posts category named
    "Notice"; the newest published Post in it from the last 14 days is shown. No schema
