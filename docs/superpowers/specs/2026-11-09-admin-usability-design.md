@@ -1,6 +1,6 @@
 # Admin usability
 
-Status: Draft for owner review. Not approved; nothing here is implemented.
+Status: Approved by the owner on 9 November 2026 (decisions recorded below). Not yet implemented.
 
 Scope: the Payload admin at `/admin` for non-technical USG staff. Admin UI only: no
 schema change, no new endpoint, no change to access, transition or scheduling code.
@@ -122,7 +122,25 @@ Usable at 200% zoom and 360px width with no horizontal scroll; drawer focus retu
 No separate admin app; no new roles or states; no relaxation of access, review or audit;
 no real brand assets; no schema or migration; no change to public pages, search or storage.
 
-## Open owner decisions
+## Owner decisions (9 November 2026)
+
+1. Stay on Payload's admin and reshape it; no separate admin app (template research:
+   a separate admin would rebuild publishing, versions, Lexical and resumable upload).
+2. English labels and help text now; Filipino later via translation overrides.
+3. Add a server-set `lastEditedBy` relationship (to `users`) on editorial collections
+   now, so the dashboard shows a true "My drafts". It is set only in a `beforeChange`
+   hook from the authenticated `req.user`, read-only in the admin, never accepted from
+   client input, and excluded from public output. This adds one additive Payload
+   migration (backfill: null; old rows show under "Drafts", not "My drafts").
+4. Editors see only "Save draft" on Pages/Posts with the line "A publisher will review
+   and publish this."; server authority rules are unchanged.
+5. Nav groups Publish, Records, People & Offices, Site, Accounts, Advanced; Redirects and
+   Forms for admin and above; Search index and Folders for super_admin only; dark mode
+   kept; no "ready for review" flag in v1.
+6. Merge order: this slice merges last (after navigation, identity/homepage and record
+   pages) and regenerates its migration on the final schema.
+
+## Original options considered
 
 1. **Ready-for-review flag.** Recommend no for v1: every saved draft counts as waiting.
    Revisit if publishers are flooded (needs a field and migration).
