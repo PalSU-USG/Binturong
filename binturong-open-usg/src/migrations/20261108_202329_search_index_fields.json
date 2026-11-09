@@ -13010,21 +13010,6 @@
         }
       },
       "indexes": {
-        "search_identifier_key_idx": {
-          "name": "search_identifier_key_idx",
-          "columns": [
-            {
-              "expression": "identifier_key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "search_sort_at_idx": {
           "name": "search_sort_at_idx",
           "columns": [
