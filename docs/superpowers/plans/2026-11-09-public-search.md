@@ -143,5 +143,5 @@ prompt, results, no-results; errors propagate to `error.tsx`.
   unverified.
 - [x] Update the task note under `plans/` with commits, commands, results, the
   unverified list from the spec, and one next action. No push or integration.
-- [ ] Request one independent whole-slice review against the spec's review focus;
+- [x] Request one independent whole-slice review against the spec's review focus;
   record its findings and the fixes. Integration waits for owner authorization.
