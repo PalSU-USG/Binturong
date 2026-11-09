@@ -39,8 +39,15 @@ response rather than a public URL or a buffered large function response.
    byte length and SHA-256. Parsing runs outside the request thread with a
    15-second/128 MiB JavaScript heap bound and worker termination on failure.
    This heap bound does not include PDF buffers: limit verification/downloads
-   to two concurrent operations per process, reject excess work with retryable
-   503, and verify realistic process memory under large/adversarial inputs.
+   to two concurrent editorial operations per process, with a separate two-slot
+   delivery pool so download traffic cannot starve finalization or publication.
+   Reject excess work in either pool with retryable 503. At most four operations
+   can hold file buffers or verification workers per process. Each file is at most
+   50 MB; each worker has a 128 MiB JS heap, a 64 MiB decoded-stream capacity cap
+   and a 256 MiB aggregate allocation budget charged before rounded allocation.
+   Source, worker-copy and provider/post-write buffers add to that worker budget;
+   these limits are not an RSS ceiling. Verify realistic process memory under
+   large/adversarial inputs when changing process capacity.
    Provider requests have a 30-second timeout. Malformed, oversized and
    resource-exhausting inputs cannot become ready.
 4. The server writes the **verified bytes**, not a racy provider copy of the
@@ -59,6 +66,10 @@ response rather than a public URL or a buffered large function response.
    does not hold the global editorial lock.
 
 Provider/network/database failures leave the session pending and retryable.
+Worker deadlines and operational worker failures return 503, including during
+canonical-object verification. Only confirmed object absence permits the missing
+canonical-object path; a provider timeout must not discard a recoverable session.
+Worker out-of-memory and deterministic PDF/decoded-limit rejection return 422.
 Deterministically invalid PDFs can transition to failed and require a new request
 ID. Expired sessions cannot become ready, including after an earlier object write;
 already-committed ready sessions remain idempotently readable by the active creator.
@@ -95,7 +106,12 @@ Read and hash the complete bounded object before emitting any bytes, then stream
 that verified buffer in chunks. Do not forward an unchecked provider stream that
 could deliver corrupt bytes before a trailing checksum failure. Hold the process
 concurrency slot until the stream completes or is cancelled; cancellation releases
-the slot. Prove large-response behavior and peak process memory in production mode.
+the slot. Delivery uses its separate two-slot pool for staff and public downloads.
+A 120-second idle deadline resets on each pull; expiry or request abort errors the
+stream, drops its file buffer and releases the slot. Completion/cancellation clears
+the deadline and abort listener. Each chunk owns its bytes so retaining a chunk
+does not retain the whole PDF. Prove large-response behavior and peak process
+memory in production mode.
 
 Delivery is an attachment with a sanitized original filename, PDF MIME type,
 `nosniff`, and private/no-store headers. It never redirects to storage and does
@@ -144,7 +160,9 @@ remain required. Mocks alone cannot establish storage or publication readiness.
 
 Produce a file manifest (document ID, organization, key, size, SHA-256 and previous
 version), verify byte-for-byte backup/restore with known synthetic files, and keep
-original files and failed objects. No automatic cleanup, real-content migration,
+original files and failed objects. Existing backup files are accepted only after
+size and SHA-256 match the manifest; a mismatch errors without overwriting bytes.
+No automatic cleanup, real-content migration,
 cloud adoption, integration or deployment follows from this implementation. Before
 institutional intake, separately verify the real inventory and offsite recovery.
 

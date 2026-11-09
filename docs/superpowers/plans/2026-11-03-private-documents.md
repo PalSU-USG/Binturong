@@ -28,8 +28,11 @@ execution continues with the session's existing independent-review workflow.
 - Files are at most 50,000,000 bytes; TUS chunks 6 MiB; sessions expire after two
   hours; at most ten pending sessions per active creator.
 - Byte reads stop at maximum-plus-one; provider timeout 30 seconds; PDF worker
-  timeout 15 seconds and JS heap 128 MiB; at most two verification/download
-  operations per process. Bound buffers separately and measure actual memory.
+  timeout 15 seconds and JS heap 128 MiB; two editorial verification slots and two
+  separate delivery slots per process (four operations total). Each worker caps
+  decoded-stream capacity at 64 MiB and aggregate allocations at 256 MiB; raw,
+  copied and provider/post-write buffers add to this budget. This is not an RSS
+  ceiling. Bound buffers separately and measure actual memory.
 - Ordinary Documents CRUD stays denied, including privileged Local API calls.
   Request/data-bound internal grants authorize pending creation and finalization.
 - Immutable ready objects and Documents entries are never overwritten/deleted.
@@ -39,7 +42,8 @@ execution continues with the session's existing independent-review workflow.
 - Payload owns its new migration; provider bucket setup uses Storage API, never
   competing Payload/Supabase migration authorities for the same tables.
 - Run database/storage writers serially. Use only guarded `binturong_test` on
-  56322 and a named synthetic private Storage bucket in the local provider.
+  56323 for the current review fixes and a named synthetic private Storage bucket
+  in the local provider; 56322 belongs to another agent. Do not manage containers.
 
 ## Review focus
 
