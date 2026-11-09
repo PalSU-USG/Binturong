@@ -100,3 +100,66 @@ test('withdrawal cannot leave warmed public output after an open-transaction ref
     )
   }
 })
+
+test('withdrawn navigation targets and Header edits update warmed output without stale links', async ({
+  request,
+}) => {
+  assertTestDatabase(process.env.DATABASE_URL)
+  const payload = await getPayload({ config })
+  const fixtures = await createAccessFixtures(payload)
+  const headers = { Authorization: `JWT ${fixtures.tokens.publisher}` }
+  const original = (await payload.findGlobal({ slug: 'header', depth: 0 })).navItems ?? []
+  const slug = `synthetic-nav-${randomUUID()}`
+  const created = await request.post('/api/posts', {
+    headers,
+    data: {
+      title: `Synthetic nav ${randomUUID()}`,
+      slug,
+      content: syntheticContent,
+      _status: 'published',
+    },
+  })
+  expect(created.ok()).toBe(true)
+  const doc: Post = (await created.json()).doc
+  const setHeader = (navItems: unknown[]) =>
+    request.post('/api/globals/header', { headers, data: { navItems } })
+  const home = async () => (await request.get('/')).text()
+  try {
+    expect(
+      (
+        await setHeader([
+          {
+            link: {
+              type: 'reference',
+              label: 'Synthetic target',
+              url: '/stale-custom-url',
+              reference: { relationTo: 'posts', value: doc.id },
+            },
+          },
+        ])
+      ).ok(),
+    ).toBe(true)
+    let html = await home()
+    expect(html).toContain(`href="/posts/${slug}"`)
+    expect(html).toContain('Synthetic target')
+    expect(
+      (await request.patch(`/api/posts/${doc.id}`, { headers, data: { _status: 'draft' } })).ok(),
+    ).toBe(true)
+    html = await home()
+    expect(html).not.toContain(slug)
+    expect(html).not.toContain(doc.title)
+    expect(html).not.toContain('Synthetic target')
+    expect(html).not.toContain('stale-custom-url')
+    expect(
+      (await setHeader([{ link: { type: 'custom', label: 'Edited', url: '/edited' } }])).ok(),
+    ).toBe(true)
+    expect(await home()).toContain('href="/edited"')
+  } finally {
+    await setHeader(original)
+    await payload.delete({ collection: 'posts', id: doc.id, context: { disableRevalidate: true } })
+    await removeTestAccounts(
+      payload,
+      Object.values(fixtures.users).map(({ id }) => id),
+    )
+  }
+})

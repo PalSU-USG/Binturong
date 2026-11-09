@@ -1,9 +1,18 @@
+import React, { Suspense } from 'react'
+
+import { Wordmark } from '@/components/Wordmark'
 import { HeaderClient } from './Component.client'
-import { getCachedGlobal } from '@/utilities/getGlobals'
-import React from 'react'
+import { HeaderNavigation, MinimalNavigation } from './Navigation'
 
-export async function Header() {
-  const headerData = await getCachedGlobal('header', 1)()
-
-  return <HeaderClient data={headerData} />
+export function Header() {
+  return (
+    <HeaderClient>
+      <div className="site-header-bar">
+        <Wordmark />
+        <Suspense fallback={<MinimalNavigation />}>
+          <HeaderNavigation />
+        </Suspense>
+      </div>
+    </HeaderClient>
+  )
 }

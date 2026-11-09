@@ -2291,6 +2291,33 @@ export interface Header {
           url?: string | null;
           label: string;
         };
+        /**
+         * Optional section identity used for orientation. Each section may be used once; it does not depend on the label.
+         */
+        section?: ('home' | 'updates' | 'services' | 'government' | 'transparency' | 'archives' | 'contact') | null;
+        /**
+         * One level of links shown under this destination.
+         */
+        children?:
+          | {
+              link: {
+                type?: ('reference' | 'custom') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null);
+                url?: string | null;
+                label: string;
+              };
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -2342,6 +2369,21 @@ export interface HeaderSelect<T extends boolean = true> {
               reference?: T;
               url?: T;
               label?: T;
+            };
+        section?: T;
+        children?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
             };
         id?: T;
       };
