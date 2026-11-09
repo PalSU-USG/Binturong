@@ -67,19 +67,19 @@ unique `section` and `children[].id/link` to Header, seven-row cap, one child le
 `resolveNavigation` returns only eligible public destinations and stable row IDs;
 section identity is independent of display label. Keep page/post references unchanged.
 
-- [ ] RED: legacy leaf/custom/reference/newTab links retain IDs/order/URLs; seven
+- [x] RED: legacy leaf/custom/reference/newTab links retain IDs/order/URLs; seven
   parents and child rows round-trip. Reject duplicate sections, excess nesting,
   unsafe URLs and blank labels. Cover existing block/hero appearances and link callers.
-- [ ] RED: actual REST, GraphQL and user-scoped Local API deny visitor/editor/disabled
+- [x] RED: actual REST, GraphQL and user-scoped Local API deny visitor/editor/disabled
   updates and allow active publisher/admin/super-admin updates. Unpopulated, deleted
   and unpublished references reveal no title and cannot use a stale `url` fallback.
-- [ ] Observe focused failure, implement the additive schema/resolver/validation and
+- [x] Observe focused failure, implement the additive schema/resolver/validation and
   Footer RowLabel typing correction; retain ordinary CMSLink behavior for valid inputs.
-- [ ] Generate types; generate/review the new migration with installed Payload commands.
+- [x] Generate types; generate/review the new migration with installed Payload commands.
   Prove fresh/legacy-populated upgrade, repeat/no-op, injected rollback and ID/URL/
   relationship parity on the exact guarded DB. Preserve unsafe legacy stored strings
   while suppressing unsafe rendering; no automatic relabeling/reordering or seven-item seed.
-- [ ] GREEN: focused integration, types and changed-file lint; review generated SQL and
+- [x] GREEN: focused integration, types and changed-file lint; review generated SQL and
   snapshot. Generate import map only if registrations change. Commit and obtain
   independent task review before Task 2.
 
@@ -97,15 +97,15 @@ disclosures; small client enhancement owns Escape/close/focus only. Separate par
 anchor and group toggle; same order on desktop/mobile; Search outside mobile disclosure.
 Footer stays a separately named flat navigation. No new visual identity or tokens.
 
-- [ ] RED: keyboard-only desktop/mobile use, nested close/focus, sibling opening,
+- [x] RED: keyboard-only desktop/mobile use, nested close/focus, sibling opening,
   route completion, back/forward, breakpoint changes and new-tab behavior. Assert
   native navigation with JavaScript disabled and no hydration-only hidden links.
-- [ ] RED: empty globals, delayed/failed reads, partial missing links, long labels,
+- [x] RED: empty globals, delayed/failed reads, partial missing links, long labels,
   200% zoom, narrow layout and reduced motion. Article content remains reachable;
   unavailable data shows minimal Home/Search plus an honest error, without draft fallback.
-- [ ] RED: warm-cache target withdrawal/slug correction and Header/Footer edits update
+- [x] RED: warm-cache target withdrawal/slug correction and Header/Footer edits update
   output without private titles or broken canonical links; verify production cache mode.
-- [ ] Implement the shell/disclosures and isolated error/streaming boundaries. Reuse
+- [x] Implement the shell/disclosures and isolated error/streaming boundaries. Reuse
   current semantic styles and institutional text while approved assets are unavailable.
   GREEN focused browser/cache checks, types and changed lint; commit and independent review.
 
@@ -121,15 +121,15 @@ existing frontend page/post layouts or pages where ancestry is known;
 No second CMS menu, slug-title inference or incoming-history-derived hierarchy.
 Future issuance/report layouts supply Archives/Transparency ancestry respectively.
 
-- [ ] RED: exact-path versus prefix collisions, home-only matching, query/hash state,
+- [x] RED: exact-path versus prefix collisions, home-only matching, query/hash state,
   external links, missing/private ancestors and current item semantics. Confirm
   direct/deep links and refresh preserve orientation and existing `/posts/*` URLs.
-- [ ] RED: index appears beside content on wide screens and before it on narrow
+- [x] RED: index appears beside content on wide screens and before it on narrow
   screens, with a working skip target, one main/H1 and named navigation landmarks.
-- [ ] Implement and integrate only existing verified routes. Keep seven-destination
+- [x] Implement and integrate only existing verified routes. Keep seven-destination
   launch acceptance blocked until owner-approved targets exist; use synthetic routes
   in tests, never fabricate live section pages or institutional content to pass checks.
-- [ ] GREEN focused integration/browser checks, types and changed lint; commit and
+- [x] GREEN focused integration/browser checks, types and changed lint; commit and
   independent task review. Record unavailable route/content dependencies explicitly.
 
 ## Task 4: Full checks and independent whole-slice review
@@ -154,8 +154,16 @@ Future issuance/report layouts supply Archives/Transparency ancestry respectivel
 - [ ] Record acceptance and one next action. Keep integration, cloud migration, push,
   final branding and later section content outside this slice's authorization.
 
-**Current next action:** owner reviews the design and its five input groups. No
-implementation, migration, browser, runtime accessibility or independent review has occurred.
-Draft delivery: relative file links resolve; self-review only. Staging the two explicit
-paths failed with permission denied creating `.git/worktrees/navigation/index.lock`;
-no commit exists. Commit the two drafts when Git metadata writes are available.
+**Execution record (implementer, 9 November 2026):** Task 1 `26f4f01`, Task 2 and Task 3
+commits on `Hawksprey420/navigation`. Task 1-3 boxes ticked with real outcomes: RED observed
+(missing modules for resolver, orientation components; no Primary landmark for the shell);
+full serial `test:int` 21 files / 271 tests pass; full browser suite 34 pass; production-cache
+suite 2 pass; `tsc` clean; `npm run lint` at the inherited 5 errors / 10 warnings.
+Deviations: migration proof extends `tests/helpers/domainMigrations.mjs` (disposable databases)
+instead of a new `navigation-migrations` spec; Playwright server port is overridable with
+`E2E_PORT` because another worktree held 3003; Header/Footer tag expiry changed from
+`max` (stale-while-revalidate) to `{ expire: 0 }` so edits show on the next request.
+Open: Task 4 items marked above are not ticked; the independent review, manual screen-reader/
+contrast/zoom checks and the seven live destinations (no verified routes) remain.
+
+**Current next action:** coordinator runs the independent whole-slice review (Task 4).
