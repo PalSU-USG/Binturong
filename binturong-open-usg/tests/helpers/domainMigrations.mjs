@@ -40,7 +40,7 @@ if (!process.argv[3]) {
 } else {
   assert(['postgres:', 'postgresql:'].includes(target.protocol))
   assert(['127.0.0.1', 'localhost'].includes(target.hostname))
-  assert(['55322', '56322'].includes(target.port))
+  assert(['55322', '56322', '56323'].includes(target.port))
   assert.equal(target.search, '')
   assert.equal(target.hash, '')
   assert(new RegExp(`^binturong_domain_proof_${mode}_[a-f0-9]{24}$`).test(process.argv[3]))
@@ -90,8 +90,8 @@ if (!process.argv[3]) {
       (await pool.query('select current_database() as name')).rows[0].name,
       process.argv[3],
     )
-    assert.equal(migrations.length, 10)
-    let baseline, predecessor, userID
+    assert.equal(migrations.length, 11)
+    let baseline, predecessor, beforeDocumentSessions, userID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
       const credentials = await generatePasswordSaltHash({
@@ -171,21 +171,49 @@ if (!process.argv[3]) {
         /Synthetic failure after additive DDL/,
       )
       assert.deepEqual(await capture(), predecessor)
+      await payload.db.migrate({ migrations: migrations.slice(0, 10) })
+      await preserved(predecessor)
+      beforeDocumentSessions = await capture()
+      await assert.rejects(
+        payload.db.drizzle.transaction(async (db) => {
+          await migrations[10].up({ db, payload, req })
+          throw new Error('Synthetic failure after document session DDL')
+        }),
+        /Synthetic failure after document session DDL/,
+      )
+      assert.deepEqual(await capture(), beforeDocumentSessions)
+      await payload.db.drizzle.transaction(async (db) => {
+        await migrations[10].up({ db, payload, req })
+        await migrations[10].down({ db, payload, req })
+      })
+      assert.deepEqual(await capture(), beforeDocumentSessions)
       console.info('PASS atomic additive migration rollback')
     }
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 10)
+    assert.equal(history.length, 11)
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
       history,
     )
-    console.info('PASS ten migrations and repeat no-op')
+    console.info('PASS eleven migrations and repeat no-op')
     if (predecessor) {
       await preserved(baseline)
       await preserved(predecessor)
+      await preserved(beforeDocumentSessions)
       assert.deepEqual(history.slice(0, 9), predecessor.rows.payload_migrations)
+      assert.deepEqual(history.slice(0, 10), beforeDocumentSessions.rows.payload_migrations)
+      const sealedDoc = (
+        await pool.query(
+          "select state, verified_at, upload_request_id from documents where title='Synthetic sealed file'",
+        )
+      ).rows[0]
+      assert.deepEqual(sealedDoc, {
+        state: 'pending',
+        verified_at: null,
+        upload_request_id: null,
+      })
       const user = (await pool.query('select * from users where id=$1', [userID])).rows[0]
       assert.equal(user.role, 'editor')
       assert(
@@ -228,6 +256,17 @@ if (!process.argv[3]) {
         "insert into offices (name,organization_id) values ('Synthetic missing source',2147483647)",
       ),
       { code: '23503' },
+    )
+    await pool.query(
+      "insert into documents (title,organization_id,state,upload_request_id) values ('Synthetic session 1',$1,'pending','1:00000000-0000-4000-8000-000000000001')",
+      [orgID],
+    )
+    await assert.rejects(
+      pool.query(
+        "insert into documents (title,organization_id,state,upload_request_id) values ('Synthetic duplicate session',$1,'pending','1:00000000-0000-4000-8000-000000000001')",
+        [orgID],
+      ),
+      { code: '23505' },
     )
     const tables = (
       await pool.query(

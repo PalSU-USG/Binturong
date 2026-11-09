@@ -15,91 +15,54 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-- Phase02 merge `6ec04277224902bac0af4a4edf42d4b82a12ead3` is now on local
-  `dev` after independent combined-tree acceptance and fast-forward. Existing
-  owner app instructions, ignore edits and private environments were preserved
-  byte-for-byte; owner stash `a685e7bbcfbef79d7d13df2d6563fe7767b3a5dc` remains.
-  No main/cloud application migration, push or deployment occurred.
-- Owner approved private-storage design `3f9d9c6` on 3 November 2026: Supabase
-  private bucket, resumable PDFs up to 50,000,000 bytes, verified immutable files
-  and controlled downloads. Next is its implementation plan and isolated task.
-
-- Integration authorized on 3 November 2026. Active checkout:
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-integration`, branch
-  `Hawksprey420/domain-integration`, base `dev` at `9141209`, incoming `2d2b44f`.
-  Only the obsolete product checkpoint conflicted. Its newer accepted task state
-  preserves Phase01 integration history; the entire application matches the
-  independently accepted incoming tree exactly. No runtime/schema correction.
-- Fresh independent combined-tree checks pass: 76/76 integration in five files,
-  4/4 domain-transition browser cases, and types. Prior same-application evidence
-  remains 195 integration, 12 browser, production-build/cache 1/1, with inherited
-  full lint 5 errors/10 warnings. Detailed integration evidence is ignored
-  `.superpowers/sdd/2026-11-03-domain-integration/review.md` and linked logs.
-- The owner selected Supabase private storage and larger PDFs for Slice2. Proposed
-  design `3f9d9c6` is in the phase02 planning checkout at
-  `docs/superpowers/specs/2026-11-03-private-documents-design.md`; its 50 MB limit,
-  resumable upload, verification and controlled-delivery contracts have design
-  approval. Existing official-file writes/publication remain sealed until that
-  slice is implemented and independently verified.
-
-- Active task: `Hawksprey420/domain-test-port`, base `b520f61`, checkout
-  `C:/Users/Hawksprey/orca/workspaces/Binturong/domain-test-port`.
-  Phase01 is integrated at `00f3b1f`; Phase02 domain foundations are now integrated into
-  `dev`. Tasks1–5 were independently accepted; Task6 runtime `c8eafd2` and
-  verification/handoff `dbf3814`/`edf2f01` are included in final whole-slice
-  acceptance at runtime `f2cf24e` on 3 November 2026.
-- Owner approved direct-owned-only CSG participation gating. `b520f61` clarifies
-  the spec and adds shared People initial publish/edit/restore coverage across
-  mixed active/inactive CSG office terms. That case now passes in the full suite.
-  Existing directly owned publication/restore denial remains covered.
-- Owner authorized a temporary database port after Windows excluded 55322.
-  `binturong-domain-review-db-56322` binds only `127.0.0.1:56322`, reusing the
-  stopped original's exact image, environment, entrypoint, command and volume
-  `supabase_db_binturong-open-usg`. Never run both containers on this volume.
-  Independent Docker inspection confirmed those facts. No WinNAT restart, database
-  reset, cloud action, original private-environment change or dependency upgrade.
-  Only this checkout's ignored `.env.test` uses the alternate port.
-- Test, migration-child and local provisioning guards accept exactly 55322/56322;
-  hostname, database name, query and fragment checks remain enforced. Regression
-  RED rejected the authorized alternate port (1 failure/14 passes); GREEN passes
-  15/15. Removing only the port guard caused two wrong-port assertions to fail;
-  original bytes were restored. No bypass remains.
-- Fresh full integration passes 195/195 in 18 files, including both migration proofs,
-  credential/ID/history preservation, rollback, actual restricted-role denial,
-  account bootstrap and the shared People case. New retained proof databases:
-  `binturong_domain_proof_fresh_f3c470e2617d472484c67edc` and
-  `binturong_domain_proof_populated_9af00043b662470998f66849`.
-  Types and strict changed-file lint pass; full lint retains 5 inherited errors and
-  10 warnings. Browser rerun passes 12/12 (5.1m); guarded production build/postbuild
-  and cache-race verification pass 1/1 (1.1m).
-- The first browser attempt ran zero cases because Turbopack rejected the external
-  dependency junction. It was replaced with a local copy of the same installed
-  dependency baseline, without installation or manifest/lockfile changes.
-  Preserve this setup failure separately from the browser rerun result.
-- Independent source review found no confirmed issue with the port guards, shared
-  People rule or editor-review correction. Fresh independent checks at `f2cf24e`
-  pass 76/76 across guard/bootstrap/publication/reference/integrity suites and
-  4/4 domain-transition browser cases. Reviewer `review_port_recovery` recommends
-  ACCEPT for Phase02 Task6 / whole-domain foundations; editor-review P2 is
-  ADDRESSED. Checks ran serially against the guarded test database. Parent-owned
-  full-suite, migration and production evidence is attributed separately.
-- Detailed private results: ignored `.superpowers/sdd/2026-11-03-port-recovery/`
-  (`full-test.log`, `browser.log`, `full-lint.log`, `port-guard-mutation.log`,
-  `independent-review.md`). Earlier Task6 evidence remains in its original checkout.
-  Generated types matched HEAD blob `2ba50503fc095e86901a4ede19917a589c4127d4`
-  with no content diff and were restored to clear the generated status artifact.
-  Owner changes/stash in other checkouts remain untouched. Reviewer released
-  ownership: other test DB sessions, jobs and barrier functions are zero; ten
-  migration receipts remain, browser ports are clear. A pre-existing synthetic
-  account from 19 October remains preserved. Temporary database stays running.
-- Ruling on review exclusions: storage/PDF delivery, new public-record search and
-  routes, institutional visual certification and deployment remain later slices.
-  Inherited lint/layout limitations retain their scope; acceptance does not claim
-  clean full lint, production-data validation or successful official-file delivery.
-- Next action: write and execute the approved private-storage implementation plan,
-  preserving owner changes and private environments. Execute in a new task from
-  integrated dev, with the current checkpoint updated to its exact path. No push, deployment, real
-  account promotion or main/cloud database operation is authorized.
+- Phase02 is integrated into local `dev`: merge `6ec0427`, integration checkpoint
+  `da406cf`. Independent combined-tree checks pass 76 integration, 4 browser and
+  types; application bytes match accepted `2d2b44f`. Earlier same-app evidence is
+  195 integration, 12 browser and production build/cache 1/1. Full lint retains
+  5 inherited errors/10 warnings. No main/cloud application migration or push.
+- Active Slice2 task: `Hawksprey420/private-documents`, checkout
+  `C:/Users/Hawksprey/orca/workspaces/Binturong/private-documents`, base `da406cf`.
+  Native inline execution with focused commits and independent whole-slice review.
+- Owner approved the private-storage design and requested implementation:
+  [design](../docs/superpowers/specs/2026-11-03-private-documents-design.md),
+  [implementation plan](../docs/superpowers/plans/2026-11-03-private-documents.md).
+  Supabase private bucket; resumable PDFs up to 50,000,000 bytes; actual bounded
+  PDF verification; immutable ready objects/metadata; controlled verified downloads.
+  The design-review findings about locks, canonical races, resources and recovery
+  are incorporated. No further content decision is pending.
+- Existing dependency bytes were copied locally; no external dependency junction.
+  Only this checkout has the copied ignored test environment, targeting
+  `127.0.0.1:56322/binturong_test`. Original DB container stays stopped while
+  `binturong-domain-review-db-56322` uses its existing volume. Other checkouts'
+  environments/instructions/ignore edits and owner stash remain unchanged.
+- Provider/PDF milestone implemented: `src/storage/officialStorage.ts`,
+  `documentLimits.ts`, `verifyPDF.ts`, guarded provider fixtures and two focused
+  suites. Initial missing-module RED observed; final 14/14 tests, types and strict
+  changed-file lint pass. Bucket-privacy bypass and actual overwrite mutations
+  each fail their focused regression; exact source bytes restored afterward.
+- Local Storage fallback `binturong-document-storage-56321` is running on loopback
+  56321, using the existing Storage image/volume and fallback database host. Its
+  original remains stopped. Synthetic bucket `binturong-documents-test` is private,
+  PDF-only and exactly 50,000,000 bytes. Actual signed TUS upload uses `/sign`;
+  byte identity/immutable collision, upload-token read denial and real anonymous/
+  authenticated RLS denial pass. Only owned synthetic keys are cleaned up.
+- Approved libraries installed: `pdf-lib@1.17.1`, `tus-js-client@4.3.1` and 24 new
+  lock entries. All pre-existing locked package versions are unchanged. npm audit
+  reports 34 inherited advisories (2 critical/6 high/24 moderate/2 low), none on
+  newly added dependency nodes; no unrelated upgrade/audit fix was performed.
+  No Documents schema change yet; ordinary CRUD and official publication stay sealed.
+- Trust boundaries: browser input/Payload authentication, pending upload tokens,
+  private provider bytes, worker resource limits, immutable readiness and current
+  publication references. Only server capabilities may mutate Documents; ordinary
+  CRUD remains sealed. No real uploads, bucket/policy cloud writes, main CMS data
+  migration, automatic object cleanup, storage integration, push or deployment.
+- Private evidence belongs to ignored `.superpowers/sdd/2026-11-03-private-documents/`.
+  Exact commands/results and retained failures live there (`provider-red.log`,
+  `provider-final.log`, `provider-live.log`, `bucket-privacy-mutation.log`,
+  `immutable-object-mutation.log`, `dependency-audit.json`). The initial live run
+  exposed the required signed TUS `/sign` route; final real-provider checks pass.
+  Next action: write upload-session/forgery/concurrent-finalization regression RED,
+  then add protected session fields and the reviewed additive Payload migration.
 
 ## Sources and reconnaissance snapshot
 
