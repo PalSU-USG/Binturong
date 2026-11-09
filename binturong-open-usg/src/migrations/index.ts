@@ -9,6 +9,7 @@ import * as migration_20261022_075642_formal_record_drafts from './20261022_0756
 import * as migration_20261022_110027_record_integrity from './20261022_110027_record_integrity';
 import * as migration_20261023_010945_reviewed_domain_transitions from './20261023_010945_reviewed_domain_transitions';
 import * as migration_20261106_011114_document_upload_sessions from './20261106_011114_document_upload_sessions';
+import * as migration_20261109_043524_search_index_fields from './20261109_043524_search_index_fields';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20261106_011114_document_upload_sessions.up,
     down: migration_20261106_011114_document_upload_sessions.down,
-    name: '20261106_011114_document_upload_sessions'
+    name: '20261106_011114_document_upload_sessions',
+  },
+  {
+    up: migration_20261109_043524_search_index_fields.up,
+    down: migration_20261109_043524_search_index_fields.down,
+    name: '20261109_043524_search_index_fields'
   },
 ];

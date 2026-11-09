@@ -1178,10 +1178,24 @@ export interface Search {
   id: number;
   title?: string | null;
   priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: number | Post;
-  };
+  doc:
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      }
+    | {
+        relationTo: 'issuances';
+        value: number | Issuance;
+      }
+    | {
+        relationTo: 'reports';
+        value: number | Report;
+      };
+  identifier?: string | null;
+  identifierKey?: string | null;
+  summary?: string | null;
+  publishedAt?: string | null;
+  sortAt?: string | null;
   slug?: string | null;
   meta?: {
     title?: string | null;
@@ -2147,6 +2161,11 @@ export interface SearchSelect<T extends boolean = true> {
   title?: T;
   priority?: T;
   doc?: T;
+  identifier?: T;
+  identifierKey?: T;
+  summary?: T;
+  publishedAt?: T;
+  sortAt?: T;
   slug?: T;
   meta?:
     | T

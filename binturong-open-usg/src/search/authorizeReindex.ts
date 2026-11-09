@@ -8,6 +8,8 @@ import type {
 import { commitTransaction, initTransaction, killTransaction } from 'payload'
 
 import { publishContent } from '@/access/contentAccess'
+import { searchRowFields, sourceSelect } from './searchRow'
+import { isIndexedCollection, relationIn, type SearchCollection } from './searchTargets'
 
 const reindexRequests = new WeakMap<PayloadRequest, { transactionID?: number | string }>()
 
@@ -48,11 +50,13 @@ export function authorizeReindex(handler: PayloadHandler): PayloadHandler {
       typeof body !== 'object' ||
       !('collections' in body) ||
       !Array.isArray(body.collections) ||
-      body.collections.length !== 1 ||
-      body.collections[0] !== 'posts'
+      body.collections.length === 0 ||
+      !body.collections.every(isIndexedCollection) ||
+      new Set(body.collections).size !== body.collections.length
     ) {
-      return Response.json({ error: 'Choose the posts collection' }, { status: 400 })
+      return Response.json({ error: 'Choose indexed collections once each' }, { status: 400 })
     }
+    const collections: SearchCollection[] = body.collections
     const originalJSON = req.json
     req.json = async () => body
     const state: { transactionID?: number | string } = {}
@@ -62,47 +66,67 @@ export function authorizeReindex(handler: PayloadHandler): PayloadHandler {
       ownsTransaction = await initTransaction(req)
       state.transactionID = await req.transactionID
       await requireReindexTransaction(req)
-      // shortcut: clear orphan rows from the Posts-only index; scope cleanup before adding another source.
-      await req.payload.delete({ collection: 'search', where: {}, overrideAccess: false, req })
+      await req.payload.delete({
+        collection: 'search',
+        where: relationIn(collections),
+        overrideAccess: false,
+        req,
+      })
       const response = await handler(req)
       await requireReindexTransaction(req)
       if (!response.ok) {
         if (ownsTransaction) await killTransaction(req)
         return response
       }
-      const sources = await req.payload.find({
-        collection: 'posts',
-        overrideAccess: false,
-        draft: false,
-        depth: 0,
-        pagination: false,
-        limit: 0,
-        select: { title: true, slug: true },
-        where: { _status: { equals: 'published' } },
-        req,
-      })
+      const expected = new Map<string, Record<string, unknown>>()
+      for (const collection of collections) {
+        const sources = await req.payload.find({
+          collection,
+          overrideAccess: false,
+          draft: false,
+          depth: 0,
+          pagination: false,
+          limit: 0,
+          select: sourceSelect[collection],
+          where: { _status: { equals: 'published' } },
+          req,
+        })
+        for (const source of sources.docs)
+          expected.set(`${collection}:${source.id}`, searchRowFields(collection, source))
+      }
       const indexes = await req.payload.find({
         collection: 'search',
         overrideAccess: false,
         depth: 0,
         pagination: false,
         limit: 0,
-        select: { title: true, slug: true, doc: true },
+        select: {
+          title: true,
+          slug: true,
+          doc: true,
+          identifier: true,
+          identifierKey: true,
+          summary: true,
+          publishedAt: true,
+          sortAt: true,
+        },
+        where: relationIn(collections),
         req,
       })
-      const expected = new Map(sources.docs.map((doc) => [String(doc.id), doc]))
-      const actual = new Set(indexes.docs.map((doc) => doc.doc && String(doc.doc.value)))
+      const seen = new Set(
+        indexes.docs.map((row) => row.doc && `${row.doc.relationTo}:${row.doc.value}`),
+      )
       if (
         indexes.docs.length !== expected.size ||
-        actual.size !== expected.size ||
-        indexes.docs.some((index) => {
-          const source = index.doc && expected.get(String(index.doc.value))
+        seen.size !== expected.size ||
+        indexes.docs.some((row) => {
+          const source = row.doc && expected.get(`${row.doc.relationTo}:${row.doc.value}`)
           return (
-            !index.doc ||
-            index.doc.relationTo !== 'posts' ||
             !source ||
-            index.title !== source.title ||
-            index.slug !== source.slug
+            (['title', 'slug', 'identifier', 'identifierKey', 'summary', 'sortAt'] as const).some(
+              (field) => (row[field] ?? null) !== (source[field] ?? null),
+            ) ||
+            (row.publishedAt ?? null) !== (source.publishedAt ?? null)
           )
         })
       )

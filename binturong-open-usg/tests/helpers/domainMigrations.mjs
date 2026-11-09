@@ -90,8 +90,8 @@ if (!process.argv[3]) {
       (await pool.query('select current_database() as name')).rows[0].name,
       process.argv[3],
     )
-    assert.equal(migrations.length, 11)
-    let baseline, predecessor, beforeDocumentSessions, userID
+    assert.equal(migrations.length, 12)
+    let baseline, predecessor, beforeDocumentSessions, userID, searchID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
       const credentials = await generatePasswordSaltHash({
@@ -114,6 +114,15 @@ if (!process.argv[3]) {
         "insert into posts_rels (parent_id,path,users_id) values ($1,'authors',$2)",
         [postID, userID],
       )
+      searchID = (
+        await pool.query(
+          "insert into search (title,slug) values ('Synthetic indexed Post','synthetic-existing-post') returning id",
+        )
+      ).rows[0].id
+      await pool.query("insert into search_rels (parent_id,path,posts_id) values ($1,'doc',$2)", [
+        searchID,
+        postID,
+      ])
       baseline = await capture()
       await payload.db.migrate({ migrations: migrations.slice(0, 8) })
       await preserved(baseline)
@@ -191,13 +200,13 @@ if (!process.argv[3]) {
     }
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 11)
+    assert.equal(history.length, 12)
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
       history,
     )
-    console.info('PASS eleven migrations and repeat no-op')
+    console.info('PASS twelve migrations and repeat no-op')
     if (predecessor) {
       await preserved(baseline)
       await preserved(predecessor)
@@ -227,6 +236,20 @@ if (!process.argv[3]) {
         (await pool.query('select version_title from _issuances_v')).rows[0].version_title,
         'Synthetic retained history',
       )
+      const indexed = (
+        await pool.query(
+          'select identifier,identifier_key,summary,published_at,sort_at=created_at as ordered from search where id=$1',
+          [searchID],
+        )
+      ).rows[0]
+      assert.deepEqual(indexed, {
+        identifier: null,
+        identifier_key: null,
+        summary: null,
+        published_at: null,
+        ordered: true,
+      })
+      console.info('PASS search rows survive additive index fields')
       console.info('PASS credentials, IDs, relationships, URLs and retained history')
     }
     const orgID = (

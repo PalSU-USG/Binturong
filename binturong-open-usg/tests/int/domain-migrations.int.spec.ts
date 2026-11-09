@@ -12,9 +12,10 @@ describe('Payload domain migration adoption', () => {
         ['--import=tsx', 'tests/helpers/domainMigrations.mjs', predecessor],
         { timeout: 150000, windowsHide: true, maxBuffer: 2 * 1024 * 1024 },
       )
-      expect(stdout).toContain('PASS eleven migrations and repeat no-op')
+      expect(stdout).toContain('PASS twelve migrations and repeat no-op')
       expect(stdout).toContain('PASS canonical uniqueness, foreign keys and restricted roles')
       if (predecessor === 'populated') {
+        expect(stdout).toContain('PASS search rows survive additive index fields')
         expect(stdout).toContain('PASS credentials, IDs, relationships, URLs and retained history')
         expect(stdout).toContain('PASS atomic additive migration rollback')
       }
