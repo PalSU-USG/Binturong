@@ -39,11 +39,15 @@ Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
   with one `domain.e2e` ECONNRESET that passed on rerun. Follow-ups in
   `plans/public-search.md` (published-id IN list scaling, swallowed live-hook sync
   errors, unverified hook withdraw/restore for Issuances/Reports and scheduled publish).
-- **Next to integrate:** `Hawksprey420/navigation` (reviewed; merge dev, regenerate its
-  migration after search, apply review P2 follow-ups, re-verify).
-- **Drafting:** `Hawksprey420/identity-home` (placeholder tokens + homepage) and
-  `Hawksprey420/record-sections` (record pages + Archives/Transparency/Government).
-  Brand seal, logo and palette are still needed from the owner.
+- **Navigation integrated** (`0e7dabd`): migration `20261109_045910_navigation_hierarchy`
+  (13 total). Final tree: 379/379 integration, 43 browser, production-cache 2/2, tsc and
+  build pass; full lint 5 inherited errors, 14 warnings (4 new, in untouched files).
+  Review ACCEPT WITH FOLLOW-UPS; follow-ups applied with revert proofs; delta re-check
+  OK. Open P2: a flipped menu could overflow the left edge at very narrow widths;
+  `revalidateRedirects` still uses `'max'`.
+- **Approved specs, not implemented:** identity-home (`31a02a1`), record-sections
+  (`1a51a56`, arXiv-style). Brand seal/logo/palette, section intro copy, office
+  branches, CSG list and commissions data remain owner inputs.
 - **Workflow notes:** no AI attribution trailers (engineering workflow); Codex
   sandbox needs the oh-my-posh cache, the repo `.git` and loopback network allowed,
   and cannot write git metadata, so the coordinator commits its work.
@@ -57,10 +61,10 @@ Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
 - **Approved, queued after navigation:** `Hawksprey420/admin-usability` (`4a15eca`):
   stay on Payload admin; acceptance = a non-technical editor completes tasks unaided;
   adds server-set `lastEditedBy` (one migration); merges last.
-- **In progress:** `Hawksprey420/navigation` merging dev on 56323/binturong_test.
-- **Next action:** finish and integrate navigation; then implement identity-home
-  (56322) and record-sections (56323) in parallel, review, integrate; then
-  admin-usability. Use only `binturong_test` for tests; never touch `binturong_domain`.
+- **Next action:** implement record-sections, then identity-home, sequentially on
+  56323/binturong_test (56322 binturong_test holds stale columns from the superseded
+  search migration; reset it only with owner approval). Then admin-usability. Never
+  touch `binturong_domain` (owner dev server).
 
 ## Sources and reconnaissance snapshot
 
