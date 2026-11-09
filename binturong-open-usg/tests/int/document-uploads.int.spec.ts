@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { PDFDocument } from 'pdf-lib'
 import { Upload } from 'tus-js-client'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { createLocalReq, getPayload, handleEndpoints, type Payload } from 'payload'
+import { APIError, createLocalReq, getPayload, handleEndpoints, type Payload } from 'payload'
 import { withAccountProvisioning } from '@/collections/Users/accountProvisioning'
 import { GRAPHQL_POST } from '@payloadcms/next/routes'
 
@@ -10,6 +10,7 @@ import config from '@/payload.config'
 import type { UserRole } from '@/access/roles'
 import { TUS_CHUNK_BYTES } from '@/storage/documentLimits'
 import * as officialStorage from '@/storage/officialStorage'
+import * as pdfVerification from '@/storage/verifyPDF'
 import {
   beginDocumentUpload,
   consumeDocumentWrite,
@@ -278,6 +279,8 @@ describe('official document upload sessions and immutable readiness', () => {
       { ...validInput, originalFilename: 'nested/secret.pdf' },
       { ...validInput, originalFilename: 'nested\\secret.pdf' },
       { ...validInput, originalFilename: 'bad\u0000name.pdf' },
+      { ...validInput, originalFilename: 'bad\ud800name.pdf' },
+      { ...validInput, originalFilename: 'bad\udc00name.pdf' },
       { ...validInput, requestId: 'not-a-uuid' },
       { ...validInput, requestId: '' },
       { ...validInput, previousVersion: 0 },
@@ -832,4 +835,84 @@ describe('official document upload sessions and immutable readiness', () => {
     const readyBytes = await realStorage.read(recoveredDoc.storageKey!)
     expect(Buffer.compare(Buffer.from(readyBytes), Buffer.from(canonicalBytes))).toBe(0)
   })
+
+  it('keeps operational verification and canonical-read failures pending for retry', async () => {
+    const org = await createOrganization()
+    const bytes = await buildSyntheticPDFBytes('Synthetic retry')
+    const real = officialStorage.getOfficialStorage()
+    for (const scenario of [
+      'worker-staging',
+      'worker-canonical',
+      'worker-recovery',
+      'canonical-provider',
+    ] as const) {
+      const session = await beginDocumentUpload(
+        await createLocalReq({ user: actor('admin') }, payload),
+        {
+          title: 'Synthetic retry',
+          organization: org.id,
+          originalFilename: 'retry.pdf',
+          requestId: randomUUID(),
+        },
+      )
+      createdDocs.push(session.documentID)
+      const row = await payload.findByID({ collection: 'documents', id: session.documentID })
+      const storageSpy = vi.spyOn(officialStorage, 'getOfficialStorage').mockReturnValue({
+        ...real,
+        read: async (key) => {
+          if (scenario === 'worker-recovery' && key === row.stagingKey)
+            throw new officialStorage.DocumentObjectMissing()
+          if (scenario === 'canonical-provider') {
+            if (key === row.stagingKey) return new TextEncoder().encode('invalid PDF')
+            throw new APIError('Synthetic provider timeout', 503)
+          }
+          return bytes
+        },
+        writeVerified: async () => true,
+      })
+      const verifier = vi.spyOn(pdfVerification, 'verifyPDF')
+      if (scenario === 'worker-staging' || scenario === 'worker-recovery')
+        verifier.mockRejectedValue(new APIError('Synthetic worker timeout', 503))
+      if (scenario === 'worker-canonical')
+        verifier
+          .mockResolvedValueOnce({
+            size: bytes.length,
+            sha256: sha256Hex(bytes),
+            mimeType: 'application/pdf',
+          })
+          .mockRejectedValueOnce(new APIError('Synthetic worker timeout', 503))
+      try {
+        await expect(
+          finalizeDocumentUpload(
+            await createLocalReq({ user: actor('admin') }, payload),
+            session.documentID,
+          ),
+        ).rejects.toMatchObject({ status: 503 })
+        expect(
+          (await payload.findByID({ collection: 'documents', id: session.documentID })).state,
+        ).toBe('pending')
+      } finally {
+        storageSpy.mockRestore()
+        verifier.mockRestore()
+      }
+      const retryStorage = vi.spyOn(officialStorage, 'getOfficialStorage').mockReturnValue({
+        ...real,
+        read: async () => bytes,
+        writeVerified: async () => true,
+      })
+      const { acquireDocumentDeliverySlot } = await import('@/storage/documentLimits')
+      const held = [acquireDocumentDeliverySlot(), acquireDocumentDeliverySlot()]
+      try {
+        await expect(
+          finalizeDocumentUpload(
+            await createLocalReq({ user: actor('admin') }, payload),
+            session.documentID,
+          ),
+        ).resolves.toMatchObject({ state: 'ready', sha256: sha256Hex(bytes) })
+      } finally {
+        held.forEach((release) => release())
+        retryStorage.mockRestore()
+      }
+    }
+  }, 30_000)
 })

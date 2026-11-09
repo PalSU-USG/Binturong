@@ -23,8 +23,13 @@ const ensureBuffer = decoder.ensureBuffer;
 if (typeof ensureBuffer !== 'function') throw new Error('unsupported pdf-lib');
 let decodedTotal = 0;
 decoder.ensureBuffer = function (requested) {
-  decodedTotal += Math.max(0, requested - (this.buffer ? this.buffer.length : 0));
-  if (requested > workerData.streamLimit || decodedTotal > workerData.totalLimit) throw new Error('decoded size limit');
+  const capacity = this.buffer.byteLength;
+  if (requested <= capacity) return this.buffer;
+  let projected = this.minBufferLength;
+  while (projected < requested) projected *= 2;
+  if (projected > workerData.streamLimit || decodedTotal + projected > workerData.totalLimit) throw new Error('decoded size limit');
+  // Charge the whole allocation, including old buffers that may await garbage collection.
+  decodedTotal += projected;
   return ensureBuffer.call(this, requested);
 };
 (async () => {
@@ -75,7 +80,7 @@ export async function verifyPDF(bytes: Uint8Array): Promise<{
     }
     const invalid = () => new APIError('Choose a valid, nonempty, unencrypted PDF.', 422)
     const timer = setTimeout(
-      () => finish(new APIError('The PDF exceeds verification resource limits.', 422)),
+      () => finish(new APIError('PDF verification timed out. Try again later.', 503)),
       PDF_WORKER_TIMEOUT_MS,
     )
     worker.once('message', (message) => finish(message?.ok === true ? undefined : invalid()))
@@ -88,7 +93,9 @@ export async function verifyPDF(bytes: Uint8Array): Promise<{
           : new APIError('PDF verification is unavailable. Try again later.', 503),
       )
     })
-    worker.once('exit', () => finish(invalid()))
+    worker.once('exit', () =>
+      finish(new APIError('PDF verification is unavailable. Try again later.', 503)),
+    )
   })
   return {
     size: bytes.byteLength,

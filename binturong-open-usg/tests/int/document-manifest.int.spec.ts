@@ -6,7 +6,12 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { getPayload, type Payload } from 'payload'
 
 import config from '@/payload.config'
-import { buildManifest, restoreFromBackup, type ManifestEntry } from '@/storage/documentManifest'
+import {
+  buildManifest,
+  restoreFromBackup,
+  writeVerifiedBackup,
+  type ManifestEntry,
+} from '@/storage/documentManifest'
 import * as officialStorage from '@/storage/officialStorage'
 import { assertTestStorage } from '../helpers/assertTestStorage'
 import {
@@ -51,6 +56,22 @@ describe('document manifest, backup and restore', () => {
     return file
   }
   const backupPath = (entry: ManifestEntry) => join(dir, `${entry.documentID}-${entry.sha256}.pdf`)
+
+  it('verifies existing backup size and hash without overwriting mismatched bytes', async () => {
+    const bytes = new Uint8Array([1, 2, 3, 4])
+    const entry = { size: bytes.length, sha256: sha256Hex(bytes) }
+    const path = join(dir, 'synthetic-existing.pdf')
+    await writeFile(path, bytes, { flag: 'wx' })
+    await expect(writeVerifiedBackup(path, entry, bytes)).resolves.toBeUndefined()
+    for (const bad of [new Uint8Array([1, 2]), new Uint8Array([4, 3, 2, 1])]) {
+      await writeFile(path, bad)
+      await expect(writeVerifiedBackup(path, entry, bytes)).rejects.toThrow(/backup/i)
+      expect(new Uint8Array(await readFile(path))).toEqual(bad)
+    }
+    const freshPath = join(dir, 'synthetic-fresh.pdf')
+    await writeVerifiedBackup(freshPath, entry, bytes)
+    expect(new Uint8Array(await readFile(freshPath))).toEqual(bytes)
+  })
 
   it('records identity, hash, size and previousVersion, flags mismatches, and restores exact bytes', async () => {
     const first = await seed({ bytes: await syntheticPDF('Synthetic manifest one', 4096) })

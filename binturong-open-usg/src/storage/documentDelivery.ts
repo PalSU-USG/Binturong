@@ -2,7 +2,7 @@ import { APIError, type PayloadRequest } from 'payload'
 import { getActiveAccount } from '@/access/activeAccount'
 import { serialID } from '@/jobs/publicationRevision'
 import type { Document } from '@/payload-types'
-import { acquireDocumentSlot } from './documentLimits'
+import { acquireDocumentDeliverySlot } from './documentLimits'
 import * as officialStorage from './officialStorage'
 import { verifyPDF } from './verifyPDF'
 
@@ -58,25 +58,55 @@ async function authorize(req: PayloadRequest, id: number): Promise<Document> {
 const asciiName = (name: string) =>
   name.replace(/[^A-Za-z0-9._ -]/g, '_').replace(/^\.+/, '_') || 'document.pdf'
 
-function pdfStream(bytes: Uint8Array, release: () => void) {
+function pdfStream(bytes: Uint8Array | null, release: () => void, signal?: AbortSignal) {
   let offset = 0
+  let timer: ReturnType<typeof setTimeout>
+  let controller: ReadableStreamDefaultController<Uint8Array>
+  const cleanup = () => {
+    bytes = null
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', abort)
+    release()
+  }
+  const fail = (error: Error) => {
+    if (!bytes) return
+    controller.error(error)
+    cleanup()
+  }
+  const abort = () => fail(new Error('Document delivery aborted'))
+  const resetIdle = () => {
+    clearTimeout(timer)
+    timer = setTimeout(
+      () => fail(new Error('Document delivery idle timeout')),
+      ABANDONED_RESPONSE_MS,
+    )
+    timer.unref()
+  }
   return new ReadableStream<Uint8Array>(
     {
-      pull(controller) {
+      start(streamController) {
+        controller = streamController
+        signal?.addEventListener('abort', abort, { once: true })
+        if (signal?.aborted) abort()
+        else resetIdle()
+      },
+      pull() {
+        if (!bytes) return
         try {
           const end = Math.min(offset + CHUNK_BYTES, bytes.byteLength)
-          controller.enqueue(bytes.subarray(offset, end))
+          // A retained chunk must not retain the entire verified file's backing buffer.
+          controller.enqueue(Uint8Array.prototype.slice.call(bytes, offset, end))
           offset = end
           if (offset >= bytes.byteLength) {
             controller.close()
-            release()
-          }
+            cleanup()
+          } else resetIdle()
         } catch (error) {
-          release()
           controller.error(error)
+          cleanup()
         }
       },
-      cancel: release,
+      cancel: cleanup,
     },
     { highWaterMark: 0 },
   )
@@ -85,8 +115,9 @@ function pdfStream(bytes: Uint8Array, release: () => void) {
 export async function downloadDocument(req: PayloadRequest, documentID: number): Promise<Response> {
   if (!serialID(documentID)) throw new APIError('Choose a valid official document', 400)
   const doc = await authorize(req, documentID)
-  const release = acquireDocumentSlot()
+  const release = acquireDocumentDeliverySlot()
   let handedOff = false
+  let stream: ReadableStream<Uint8Array> | undefined
   try {
     if (
       !doc.storageKey ||
@@ -113,28 +144,25 @@ export async function downloadDocument(req: PayloadRequest, documentID: number):
     if (current.storageKey !== doc.storageKey || current.sha256 !== doc.sha256)
       throw new APIError('Official document changed during delivery. Try again.', 409)
 
-    let released = false
-    const releaseOnce = () => {
-      if (released) return
-      released = true
-      release()
-    }
-    req.signal?.addEventListener('abort', releaseOnce, { once: true })
-    // A response nobody reads or cancels must not hold a slot (and its buffer) forever.
-    setTimeout(releaseOnce, ABANDONED_RESPONSE_MS).unref()
-    const name = doc.originalFilename || 'document.pdf'
-    handedOff = true
-    return new Response(pdfStream(bytes, releaseOnce), {
+    const name = Buffer.from(doc.originalFilename || 'document.pdf', 'utf8').toString('utf8')
+    const disposition = `attachment; filename="${asciiName(name)}"; filename*=UTF-8''${encodeURIComponent(name).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}`
+    stream = pdfStream(bytes, release, req.signal)
+    const response = new Response(stream, {
       headers: {
         'Cache-Control': 'private, no-store',
-        'Content-Disposition': `attachment; filename="${asciiName(name)}"; filename*=UTF-8''${encodeURIComponent(name).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)}`,
+        'Content-Disposition': disposition,
         'Content-Length': String(bytes.byteLength),
         'Content-Security-Policy': "default-src 'none'; sandbox",
         'Content-Type': 'application/pdf',
         'X-Content-Type-Options': 'nosniff',
       },
     })
+    handedOff = true
+    return response
   } finally {
-    if (!handedOff) release()
+    if (!handedOff) {
+      await stream?.cancel().catch(() => undefined)
+      release()
+    }
   }
 }

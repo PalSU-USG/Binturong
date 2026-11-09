@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { readFile, writeFile } from 'node:fs/promises'
 import type { Payload } from 'payload'
 import type { getOfficialStorage } from './officialStorage'
 
@@ -22,6 +23,21 @@ const relationID = (value: unknown): number | null => {
   return typeof id === 'number' ? id : null
 }
 const digest = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
+
+export async function writeVerifiedBackup(
+  path: string,
+  entry: Pick<ManifestEntry, 'size' | 'sha256'>,
+  bytes: Uint8Array,
+): Promise<void> {
+  try {
+    await writeFile(path, bytes, { flag: 'wx' })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+    const existing = await readFile(path)
+    if (existing.byteLength !== entry.size || digest(existing) !== entry.sha256)
+      throw new Error(`Existing document backup does not match its manifest: ${path}`)
+  }
+}
 
 /**
  * Read-only inventory of ready Documents: row metadata from Payload, observed size and hash from

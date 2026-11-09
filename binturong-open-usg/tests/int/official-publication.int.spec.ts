@@ -352,6 +352,19 @@ describe('official publication preflight and locked file proof', () => {
       held.forEach((release) => release())
       await expect(run('issuances', id)).resolves.toMatchObject({ alreadyApplied: false })
     })
+
+    it('saturated_delivery_does_not_block_publication_preflight', async () => {
+      const org = await publishedOrg()
+      const main = await file(org)
+      const id = await record('issuances', org, main.id)
+      const { acquireDocumentDeliverySlot } = await import('@/storage/documentLimits')
+      const held = [acquireDocumentDeliverySlot(), acquireDocumentDeliverySlot()]
+      try {
+        await expect(run('issuances', id)).resolves.toMatchObject({ alreadyApplied: false })
+      } finally {
+        held.forEach((release) => release())
+      }
+    })
   })
 
   it('binds_the_request_proof_and_denies_joined_transactions_without_valid_preflight', async () => {

@@ -25,7 +25,8 @@ async function main() {
   const { getPayload } = await import('payload')
   const { default: config } = await import('../src/payload.config')
   const { getOfficialStorage } = await import('../src/storage/officialStorage')
-  const { buildManifest, restoreFromBackup } = await import('../src/storage/documentManifest')
+  const { buildManifest, restoreFromBackup, writeVerifiedBackup } =
+    await import('../src/storage/documentManifest')
   const storage = getOfficialStorage()
   const payload = await getPayload({ config })
   try {
@@ -34,11 +35,11 @@ async function main() {
       const manifest = await buildManifest(payload, storage, {
         onVerified: async (entry, bytes) => {
           if (backupDir)
-            await writeFile(join(backupDir, backupName(entry.documentID, entry.sha256)), bytes, {
-              flag: 'wx',
-            }).catch((error: NodeJS.ErrnoException) => {
-              if (error.code !== 'EEXIST') throw error
-            })
+            await writeVerifiedBackup(
+              join(backupDir, backupName(entry.documentID, entry.sha256)),
+              entry,
+              bytes,
+            )
         },
       })
       await writeFile(values.out, JSON.stringify(manifest, null, 2), { flag: 'wx' })

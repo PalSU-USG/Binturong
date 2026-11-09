@@ -3,7 +3,7 @@ import { deflateSync } from 'node:zlib'
 import { PDFDocument } from 'pdf-lib'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getOfficialStorage } from '@/storage/officialStorage'
+import { DocumentObjectMissing, getOfficialStorage } from '@/storage/officialStorage'
 import {
   acquireDocumentSlot,
   MAX_DOCUMENT_BYTES,
@@ -12,14 +12,20 @@ import {
 import { verifyPDF } from '@/storage/verifyPDF'
 import { assertTestStorage } from '../helpers/assertTestStorage'
 
-const workerControl = vi.hoisted(() => ({ stall: false, terminations: 0 }))
+const workerControl = vi.hoisted(() => ({ stall: false, terminations: 0, totalLimit: 0 }))
 vi.mock('node:worker_threads', async (original) => {
   const actual = await original<typeof import('node:worker_threads')>()
   return {
     ...actual,
     Worker: class extends actual.Worker {
       constructor(filename: string | URL, options?: import('node:worker_threads').WorkerOptions) {
-        super(workerControl.stall ? 'setInterval(() => {}, 1000)' : filename, options)
+        super(workerControl.stall ? 'setInterval(() => {}, 1000)' : filename, {
+          ...options,
+          workerData: {
+            ...options?.workerData,
+            ...(workerControl.totalLimit ? { totalLimit: workerControl.totalLimit } : {}),
+          },
+        })
       }
       override terminate() {
         workerControl.terminations++
@@ -45,6 +51,7 @@ describe('private official storage and PDF verification', () => {
   afterEach(() => {
     vi.useRealTimers()
     workerControl.stall = false
+    workerControl.totalLimit = 0
     vi.unstubAllEnvs()
     vi.restoreAllMocks()
   })
@@ -146,6 +153,23 @@ describe('private official storage and PDF verification', () => {
     )
   })
 
+  it('distinguishes confirmed missing objects from operational provider failures', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch')
+    for (const [status, body, missing] of [
+      [404, { code: 'NoSuchKey' }, true],
+      [400, { error: 'not_found', message: 'Object not found' }, true],
+      [404, { code: 'NoSuchBucket' }, false],
+      [503, { code: 'InternalError' }, false],
+    ] as const) {
+      fetch.mockResolvedValueOnce(Response.json(body, { status }))
+      const error = await getOfficialStorage()
+        .read(objectKey('ready'))
+        .catch((error: unknown) => error)
+      expect(error).toMatchObject({ status: 503 })
+      expect(error instanceof DocumentObjectMissing).toBe(missing)
+    }
+  })
+
   it('derives PDF identity from original bytes and rejects disguised, empty and oversized files', async () => {
     const pdf = await PDFDocument.create()
     pdf.addPage()
@@ -180,10 +204,35 @@ describe('private official storage and PDF verification', () => {
     vi.useFakeTimers()
     workerControl.stall = true
     const before = workerControl.terminations
-    const rejected = expect(verifyPDF(bytes)).rejects.toMatchObject({ status: 422 })
+    const rejected = expect(verifyPDF(bytes)).rejects.toMatchObject({ status: 503 })
     await vi.advanceTimersByTimeAsync(PDF_WORKER_TIMEOUT_MS)
     await rejected
     expect(workerControl.terminations).toBe(before + 1)
+  })
+
+  it('charges rounded decoder allocations across multiple streams before allocation', async () => {
+    const streams = [4, 6].map((id) => {
+      const content = Buffer.from(`${id + 1} 0 null`.padEnd(1100, ' '))
+      const compressed = deflateSync(content, { level: 0 })
+      return Buffer.concat([
+        Buffer.from(
+          `${id} 0 obj\n<</Type/ObjStm/N 1/First 4/Filter/FlateDecode/Length ${compressed.length}>>\nstream\n`,
+        ),
+        compressed,
+        Buffer.from('\nendstream\nendobj\n'),
+      ])
+    })
+    const bytes = Buffer.concat([
+      Buffer.from(
+        '%PDF-1.5\n1 0 obj\n<</Type/Catalog/Pages 2 0 R>>\nendobj\n2 0 obj\n<</Type/Pages/Kids[3 0 R]/Count 1>>\nendobj\n3 0 obj\n<</Type/Page/Parent 2 0 R/MediaBox[0 0 10 10]>>\nendobj\n',
+      ),
+      ...streams,
+      Buffer.from('trailer\n<</Root 1 0 R/Size 8>>\n%%EOF\n'),
+    ])
+    workerControl.totalLimit = 4096
+    await expect(verifyPDF(bytes)).resolves.toMatchObject({ size: bytes.length })
+    workerControl.totalLimit = 3000
+    await expect(verifyPDF(bytes)).rejects.toMatchObject({ status: 422 })
   })
 
   it('rejects a compressed object stream that inflates far past the worker memory budget', async () => {

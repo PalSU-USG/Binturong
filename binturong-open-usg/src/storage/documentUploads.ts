@@ -186,6 +186,7 @@ function validateBeginInput(input: unknown): {
   }
   if (
     typeof record.originalFilename !== 'string' ||
+    Buffer.from(record.originalFilename, 'utf8').toString('utf8') !== record.originalFilename ||
     CONTROL_CHAR_PATTERN.test(record.originalFilename)
   ) {
     throw new APIError('Choose a valid PDF filename', 400)
@@ -509,7 +510,8 @@ export async function finalizeDocumentUpload(
       let storedVerified: Awaited<ReturnType<typeof verifyPDF>>
       try {
         storedVerified = await verifyPDF(storedBytes)
-      } catch {
+      } catch (error) {
+        if (error instanceof APIError && error.status === 503) throw error
         throw new APIError('Stored official document failed integrity verification', 502)
       }
       if (
@@ -524,14 +526,15 @@ export async function finalizeDocumentUpload(
       let existingBytes: Uint8Array | null = null
       try {
         existingBytes = await storage.read(storageKey)
-      } catch {
-        existingBytes = null
+      } catch (error) {
+        if (!(error instanceof officialStorage.DocumentObjectMissing)) throw error
       }
       if (existingBytes) {
         try {
           canonicalVerified = await verifyPDF(existingBytes)
           deterministicFailure = null
-        } catch {
+        } catch (error) {
+          if (error instanceof APIError && error.status === 503) throw error
           throw new APIError('Stored official document failed integrity verification', 502)
         }
       } else if (!deterministicFailure) {

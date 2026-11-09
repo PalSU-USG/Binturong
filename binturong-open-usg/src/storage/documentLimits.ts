@@ -11,6 +11,19 @@ export const TUS_CHUNK_BYTES = 6 * 1024 * 1024
 export const UPLOAD_SESSION_TTL_MS = 2 * 60 * 60 * 1000
 
 let active = 0
+let deliveries = 0
+
+// Separate from the two editorial workers: at most four bounded operations per process.
+export function acquireDocumentDeliverySlot(): () => void {
+  if (deliveries >= 2) throw new APIError('Document delivery is busy. Try again shortly.', 503)
+  deliveries++
+  let released = false
+  return () => {
+    if (released) return
+    released = true
+    deliveries--
+  }
+}
 
 export function acquireDocumentSlot(): () => void {
   if (active >= 2) throw new APIError('Document verification is busy. Try again shortly.', 503)

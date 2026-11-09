@@ -5,6 +5,13 @@ const unavailable = () =>
   new APIError('Private document storage is unavailable. Try again later.', 503)
 const validKey = (key: string) => /^(pending|ready)\/[a-f0-9-]{36}\.pdf$/.test(key)
 
+// Keep the external storage-failure status while distinguishing confirmed absence internally.
+export class DocumentObjectMissing extends APIError {
+  constructor() {
+    super('Official document object not found', 503)
+  }
+}
+
 export function getOfficialStorage() {
   let url: URL
   try {
@@ -92,7 +99,18 @@ export function getOfficialStorage() {
     },
     async read(objectKey: string): Promise<Uint8Array> {
       const response = await request(`/object/authenticated/${objectPath(objectKey)}`)
-      if (!response.ok || !response.body) throw unavailable()
+      if (!response.ok) {
+        const failure = await response.json().catch(() => null)
+        if (
+          (response.status === 404 && failure?.code === 'NoSuchKey') ||
+          (response.status === 400 &&
+            failure?.error === 'not_found' &&
+            failure?.message === 'Object not found')
+        )
+          throw new DocumentObjectMissing()
+        throw unavailable()
+      }
+      if (!response.body) throw unavailable()
       const lengthHeader = response.headers.get('Content-Length')
       const declared = lengthHeader === null ? undefined : Number(lengthHeader)
       if (declared !== undefined && (!Number.isSafeInteger(declared) || declared < 0))
