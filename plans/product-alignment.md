@@ -47,7 +47,20 @@ Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
 - **Workflow notes:** no AI attribution trailers (engineering workflow); Codex
   sandbox needs the oh-my-posh cache, the repo `.git` and loopback network allowed,
   and cannot write git metadata, so the coordinator commits its work.
-- **Next action:** update `Hawksprey420/navigation` onto this `dev` and integrate it.
+- **Local dev server (owner, 9 Nov):** main checkout `.env` points to
+  `127.0.0.1:56323/binturong_domain`, a migrated copy of the local dev content where
+  `usg@psu.palawan.edu.ph` was promoted to super_admin with the bootstrap script (dry
+  run, then apply). The original `postgres` DB on 56322 is untouched (baseline only).
+  Backups: `C:/Users/Hawksprey/binturong-backups/` (public-schema dump, old `.env`).
+  `binturong-dev-db-56324` is an unused intermediate copy. The hosted Supabase project
+  is paused; restoring it is an owner dashboard action.
+- **Approved, queued after navigation:** `Hawksprey420/admin-usability` (`4a15eca`):
+  stay on Payload admin; acceptance = a non-technical editor completes tasks unaided;
+  adds server-set `lastEditedBy` (one migration); merges last.
+- **In progress:** `Hawksprey420/navigation` merging dev on 56323/binturong_test.
+- **Next action:** finish and integrate navigation; then implement identity-home
+  (56322) and record-sections (56323) in parallel, review, integrate; then
+  admin-usability. Use only `binturong_test` for tests; never touch `binturong_domain`.
 
 ## Sources and reconnaissance snapshot
 
