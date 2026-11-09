@@ -33,18 +33,21 @@ Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
   and `binturong-test-db-56323` (owner-approved second isolated DB, own volume);
   Storage API `binturong-document-storage-56321`. Never run the original
   `supabase_db_binturong-open-usg` together with the 56322 container.
-- **Reviewed, awaiting integration (in order):** `Hawksprey420/public-search`
-  (owner decisions recorded; review fixes done, 246 int/18 browser), then
-  `Hawksprey420/navigation` (owner decisions recorded; 271 int/34 browser; review
-  P2 follow-ups pending). Each adds a Payload migration: update onto current `dev`,
-  regenerate its migration/snapshot and migration-count proof before integrating.
+- **Search integrated** (this merge): branch `c5f29e2` merged dev and regenerated
+  `20261109_043524_search_index_fields` on the storage schema (sort_at backfill kept).
+  Final tree: 306/306 integration, tsc, changed-file lint, build pass; browser 18/19
+  with one `domain.e2e` ECONNRESET that passed on rerun. Follow-ups in
+  `plans/public-search.md` (published-id IN list scaling, swallowed live-hook sync
+  errors, unverified hook withdraw/restore for Issuances/Reports and scheduled publish).
+- **Next to integrate:** `Hawksprey420/navigation` (reviewed; merge dev, regenerate its
+  migration after search, apply review P2 follow-ups, re-verify).
 - **Drafting:** `Hawksprey420/identity-home` (placeholder tokens + homepage) and
   `Hawksprey420/record-sections` (record pages + Archives/Transparency/Government).
   Brand seal, logo and palette are still needed from the owner.
 - **Workflow notes:** no AI attribution trailers (engineering workflow); Codex
   sandbox needs the oh-my-posh cache, the repo `.git` and loopback network allowed,
   and cannot write git metadata, so the coordinator commits its work.
-- **Next action:** integrate `Hawksprey420/public-search` onto this `dev`.
+- **Next action:** update `Hawksprey420/navigation` onto this `dev` and integrate it.
 
 ## Sources and reconnaissance snapshot
 
