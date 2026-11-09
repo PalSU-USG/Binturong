@@ -259,20 +259,53 @@ describe('search index follows publication', () => {
       where: { id: { equals: issuance.id } },
       data: { _status: 'draft' },
     })
-    // A published post that happens to share the issuance id must not reveal the stale issuance row.
-    const rowsBefore = await rows('issuances', issuance.id)
-    expect(rowsBefore.docs).toHaveLength(1)
-    const publicRows = await payload.find({
-      collection: 'search',
-      overrideAccess: false,
-      depth: 0,
-      pagination: false,
-      limit: 0,
-      where: { 'doc.relationTo': { equals: 'issuances' } },
+    // A published post that shares the issuance's numeric id must not reveal the stale issuance row.
+    const clash = await payload.db.find({
+      collection: 'posts',
+      where: { id: { equals: issuance.id } },
+      limit: 1,
     })
-    expect(publicRows.docs.some((row) => row.title === `Synthetic collision issuance ${run}`)).toBe(
-      false,
-    )
+    expect(clash.docs, 'the colliding post id must be free').toHaveLength(0)
+    const collider = await payload.db.create({
+      collection: 'posts',
+      data: {
+        id: issuance.id,
+        title: `Synthetic collider post ${run}`,
+        slug: `synthetic-collider-${run}`,
+        _status: 'published',
+      },
+    })
+    try {
+      const rowsBefore = await rows('issuances', issuance.id)
+      expect(rowsBefore.docs).toHaveLength(1)
+      const publicRows = await payload.find({
+        collection: 'search',
+        overrideAccess: false,
+        depth: 0,
+        pagination: false,
+        limit: 0,
+        where: { 'doc.relationTo': { equals: 'issuances' } },
+      })
+      expect(
+        publicRows.docs.some((row) => row.title === `Synthetic collision issuance ${run}`),
+      ).toBe(false)
+    } finally {
+      await payload.db.deleteOne({ collection: 'posts', where: { id: { equals: collider.id } } })
+    }
+  })
+
+  it('keeps_an_astral_character_summary_within_the_stored_length_through_reindex', async () => {
+    const summary = `${'x'.repeat(299)}\u{1F600}\u{1F600}`
+    expect(Array.from(summary).length).toBeGreaterThanOrEqual(300)
+    const issuance = await records.issuance({
+      title: `Synthetic astral issuance ${run}`,
+      identifier: 'A-1',
+      summary,
+    })
+    expect((await reindex(['issuances'])).status).toBe(200)
+    const [viaReindex] = (await rows('issuances', issuance.id)).docs
+    expect(viaReindex?.summary?.length).toBeLessThanOrEqual(300)
+    expect(viaReindex?.summary).not.toMatch(/[\uD800-\uDBFF]$/)
   })
 
   it('returns_an_empty_list_for_anonymous_reads_when_a_collection_has_nothing_published', async () => {

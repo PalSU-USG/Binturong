@@ -44,7 +44,14 @@ export function plainSummary(richText: unknown): string | null {
   const plain = convertLexicalToPlaintext({ data: richText as SerializedEditorState })
     .replace(/\s+/g, ' ')
     .trim()
-  return plain ? Array.from(plain).slice(0, SUMMARY_LIMIT).join('') : null
+  if (!plain) return null
+  // The stored field validates UTF-16 length, so cap by code units without splitting a pair.
+  let out = ''
+  for (const char of plain) {
+    if (out.length + char.length > SUMMARY_LIMIT) break
+    out += char
+  }
+  return out
 }
 
 /**

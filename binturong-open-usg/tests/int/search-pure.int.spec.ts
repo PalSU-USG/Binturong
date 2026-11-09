@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { normalizeIdentifier } from '@/search/identifier'
+import { plainSummary } from '@/search/searchRow'
+import { richText } from '../helpers/searchFixtures'
 import { isRecent, parseSearchParams } from '@/search/params'
 import { indexedCollections, liveCollections, searchCanonicalPath } from '@/search/searchTargets'
 
@@ -148,5 +150,14 @@ describe('search targets', () => {
     expect(() => searchCanonicalPath('documents', 'x')).toThrow()
     expect(() => searchCanonicalPath('constructor', 'x')).toThrow()
     expect(() => searchCanonicalPath('posts', '')).toThrow()
+  })
+})
+
+describe('plainSummary', () => {
+  it('caps_by_utf16_length_without_splitting_a_surrogate_pair', () => {
+    const out = plainSummary(richText('x'.repeat(299) + '\u{1F600}\u{1F600}'))!
+    expect(out.length).toBeLessThanOrEqual(300)
+    expect(out).toBe('x'.repeat(299))
+    expect(plainSummary(richText('\u{1F600}'.repeat(200)))!.length).toBe(300)
   })
 })
