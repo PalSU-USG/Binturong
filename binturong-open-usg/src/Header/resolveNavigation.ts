@@ -48,3 +48,7 @@ export function resolveNavigation(
   })
   return items
 }
+
+export function findSection(items: NavItem[], section: NavItem['section']): NavItem | null {
+  return (section && items.find((item) => item.section === section)) || null
+}

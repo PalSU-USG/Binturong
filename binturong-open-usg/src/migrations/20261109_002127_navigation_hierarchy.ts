@@ -1,6 +1,6 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    CREATE TYPE "public"."enum_header_nav_items_children_link_type" AS ENUM('reference', 'custom');
   CREATE TYPE "public"."enum_header_nav_items_section" AS ENUM('home', 'updates', 'services', 'government', 'transparency', 'archives', 'contact');
@@ -20,7 +20,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "header_nav_items_children_parent_id_idx" ON "header_nav_items_children" USING btree ("_parent_id");`)
 }
 
-export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
+export async function down({ db }: MigrateDownArgs): Promise<void> {
   const authored = await db.execute(
     sql`SELECT count(*)::int AS count FROM "header_nav_items_children" `,
   )

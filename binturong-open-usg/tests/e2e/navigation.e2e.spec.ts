@@ -339,6 +339,65 @@ test.describe('Primary navigation', () => {
     })
   })
 
+  test.describe('section orientation', () => {
+    const breadcrumb = (page: Page) => page.getByRole('navigation', { name: 'Breadcrumb' })
+    const sectionIndex = (page: Page) =>
+      page.getByRole('navigation', { name: 'Latest Updates section' })
+
+    test('shows ordered breadcrumbs, a section index and a single main and heading', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await page.goto(`/posts/${postSlug}`)
+      await expect(breadcrumb(page).locator('li')).toHaveText([
+        'Home',
+        'Latest Updates',
+        'Synthetic navigation post',
+      ])
+      await expect(breadcrumb(page).locator('[aria-current="page"]')).toHaveText(
+        'Synthetic navigation post',
+      )
+      await expect(breadcrumb(page).getByRole('link', { name: 'Latest Updates' })).toHaveAttribute(
+        'href',
+        '/posts',
+      )
+      await expect(sectionIndex(page).getByRole('link', { name: 'All updates' })).toBeVisible()
+      await expect(sectionIndex(page).locator('[aria-current="page"]')).toHaveText(
+        'Synthetic navigation post',
+      )
+      await expect(page.getByRole('main')).toHaveCount(1)
+      await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
+      const index = (await sectionIndex(page).boundingBox())!
+      const content = (await page.locator('.site-section-content').boundingBox())!
+      expect(index.x + index.width).toBeLessThanOrEqual(content.x + 1)
+      await page.reload()
+      await expect(breadcrumb(page)).toBeVisible()
+      await expect(sectionIndex(page)).toBeVisible()
+    })
+
+    test('places the section index before the content on narrow screens', async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 800 })
+      await page.goto(`/posts/${postSlug}`)
+      const index = (await sectionIndex(page).boundingBox())!
+      const content = (await page.locator('.site-section-content').boundingBox())!
+      expect(index.y + index.height).toBeLessThanOrEqual(content.y + 1)
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true)
+    })
+
+    test('keeps the post readable when the header has no section configuration', async ({
+      page,
+      request,
+    }) => {
+      await setHeader(request, [])
+      await page.goto(`/posts/${postSlug}`)
+      await expect(sectionIndex(page)).toHaveCount(0)
+      await expect(breadcrumb(page)).toBeVisible()
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      await setHeader(request, synthetic)
+    })
+  })
   test.describe('without JavaScript', () => {
     test.use({ javaScriptEnabled: false, viewport: { width: 1280, height: 800 } })
 
