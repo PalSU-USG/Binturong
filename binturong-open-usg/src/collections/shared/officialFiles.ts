@@ -1,28 +1,17 @@
 import { ValidationError, type PayloadRequest, type Validate } from 'payload'
 
+import { consumeOfficialPreflight } from '@/storage/officialPublication'
 import { validateDomainReferences } from './protectDomainReferences'
 import type { DomainCollection } from './domainCollections'
 
-export async function requireOfficialFiles(
-  req: PayloadRequest,
-  candidate: { mainDocument?: unknown; attachments?: unknown },
-): Promise<never> {
-  throw new ValidationError({
-    req,
-    errors: [
-      'mainDocument',
-      ...(Array.isArray(candidate.attachments) && candidate.attachments.length
-        ? ['attachments']
-        : []),
-    ].map((path) => ({ path, message: 'Private document storage is not available yet.' })),
-  })
-}
+/** Called under the editorial lock: database-only recheck of the preflighted file identities. */
+export const requireOfficialFiles = consumeOfficialPreflight
 
 export async function validateOfficialCandidate(
   req: PayloadRequest,
   collectionSlug: 'issuances' | 'reports',
   data: Record<string, unknown>,
-): Promise<never> {
+): Promise<void> {
   await validateSavedCandidateFields(req, collectionSlug, data)
   const collection = req.payload.collections[collectionSlug].config
   await validateDomainReferences({

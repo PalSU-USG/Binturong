@@ -8082,6 +8082,42 @@
           "primaryKey": false,
           "notNull": false
         },
+        "upload_actor": {
+          "name": "upload_actor",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "upload_request_id": {
+          "name": "upload_request_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "upload_request_hash": {
+          "name": "upload_request_hash",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "staging_key": {
+          "name": "staging_key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "upload_expires_at": {
+          "name": "upload_expires_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified_at": {
+          "name": "verified_at",
+          "type": "timestamp(3) with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -8124,6 +8160,36 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "documents_upload_actor_idx": {
+          "name": "documents_upload_actor_idx",
+          "columns": [
+            {
+              "expression": "upload_actor",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "documents_upload_request_id_idx": {
+          "name": "documents_upload_request_id_idx",
+          "columns": [
+            {
+              "expression": "upload_request_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -14889,108 +14955,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.header_nav_items_children": {
-      "name": "header_nav_items_children",
-      "schema": "",
-      "columns": {
-        "_order": {
-          "name": "_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "_parent_id": {
-          "name": "_parent_id",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "id": {
-          "name": "id",
-          "type": "varchar",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "link_type": {
-          "name": "link_type",
-          "type": "enum_header_nav_items_children_link_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'reference'"
-        },
-        "link_new_tab": {
-          "name": "link_new_tab",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "link_url": {
-          "name": "link_url",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "link_label": {
-          "name": "link_label",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "header_nav_items_children_order_idx": {
-          "name": "header_nav_items_children_order_idx",
-          "columns": [
-            {
-              "expression": "_order",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "header_nav_items_children_parent_id_idx": {
-          "name": "header_nav_items_children_parent_id_idx",
-          "columns": [
-            {
-              "expression": "_parent_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "header_nav_items_children_parent_id_fk": {
-          "name": "header_nav_items_children_parent_id_fk",
-          "tableFrom": "header_nav_items_children",
-          "tableTo": "header_nav_items",
-          "columnsFrom": [
-            "_parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.header_nav_items": {
       "name": "header_nav_items",
       "schema": "",
@@ -15038,13 +15002,6 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
-        },
-        "section": {
-          "name": "section",
-          "type": "enum_header_nav_items_section",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -16172,33 +16129,12 @@
         "media"
       ]
     },
-    "public.enum_header_nav_items_children_link_type": {
-      "name": "enum_header_nav_items_children_link_type",
-      "schema": "public",
-      "values": [
-        "reference",
-        "custom"
-      ]
-    },
     "public.enum_header_nav_items_link_type": {
       "name": "enum_header_nav_items_link_type",
       "schema": "public",
       "values": [
         "reference",
         "custom"
-      ]
-    },
-    "public.enum_header_nav_items_section": {
-      "name": "enum_header_nav_items_section",
-      "schema": "public",
-      "values": [
-        "home",
-        "updates",
-        "services",
-        "government",
-        "transparency",
-        "archives",
-        "contact"
       ]
     },
     "public.enum_footer_nav_items_link_type": {
@@ -16220,6 +16156,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "699470a0-0ae5-4b6f-bc99-43abff5894cb",
+  "id": "f942be35-1ebb-4768-90dc-dd69dd7895a2",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

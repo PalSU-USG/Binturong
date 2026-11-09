@@ -12,6 +12,7 @@ import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { publishContent } from '@/access/contentAccess'
 import { protectSearchReindex, trustedSearchWrite } from '@/search/authorizeReindex'
 import { publishedSearchAccess } from '@/search/publishedSearchAccess'
+import { indexedCollections } from '@/search/searchTargets'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -86,7 +87,7 @@ export const plugins: Plugin[] = [
     },
   }),
   searchPlugin({
-    collections: ['posts'],
+    collections: indexedCollections,
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
       access: {

@@ -12,6 +12,7 @@ import { hasRole } from '@/access/roles'
 import { lockAccounts } from '@/collections/Users/accountProvisioning'
 import { isDomainCollection } from '@/collections/shared/domainCollections'
 import { transitionDomainRecord } from '@/collections/shared/transitionDomainRecord'
+import { clearOfficialPreflight, preflightOfficialPublication } from '@/storage/officialPublication'
 import {
   latestPublicationVersion,
   serialID,
@@ -65,12 +66,51 @@ export async function authorizePublication(
     throw new APIError('The reviewed revision changed; re-schedule publication', 409)
 }
 
+// Provider verification must finish before the job's transaction and editorial lock begin.
+async function preflightScheduledOfficialFiles(
+  req: PayloadRequest,
+  payload: PayloadRequest['payload'],
+  jobID: number | string,
+): Promise<void> {
+  const stored = await payload.findByID({
+    collection: 'payload-jobs',
+    id: jobID,
+    depth: 0,
+    disableErrors: true,
+  })
+  const input = stored?.input
+  if (
+    stored?.taskSlug !== 'schedulePublish' ||
+    !validProof(input) ||
+    input.type !== 'publish' ||
+    input.appliedVersionID !== undefined ||
+    input.appliedVersionHash !== undefined ||
+    (input.collection !== 'issuances' && input.collection !== 'reports')
+  )
+    return // The locked handler rejects invalid, receipt-bearing and non-official jobs itself.
+  const user = await payload.findByID({
+    collection: 'users',
+    id: input.accountID,
+    depth: 0,
+    disableErrors: true,
+  })
+  if (!user || user.disabled || !hasRole(user.role, 'publisher')) return
+  req.user = { ...user, collection: 'users' }
+  await preflightOfficialPublication(req, {
+    collection: input.collection,
+    documentID: input.documentID,
+    action: 'publish',
+    expected: { versionID: input.versionID, versionHash: input.versionHash },
+  })
+}
+
 export const scheduledPublication: TaskHandler<'schedulePublish'> = async ({
   job,
   req: runner,
 }) => {
   // Job bookkeeping uses separate native transactions. Own the publication and receipt together.
   const req = await createLocalReq({}, runner.payload)
+  await preflightScheduledOfficialFiles(req, runner.payload, job.id)
   await initTransaction(req)
   const transactionID = await req.transactionID
   const requireTransaction = async () => {
@@ -149,5 +189,7 @@ export const scheduledPublication: TaskHandler<'schedulePublish'> = async ({
   } catch (error) {
     await killTransaction(req)
     throw error
+  } finally {
+    clearOfficialPreflight(req)
   }
 }

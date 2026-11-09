@@ -68,6 +68,60 @@ docker start binturong-test-db-56323
 node --env-file=.env.test --no-deprecation node_modules/payload/bin.js migrate
 ```
 
+
+## Private Storage development
+
+The active storage task uses `binturong-document-storage-56321`, an isolated
+instance of the existing Storage API image bound only to `127.0.0.1:56321`.
+It reuses the original local Storage volume; the original Storage container stays
+stopped. Its database points to the existing database fallback inside Docker.
+Never run the original and fallback instances against the same volume together.
+No hosted credentials, bucket or provider policy were changed for this setup.
+
+The task's ignored `.env.test` contains `OFFICIAL_STORAGE_URL`,
+`OFFICIAL_STORAGE_SERVICE_KEY`, `OFFICIAL_STORAGE_BUCKET=binturong-documents-test`,
+and local provider-role fixtures. Live tests reject any other origin or bucket.
+The synthetic bucket is private, allows only `application/pdf`, and limits files
+to exactly 50,000,000 bytes. Service credentials stay server-side. Signed TUS
+uploads use `/upload/resumable/sign` with an exact-path `x-signature` token.
+
+```powershell
+docker start binturong-domain-review-db-56322
+docker start binturong-document-storage-56321
+npm run test:int -- tests/int/document-storage.int.spec.ts tests/int/document-storage-live.int.spec.ts
+```
+
+These provider/PDF checks alone do not enable official document CRUD or publication.
+The upload-session, publication and controlled-delivery steps must pass separately.
+Test cleanup removes only exact synthetic object keys owned by that run; there is
+no automatic cleanup of failed uploads, prior official versions or real content.
+
+### Manifest, backup and restore
+
+`npm run documents:manifest` lists ready documents (document ID, organization, storage key,
+size, SHA-256, previousVersion) from Payload and compares each to the bytes actually in
+storage (`ok`, `mismatch`, or `unreadable`; an unreadable object is never reported as ok).
+It is read-only and exits 2 when any entry is not `ok`. Objects are read one at a time.
+
+```powershell
+npm run documents:manifest -- --out manifest.json --backup-dir backup   # create-only files
+npm run documents:manifest -- --restore manifest.json --backup-dir backup --apply
+```
+
+Backup files are named `<id>-<sha256>.pdf` and written create-only, and only for verified
+bytes. Restore recreates absent ready objects only; it never overwrites or deletes, rejects a
+backup whose bytes do not match the manifest, and reports an existing differing object as
+`conflict`. `tests/int/document-manifest.int.spec.ts` proves restored bytes equal the original
+synthetic inputs. Real inventory and offsite backup proof remain rollout work.
+
+### Production-mode proof
+
+`scripts/document-production-proof.ts` measures verification and delivery on the guarded test
+stack only: `--mode worker` runs hostile and maximum PDFs through `verifyPDF`; `--mode server
+--base <url> --server-pid <pid>` uploads, verifies, publishes and downloads through a built
+`next start` and reports its peak working set. Load `.env.test` values into the shell first.
+`next.config.ts` lists `pdf-lib` as a server external package, and the verification worker
+loads it from the working directory, so run the built server from the app directory.
 ## Application migrations
 
 Payload owns its application tables and migration history. Automatic schema push

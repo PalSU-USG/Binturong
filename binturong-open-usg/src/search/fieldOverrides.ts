@@ -1,6 +1,11 @@
 import { Field } from 'payload'
 
 export const searchFields: Field[] = [
+  { name: 'identifier', type: 'text', admin: { readOnly: true } },
+  { name: 'identifierKey', type: 'text', admin: { readOnly: true } },
+  { name: 'summary', type: 'text', maxLength: 300, admin: { readOnly: true } },
+  { name: 'publishedAt', type: 'date', admin: { readOnly: true } },
+  { name: 'sortAt', type: 'date', index: true, admin: { readOnly: true } },
   {
     name: 'slug',
     type: 'text',

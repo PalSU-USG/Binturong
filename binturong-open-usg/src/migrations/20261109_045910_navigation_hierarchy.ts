@@ -22,11 +22,12 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
 export async function down({ db }: MigrateDownArgs): Promise<void> {
   const authored = await db.execute(
-    sql`SELECT count(*)::int AS count FROM "header_nav_items_children" `,
+    sql`SELECT (SELECT count(*) FROM "header_nav_items_children")::int AS children, (SELECT count(*) FROM "header_nav_items" WHERE "section" IS NOT NULL)::int AS sections`,
   )
-  if (Number(authored.rows[0]?.count) > 0)
+  const { children, sections } = authored.rows[0] ?? {}
+  if (Number(children) > 0 || Number(sections) > 0)
     throw new Error(
-      'Refusing to drop authored Header section links; keep the additive schema and roll back application code instead.',
+      'Refusing to drop authored Header section data; keep the additive schema and roll back application code instead.',
     )
   await db.execute(sql`
    DROP TABLE "header_nav_items_children" CASCADE;

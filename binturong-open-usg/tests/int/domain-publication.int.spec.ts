@@ -898,7 +898,7 @@ describe('reviewed domain publication', () => {
             errors: expect.arrayContaining([
               expect.objectContaining({
                 path: 'mainDocument',
-                message: 'Private document storage is not available yet.',
+                message: 'Upload and verify this document in private storage first.',
               }),
             ]),
           },

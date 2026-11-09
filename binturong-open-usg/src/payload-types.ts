@@ -973,6 +973,12 @@ export interface Document {
   size?: number | null;
   sha256?: string | null;
   previousVersion?: (number | null) | Document;
+  uploadActor?: number | null;
+  uploadRequestId?: string | null;
+  uploadRequestHash?: string | null;
+  stagingKey?: string | null;
+  uploadExpiresAt?: string | null;
+  verifiedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1172,10 +1178,24 @@ export interface Search {
   id: number;
   title?: string | null;
   priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: number | Post;
-  };
+  doc:
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      }
+    | {
+        relationTo: 'issuances';
+        value: number | Issuance;
+      }
+    | {
+        relationTo: 'reports';
+        value: number | Report;
+      };
+  identifier?: string | null;
+  identifierKey?: string | null;
+  summary?: string | null;
+  publishedAt?: string | null;
+  sortAt?: string | null;
   slug?: string | null;
   meta?: {
     title?: string | null;
@@ -1886,6 +1906,12 @@ export interface DocumentsSelect<T extends boolean = true> {
   size?: T;
   sha256?: T;
   previousVersion?: T;
+  uploadActor?: T;
+  uploadRequestId?: T;
+  uploadRequestHash?: T;
+  stagingKey?: T;
+  uploadExpiresAt?: T;
+  verifiedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2135,6 +2161,11 @@ export interface SearchSelect<T extends boolean = true> {
   title?: T;
   priority?: T;
   doc?: T;
+  identifier?: T;
+  identifierKey?: T;
+  summary?: T;
+  publishedAt?: T;
+  sortAt?: T;
   slug?: T;
   meta?:
     | T
