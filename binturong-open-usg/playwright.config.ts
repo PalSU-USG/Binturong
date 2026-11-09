@@ -10,7 +10,8 @@ import { assertTestDatabase } from './tests/helpers/assertTestDatabase'
 
 assertTestDatabase(process.env.DATABASE_URL)
 
-const baseURL = 'http://127.0.0.1:3003'
+const port = process.env.E2E_PORT ?? '3003'
+const baseURL = `http://127.0.0.1:${port}`
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -40,7 +41,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --hostname 127.0.0.1 --port 3003',
+    command: `npm run dev -- --hostname 127.0.0.1 --port ${port}`,
     env: { NEXT_PUBLIC_SERVER_URL: baseURL },
     reuseExistingServer: false,
     url: baseURL,
