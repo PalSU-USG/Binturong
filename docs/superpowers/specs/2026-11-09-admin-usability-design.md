@@ -140,6 +140,26 @@ no real brand assets; no schema or migration; no change to public pages, search 
 6. Merge order: this slice merges last (after navigation, identity/homepage and record
    pages) and regenerates its migration on the final schema.
 
+## Acceptance: a non-technical editor succeeds without help (owner, 9 November 2026)
+
+The governing requirement: a non-technical USG staff member understands every screen
+and completes common tasks without training or developer help.
+
+- Task-first home: "What do you want to do?" with plain actions ("Post an
+  announcement", "Upload a resolution or report", "Check what's waiting for me"),
+  each opening the right form with sensible defaults.
+- No jargon on editor-facing screens: never "collection", "slug", "global",
+  "relationship", "version" or raw status values. Use "Not live yet", "Live on the
+  site", "Waiting for a publisher". Technical fields are auto-filled or under Advanced.
+- Every form states its purpose in one line, every field has help text and an example,
+  and every error says what to do next.
+- A status panel always says what happens next in plain words.
+- A short built-in "How to" page: post, upload a PDF, fix a mistake, who to ask.
+- Proof: browser tests walk each task as editor and publisher; an automated jargon
+  check scans editor-visible labels/help/status text against a banned-terms list; final
+  acceptance is a hallway test where the owner or a non-technical USG member completes
+  three tasks unaided. Any task they cannot finish is a defect, not a training issue.
+
 ## Original options considered
 
 1. **Ready-for-review flag.** Recommend no for v1: every saved draft counts as waiting.
