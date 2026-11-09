@@ -271,32 +271,80 @@ test.describe('Primary navigation', () => {
       await page.setViewportSize({ width: 390, height: 800 })
       await page.goto('/')
       await menuToggle(page).click()
+      const toggles = nav(page).locator('summary', { hasText: /^\s*Show .* links\s*$/ })
+      const groups = await toggles.count()
+      expect(groups).toBe(synthetic.filter((r) => r.children?.length).length)
       const targets = nav(page).locator('summary, a')
       const count = await targets.count()
-      for (let i = 0; i < count; i++) {
-        if (!(await targets.nth(i).isVisible())) continue
-        const box = await targets.nth(i).boundingBox()
-        if (box) expect(box.height, `target ${i}`).toBeGreaterThanOrEqual(43.5)
+      // 7 parents + 1 Menu + 6 group toggles + 7 children + Search. Only one group stays open,
+      // so every group is opened in turn and every target must be measured at least once.
+      expect(count).toBe(22)
+      const measured = new Set<number>()
+      for (let open = 0; open < groups; open++) {
+        await toggles.nth(open).click()
+        for (let i = 0; i < count; i++) {
+          if (!(await targets.nth(i).isVisible())) continue
+          const box = (await targets.nth(i).boundingBox())!
+          expect(box.height, `target ${i}`).toBeGreaterThanOrEqual(44)
+          expect(box.width, `target ${i} width`).toBeGreaterThanOrEqual(44)
+          measured.add(i)
+        }
       }
+      expect([...measured].length).toBe(count)
     })
 
     test('does not animate the disclosure when reduced motion is requested', async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'reduce' })
       await page.setViewportSize({ width: 390, height: 800 })
       await page.goto('/')
+      // Simulates a later motion style being added to the navigation.
+      await page.addStyleTag({
+        content: '.site-nav, .site-nav * { transition: color 2s; animation: x 2s; }',
+      })
       await menuToggle(page).click()
       await expect(nav(page).getByRole('link', { name: 'Government', exact: true })).toBeVisible()
-      const durations = await nav(page)
-        .locator('summary, a, ul')
+      const motion = await nav(page)
+        .locator('xpath=descendant-or-self::*')
         .evaluateAll((els) =>
-          els.map(
-            (el) => getComputedStyle(el).transitionDuration + getComputedStyle(el).animationName,
-          ),
+          els.map((el) => {
+            const s = getComputedStyle(el)
+            return `${s.transitionDuration}|${s.animationName}`
+          }),
         )
-      for (const value of durations) expect(value).toMatch(/^(0s)+none$|^0s,?\s?(0s)*none$/)
+      expect(motion.length).toBeGreaterThan(20)
+      for (const value of motion) expect(value).toMatch(/^(0s,?\s?)+\|none$/)
+    })
+
+    test('keeps open group menus inside the viewport near the right edge', async ({ page }) => {
+      // Rows wrap differently at each width, so sweep the range where a trailing item can sit
+      // close to the right edge instead of relying on one layout.
+      await page.goto('/')
+      // Right-justify the rows so trailing items sit against the right edge, as long labels do.
+      await page.addStyleTag({
+        content:
+          '.site-nav, .site-nav-bar, .site-nav-menu { width: 100% } .site-nav-list { justify-content: flex-end }',
+      })
+      for (let width = 1024; width <= 1100; width += 4) {
+        await page.setViewportSize({ width, height: 800 })
+        const toggles = nav(page).locator('summary', { hasText: /^\s*Show .* links\s*$/ })
+        for (let i = 0; i < (await toggles.count()); i++) {
+          await toggles.nth(i).click()
+          const menu = toggles.nth(i).locator('xpath=ancestor::li[1]//ul')
+          // The alignment script runs on the asynchronous toggle event.
+          await expect
+            .poll(
+              async () => {
+                const box = (await menu.boundingBox())!
+                return box.x >= 0 && box.x + box.width <= width
+              },
+              { message: `${width}px group ${i} stays on screen` },
+            )
+            .toBe(true)
+          await toggles.nth(i).click()
+        }
+      }
     })
   })
-
   test.describe('resilience', () => {
     test.use({ viewport: { width: 1280, height: 800 } })
 
@@ -332,6 +380,11 @@ test.describe('Primary navigation', () => {
         })
       })
       await page.goto('/posts')
+      // The theme script failed, so only the CSS fallback can reveal the page.
+      await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.*/)
+      expect(
+        await page.evaluate(() => document.documentElement.getAnimations().length),
+      ).toBeGreaterThan(0)
       await expect
         .poll(() => page.evaluate(() => getComputedStyle(document.documentElement).opacity))
         .toBe('1')
@@ -373,6 +426,26 @@ test.describe('Primary navigation', () => {
       await page.reload()
       await expect(breadcrumb(page)).toBeVisible()
       await expect(sectionIndex(page)).toBeVisible()
+    })
+
+    test('takes the section breadcrumb from the Header configuration', async ({
+      page,
+      request,
+    }) => {
+      await setHeader(request, [
+        row('updates', 'Synthetic News', '/search', [['All news', '/search']]),
+      ])
+      await page.goto(`/posts/${postSlug}`)
+      await expect(breadcrumb(page).locator('li')).toHaveText([
+        'Home',
+        'Synthetic News',
+        'Synthetic navigation post',
+      ])
+      await expect(breadcrumb(page).getByRole('link', { name: 'Synthetic News' })).toHaveAttribute(
+        'href',
+        '/search',
+      )
+      await setHeader(request, synthetic)
     })
 
     test('places the section index before the content on narrow screens', async ({ page }) => {

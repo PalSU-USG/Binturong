@@ -9,13 +9,17 @@ import { getCachedGlobal } from '@/utilities/getGlobals'
 /** Adds orientation around content. A failed or empty navigation read never blocks the content. */
 export async function SectionLayout({
   section,
-  breadcrumbs,
+  fallback,
+  trail,
   currentPath,
   currentLabel,
   children,
 }: {
   section: NavItem['section']
-  breadcrumbs: Crumb[]
+  /** Section crumb used only when the Header has no usable row for this section. */
+  fallback: Crumb
+  /** Crumbs after the section, current item last. */
+  trail: Crumb[]
   currentPath: string
   currentLabel?: string
   children: React.ReactNode
@@ -44,7 +48,13 @@ export async function SectionLayout({
   return (
     <>
       <div className="container">
-        <Breadcrumbs items={breadcrumbs} />
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            found ? { label: found.label, href: found.href ?? undefined } : fallback,
+            ...trail,
+          ]}
+        />
       </div>
       <div className={index ? 'container site-section-layout' : undefined}>
         {index}

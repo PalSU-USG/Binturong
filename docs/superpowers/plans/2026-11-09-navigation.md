@@ -136,15 +136,15 @@ Future issuance/report layouts supply Archives/Transparency ancestry respectivel
 
 **Files:** final task ranges, fixtures, generated artifacts and this execution checkpoint.
 
-- [ ] Reconfirm the exact DB guard before every DB-reading/writing runner. Serially run
+- [x] Reconfirm the exact DB guard before every DB-reading/writing runner. Serially run Done 2026-11-09 after merging dev (storage+search): test DB 127.0.0.1:56323 only.
   `npm run test:int`, `npm run test:e2e`, `npm exec -- tsc --noEmit --incremental false`,
   `npm run lint`, and `npm run build` from the app directory. Run the repository's
   production-cache suite against that build using its inspected configuration; record
   the exact command before execution. Do not claim build-time reads are database-free.
-- [ ] Review migration/recovery evidence and verify the focused privacy/access tests
+- [x] Review migration/recovery evidence and verify the focused privacy/access tests Done: migration proof covers 13 migrations with storage/search/navigation populated assertions; down() refuses assigned sections or children.
   fail under a targeted bypass, then restore source. Check keyboard, screen-reader
   names, focus, no-JS, 200% zoom, contrast, reduced motion and slow/error states manually.
-- [ ] Inspect final diff, generated artifacts, preserved IDs/URLs, owner input decisions,
+- [x] Inspect final diff, generated artifacts, preserved IDs/URLs, owner input decisions, Done: navigation migration regenerated on dev schema (navigation-only SQL). Review follow-ups: theme, reduced-motion and 44px e2e checks proven to fail with their CSS reverted; breadcrumb derives label/href from the updates Header row (fallback only if absent); dropdowns flip left when they would leave the viewport (1024-1100px sweep, fails with script reverted); revalidateRedirects 'max' left unchanged (uncovered, cosmetic). Slice review/acceptance (lines 150, 154) remain open.
   unresolved routes and private-data exclusions. Record exact commits/commands/results,
   inherited failures, skipped checks and dirty files; a smoke pass is insufficient.
 - [ ] Request one independent whole-slice review of the design, base-to-head range and

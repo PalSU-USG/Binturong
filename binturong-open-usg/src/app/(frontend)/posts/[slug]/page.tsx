@@ -55,11 +55,8 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   return (
     <SectionLayout
-      breadcrumbs={[
-        { label: 'Home', href: '/' },
-        { label: 'Latest Updates', href: '/posts' },
-        { label: post.title },
-      ]}
+      fallback={{ label: 'Latest Updates', href: '/posts' }}
+      trail={[{ label: post.title }]}
       currentLabel={post.title}
       currentPath={url}
       section="updates"

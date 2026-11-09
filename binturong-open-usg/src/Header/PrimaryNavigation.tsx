@@ -71,6 +71,11 @@ export function PrimaryNavigation({ items }: { items: NavItem[] }) {
       root
         .querySelectorAll<HTMLDetailsElement>('details.site-nav-group[open]')
         .forEach((other) => other !== group && (other.open = false))
+      // Open towards the left when the menu would leave the viewport (trailing or wrapped items).
+      const menu = group.querySelector<HTMLElement>(':scope > .site-nav-children')
+      delete group.dataset.align
+      if (menu && menu.getBoundingClientRect().right > document.documentElement.clientWidth)
+        group.dataset.align = 'end'
     }
     const onClick = (event: MouseEvent) => {
       const anchor = (event.target as Element).closest<HTMLAnchorElement>('a[href]')
