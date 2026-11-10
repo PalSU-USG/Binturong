@@ -13,6 +13,9 @@ import { searchTargets } from '@/search/searchTargets'
 
 export const HOME_ROWS = 5
 export const NOTICE_DAYS = 14
+/** Freshness window of Latest updates; older items are found through Archives and Search. */
+export const UPDATE_DAYS = 30
+export const DEFAULT_POST_TAG = 'Announcement'
 export const NOTICE_CATEGORY_SLUG = 'notice'
 const MANILA_OFFSET_MS = 8 * 3_600_000
 const DAY_MS = 86_400_000
@@ -29,12 +32,17 @@ export type HomeEntry = {
   meta: string | null
   /** Controlled delivery route; null unless the main file is verified and ready. */
   fileHref: string | null
+  /** Decides the row action: Read (update), Record (issuance or report), none for activities. */
+  kind: 'update' | 'record' | 'activity'
 }
 export type HomeNotice = { title: string; href: string; date: string | null }
 export type HomeLink = { label: string; href: string; newTab: boolean }
 export type HomeData = {
   notice: HomeNotice | null
+  /** Posts and records published in the last 30 days, newest first (see updatesFresh). */
   updates: HomeEntry[]
+  /** False when nothing is that fresh and `updates` holds the newest older items instead. */
+  updatesFresh: boolean
   /** Null when no record type has a live route; otherwise rows (possibly none). */
   records: HomeEntry[] | null
   activities: HomeEntry[]
@@ -85,6 +93,15 @@ const fromRecord = (row: RecordRowData): HomeEntry => ({
   href: row.href,
   meta: row.identifier,
   fileHref: row.fileHref,
+  kind: 'record',
+})
+
+/** A record as a Latest updates row: dated by when it was published, which freshness uses. */
+const updateFromRecord = (row: RecordRowData): HomeEntry => ({
+  ...fromRecord(row),
+  date: row.publishedAt,
+  instant: true,
+  dateLabel: 'Published',
 })
 
 const fromActivity = (row: RecordRowData): HomeEntry => ({
@@ -97,9 +114,10 @@ const fromActivity = (row: RecordRowData): HomeEntry => ({
   href: row.href,
   meta: [row.time, row.location].filter(Boolean).join(' · ') || null,
   fileHref: null,
+  kind: 'activity',
 })
 
-async function readUpdates(payload: Payload, now: Date): Promise<HomeEntry[]> {
+async function readPosts(payload: Payload, now: Date): Promise<HomeEntry[]> {
   const { docs } = await payload.find({
     collection: 'posts',
     ...base,
@@ -121,11 +139,12 @@ async function readUpdates(payload: Payload, now: Date): Promise<HomeEntry[]> {
         date: doc.publishedAt ?? null,
         instant: true,
         dateLabel: 'Published',
-        label: category?.title?.trim() || null,
+        label: category?.title?.trim() || DEFAULT_POST_TAG,
         title: doc.title,
         href: `/posts/${encodeURIComponent(doc.slug)}`,
         meta: null,
         fileHref: null,
+        kind: 'update' as const,
       },
     ]
   })
@@ -158,14 +177,34 @@ async function readNotice(payload: Payload, now: Date): Promise<HomeNotice | nul
   }
 }
 
-async function readRecords(payload: Payload, now: Date): Promise<HomeEntry[] | null> {
+/** Newest published issuances and reports (one page); null when no type has a live route. */
+async function readRecordRows(payload: Payload, now: Date): Promise<RecordRowData[] | null> {
   const live = liveRecordCollections()
   if (live.length === 0) return null
   const { rows } = await listRecords(payload, 'archives', parseRecordFilters({}, 'archives'), now)
-  return rows
-    .filter((row) => (live as string[]).includes(row.collection))
-    .slice(0, HOME_ROWS)
-    .map(fromRecord)
+  return rows.filter((row) => (live as string[]).includes(row.collection))
+}
+
+/**
+ * Mixed Latest updates: posts plus issuances and reports published in the last 30 days, newest
+ * first. When nothing is that fresh the newest older items are shown and `fresh` is false, so the
+ * page can say so instead of presenting old items as recent.
+ */
+export function mergeUpdates(
+  posts: HomeEntry[],
+  records: RecordRowData[],
+  now: Date,
+): { updates: HomeEntry[]; fresh: boolean } {
+  const upper = now.getTime()
+  const since = upper - UPDATE_DAYS * DAY_MS
+  const dated = records.filter((row) => row.publishedAt && Date.parse(row.publishedAt) <= upper)
+  const all = [...posts, ...dated.map(updateFromRecord)].sort(
+    (a, b) => Date.parse(b.date ?? '') - Date.parse(a.date ?? '') || (a.key < b.key ? 1 : -1),
+  )
+  const fresh = all.filter((entry) => Date.parse(entry.date ?? '') >= since)
+  return fresh.length
+    ? { updates: fresh.slice(0, HOME_ROWS), fresh: true }
+    : { updates: all.slice(0, HOME_ROWS), fresh: false }
 }
 
 async function readNavigation(payload: Payload) {
@@ -178,12 +217,27 @@ async function readNavigation(payload: Payload) {
 }
 
 export async function getHomeData(payload: Payload, now: Date = new Date()): Promise<HomeData> {
-  const [notice, updates, records, upcoming, navigation] = await Promise.all([
+  const [notice, posts, recordRows, upcoming, navigation] = await Promise.all([
     readNotice(payload, now),
-    readUpdates(payload, now),
-    readRecords(payload, now),
+    readPosts(payload, now),
+    readRecordRows(payload, now),
     listUpcomingActivities(payload, upcomingFrom(now), HOME_ROWS, now),
     readNavigation(payload),
   ])
-  return { notice, updates, records, activities: upcoming.map(fromActivity), ...navigation }
+  const { updates, fresh } = mergeUpdates(posts, recordRows ?? [], now)
+  // Latest issuances lists issuances only; reports surface in Latest updates and Transparency.
+  const records =
+    recordRows &&
+    recordRows
+      .filter((row) => row.collection === 'issuances')
+      .slice(0, HOME_ROWS)
+      .map(fromRecord)
+  return {
+    notice,
+    updates,
+    updatesFresh: fresh,
+    records,
+    activities: upcoming.map(fromActivity),
+    ...navigation,
+  }
 }

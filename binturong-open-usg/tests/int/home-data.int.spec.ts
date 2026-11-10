@@ -41,14 +41,14 @@ describe('homepage data', () => {
       for (let i = 0; i < 7; i++) {
         const post = await fx.post({
           title: `Home update ${fx.tag} ${i}`,
-          publishedAt: ago(100 + i),
+          publishedAt: ago(2 + i),
         })
         titles.push(post.title)
       }
       const draft = await fx.post({
         title: `Home draft ${fx.tag}`,
         status: 'draft',
-        publishedAt: ago(99),
+        publishedAt: ago(1),
       })
       const { updates } = await getHomeData(payload, NOW)
       const mine = updates.filter((row) => row.title.includes(fx.tag))
@@ -78,16 +78,99 @@ describe('homepage data', () => {
           'href',
           'instant',
           'key',
+          'kind',
           'label',
           'meta',
           'title',
         ].sort(),
       )
     })
+    it('tags_a_post_without_a_category_as_an_announcement', async () => {
+      const post = await fx.post({ title: `Home untagged ${fx.tag}`, publishedAt: ago(1) })
+      const { updates } = await getHomeData(payload, NOW)
+      expect(updates.find((r) => r.title === post.title)).toMatchObject({
+        label: 'Announcement',
+        kind: 'update',
+      })
+    })
     it('excludes_a_post_dated_in_the_future', async () => {
       const future = await fx.post({ title: `Home future ${fx.tag}`, publishedAt: ago(-5) })
       const { updates } = await getHomeData(payload, NOW)
       expect(updates.map((row) => row.title)).not.toContain(future.title)
+    })
+  })
+
+  describe('latest updates are a mixed 30-day list', () => {
+    // Each test works in its own era so fixtures from other tests are long stale (rows are capped at 5).
+    let era = NOW
+    const eraAgo = (days: number) => new Date(era.getTime() - days * DAY).toISOString()
+    const issuance = async (title: string, age: number, status?: 'draft' | 'published') =>
+      fx.issuance({
+        title: `${title} ${fx.tag}`,
+        organization: org.id,
+        mainDocument: await fx.file(org.id),
+        publishedAt: eraAgo(age),
+        status,
+        type: 'executive_order',
+      })
+
+    it('mixes_posts_issuances_and_reports_newest_first_with_a_tag_and_pdf_per_row', async () => {
+      era = new Date(NOW.getTime() + 200 * DAY)
+      const post = await fx.post({ title: `Mixed post ${fx.tag}`, publishedAt: eraAgo(1) })
+      const eo = await issuance('Mixed order', 2)
+      const report = await fx.report({
+        title: `Mixed report ${fx.tag}`,
+        organization: org.id,
+        mainDocument: await fx.file(org.id),
+        publishedAt: eraAgo(3),
+      })
+      const { updates, updatesFresh } = await getHomeData(payload, era)
+      expect(updatesFresh).toBe(true)
+      const titles = updates.map((r) => r.title)
+      const mine = [post.title, eo.title, report.title]
+      expect(titles.filter((t) => mine.includes(t))).toEqual(mine)
+      const row = (title: string) => updates.find((r) => r.title === title)!
+      expect(row(post.title)).toMatchObject({ kind: 'update', fileHref: null })
+      expect(row(eo.title)).toMatchObject({ kind: 'record', label: 'Executive order' })
+      expect(row(eo.title).href).toBe(`/issuances/${eo.slug}`)
+      expect(row(eo.title).fileHref).toMatch(/^\/api\/documents\/\d+\/file$/)
+      expect(row(report.title).label).toMatch(/report/i)
+      expect(updates.length).toBeLessThanOrEqual(5)
+    })
+
+    it('drops_items_older_than_thirty_days_while_something_fresher_exists', async () => {
+      era = new Date(NOW.getTime() + 400 * DAY)
+      const fresh = await fx.post({ title: `Window fresh ${fx.tag}`, publishedAt: eraAgo(5) })
+      const stale = await fx.post({ title: `Window stale ${fx.tag}`, publishedAt: eraAgo(31) })
+      const oldRecord = await issuance('Window old order', 45)
+      const { updates, updatesFresh } = await getHomeData(payload, era)
+      const titles = updates.map((r) => r.title)
+      expect(updatesFresh).toBe(true)
+      expect(titles).toContain(fresh.title)
+      expect(titles).not.toContain(stale.title)
+      expect(titles).not.toContain(oldRecord.title)
+      for (const r of updates)
+        expect(Date.parse(r.date!)).toBeGreaterThanOrEqual(era.getTime() - 30 * DAY)
+    })
+
+    it('falls_back_to_the_newest_items_and_says_so_when_nothing_is_that_fresh', async () => {
+      era = new Date(NOW.getTime() + 600 * DAY)
+      await fx.post({ title: `Fallback post ${fx.tag}`, publishedAt: eraAgo(1) })
+      const later = new Date(era.getTime() + 400 * DAY)
+      const { updates, updatesFresh } = await getHomeData(payload, later)
+      expect(updatesFresh).toBe(false)
+      expect(updates.length).toBeGreaterThan(0)
+      expect(updates.length).toBeLessThanOrEqual(5)
+    })
+
+    it('never_lists_a_draft_or_future_dated_record', async () => {
+      era = new Date(NOW.getTime() + 800 * DAY)
+      const draft = await issuance('Mixed draft order', 0, 'draft')
+      const future = await issuance('Mixed future order', -4)
+      const { updates } = await getHomeData(payload, era)
+      const all = JSON.stringify(updates)
+      expect(all).not.toContain(draft.title)
+      expect(all).not.toContain(future.title)
     })
   })
 
@@ -190,7 +273,7 @@ describe('homepage data', () => {
   })
 
   describe('records', () => {
-    it('lists_published_issuances_and_reports_newest_first', async () => {
+    it('lists_published_issuances_only_newest_first_reports_belong_to_transparency', async () => {
       const file = await fx.file(org.id)
       const second = await fx.file(org.id)
       const old = await fx.issuance({
@@ -199,11 +282,17 @@ describe('homepage data', () => {
         mainDocument: file,
         publishedAt: ago(3),
       })
-      const newer = await fx.report({
-        title: `Home new report ${fx.tag}`,
+      const newer = await fx.issuance({
+        title: `Home new issuance ${fx.tag}`,
         organization: org.id,
         mainDocument: second,
         publishedAt: ago(1),
+      })
+      const report = await fx.report({
+        title: `Home report ${fx.tag}`,
+        organization: org.id,
+        mainDocument: await fx.file(org.id),
+        publishedAt: ago(0),
       })
       const hidden = await fx.issuance({
         title: `Home draft issuance ${fx.tag}`,
@@ -218,9 +307,10 @@ describe('homepage data', () => {
       expect(titles.indexOf(newer.title)).toBeGreaterThanOrEqual(0)
       expect(titles.indexOf(newer.title)).toBeLessThan(titles.indexOf(old.title))
       expect(titles).not.toContain(hidden.title)
+      expect(titles).not.toContain(report.title)
       expect(records!.length).toBeLessThanOrEqual(5)
       const row = records!.find((r) => r.title === newer.title)!
-      expect(row.href).toBe(`/reports/${newer.slug}`)
+      expect(row.href).toBe(`/issuances/${newer.slug}`)
       // Row data never carries storage details; only a controlled route or null.
       expect(JSON.stringify(records)).not.toMatch(/storageKey|sha256|ready\//)
     })
@@ -342,6 +432,9 @@ describe('homepage data', () => {
       const { calls, proxy } = spy()
       await getHomeData(proxy, NOW)
       expect(calls.length).toBeGreaterThan(3)
+      // The mixed Latest updates list reads posts and both record collections through these calls.
+      const read = calls.filter((c) => c.kind === 'find').map((c) => String(c.args.collection))
+      for (const collection of ['posts', 'issuances', 'reports']) expect(read).toContain(collection)
       for (const { kind, args } of calls) {
         // The one reviewed privileged read: documents are not public, so file facts are read for
         // ids taken from already-published records (see src/records/publicFileFacts.ts).
@@ -368,6 +461,7 @@ describe('homepage data', () => {
         activities: [],
         services: [],
         transparency: [],
+        updatesFresh: false,
       })
       expect(data.records).toEqual([])
     })
