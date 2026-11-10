@@ -1,6 +1,6 @@
 # Record pages and public sections
 
-Status: Approved by the owner on 9 November 2026 (decisions recorded below). Not yet implemented.
+Status: Approved by the owner on 9 November 2026 (decisions recorded below). Implemented on branch `Hawksprey420/record-sections`; see "Implementation notes".
 Parent: [Domain and publication foundations](2026-10-19-domain-publication-design.md).
 Written against `dev` `da406cf`; storage has since landed (`dev` `9fa9d98`). Closes the
 delivery order: record patterns, then Archives / Transparency / Government, as one slice.
@@ -217,3 +217,35 @@ Header edits (a publisher adds reviewed links afterward).
   exist. Empty sections ship as honest empty states until supplied.
 - Participating CSG list and wording; Constitutional Commissions data.
 - Real seal, logo and colours arrive in the later identity slice.
+
+## Implementation notes (10 November 2026)
+
+Deviations from the text above, all within the owner decisions:
+
+- **`/transparency`** is its own overview page (owner decision 6), not a redirect. It shows the
+  latest five Financial and Accomplishment Reports with "View all" links and honest empty
+  states. No intro copy is shown until approved copy exists.
+- **Participating CSG records.** `/archives/participating-csgs` accepts an optional `csg` slug
+  (published CSG organizations only) so each CSG on `/government/participating-csgs` links to
+  its own records. An unknown slug shows "Participating CSG not found" and the full list.
+- **Version history** lists the current main file plus older files in its `previousVersion`
+  chain that a published revision of the same record used, numbered from 1 and without a hidden
+  gap. Older files have no link: the delivery route serves only a file currently referenced by
+  a published record. The date shown is the file's verification date.
+- **No `loading.tsx`.** Next streams a loading boundary's content into a hidden container that
+  needs scripts, so visitors without JavaScript saw only the placeholder (observed). Pages
+  render per request and failures use `error.tsx`. Unknown archive/transparency segments use
+  `dynamicParams = false` for a real 404 response.
+- **Breadcrumbs** on Issuances omit a branch/type crumb: branch is not carried on the record
+  and no Issuance index page exists. Reports show their Transparency page.
+- **Rows** show a PDF link only when the main file is ready; if file readiness cannot be read
+  the row is still listed without the shortcut and the failure is logged.
+- Search: Issuances and Reports are now `live` in `searchTargets.ts`.
+
+Publishers must link the new sections in the Header global (Archives, Transparency, Government
+and their children, using these paths). No Header data was changed by this slice, and a
+section only gains orientation (breadcrumbs, section index) once its Header row carries the
+matching section identity.
+
+Open content inputs: intro copy for Archives, Transparency and Government; which Offices carry
+a branch; published Offices, People terms, academic years; participating CSG list.

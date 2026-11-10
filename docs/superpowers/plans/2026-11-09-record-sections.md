@@ -72,14 +72,14 @@ now)` returns `{ rows, total, page, pageCount }` with minimal rows; the
 `readPublicRecord(payload, collection, slug)` returns a published record or `null`.
 `readPublicFileFacts(payload, record)` returns `{ id, filename, size, sha256 }[]`.
 
-- [ ] RED: seed synthetic published, draft-only and withdrawn records, branches, a
+- [x] RED: seed synthetic published, draft-only and withdrawn records, branches, a
   CSG record and a document in each state; write failing tests for denied/hidden
   records, branch and CSG filters, pagination ties and depth cap, invalid `page`,
   unknown `type`/`year`, related-target visibility, and facts for non-ready or
   foreign ids (denied). Observe missing implementation.
-- [ ] Implement the minimum modules; pin Payload's behaviour for unreadable related
+- [x] Implement the minimum modules; pin Payload's behaviour for unreadable related
   targets. Mutate each facts guard once and confirm its test fails, then restore.
-- [ ] Run focused GREEN, types and strict changed lint; commit the verified unit.
+- [x] Run focused GREEN, types and strict changed lint; commit the verified unit.
 
 ### 2. Detail shell and record routes
 
@@ -94,12 +94,12 @@ ordered regions; unset fields are omitted. `DocumentActions` renders a link to
 `/api/documents/<id>/file` or the unavailable message. `generateMetadata` uses
 published fields only.
 
-- [ ] RED: tests for field omission, ordering, 404 for draft/withdrawn/unknown slugs
+- [x] RED: tests for field omission, ordering, 404 for draft/withdrawn/unknown slugs
   without echoing the slug, facts-unavailable state, no storage key in HTML, related
   rows hiding unpublished targets, and search targets `live` only once a route exists.
-- [ ] Implement shell and routes with dynamic rendering, `not-found`, `error.tsx`,
+- [x] Implement shell and routes with dynamic rendering, `not-found`, `error.tsx`,
   `loading.tsx`. Verify the slug-redirect behaviour for the new paths.
-- [ ] Run focused GREEN, types and strict changed lint; commit.
+- [x] Run focused GREEN, types and strict changed lint; commit.
 
 ### 3. Archives and Transparency views
 
@@ -110,13 +110,13 @@ under `src/app/(frontend)/{archives,transparency}/`, and tests.
 `csg`, `financial`, `accomplishment`) and renders list, filters, pagination and the
 navigation section index. `/transparency` redirects to financial reports.
 
-- [ ] RED: tests for each scope's membership, records older than 30 days still
+- [x] RED: tests for each scope's membership, records older than 30 days still
   listed, "Recent" via injected clock, no-branch records only in `/archives`,
   clear-filters empty state, error state not rendered as empty, and unchanged
   canonical links after age passes.
-- [ ] Implement routes and components with a plain `GET` filter form and `no client
+- [x] Implement routes and components with a plain `GET` filter form and `no client
   filtering`. Check keyboard order and 320 px/200% zoom with a local build review.
-- [ ] Run focused GREEN, types and strict changed lint; commit.
+- [x] Run focused GREEN, types and strict changed lint; commit.
 
 ### 4. Government and Activities
 
@@ -127,17 +127,25 @@ navigation section index. `/transparency` redirects to financial reports.
 branch; `resolveHolders(terms, now)` returns `{ name, dates, academicYear, current }`
 with `current` only from supplied dates.
 
-- [ ] RED: tests for tree grouping and orphan handling, unpublished office absent,
+- [x] RED: tests for tree grouping and orphan handling, unpublished office absent,
   holder "current" with no usable dates, past terms retained, office/people
   separation, participating-CSG empty state, activities ordering.
-- [ ] Implement pages with honest empty states; no person pages or contact details.
-- [ ] Run focused GREEN, types and strict changed lint; commit.
+- [x] Implement pages with honest empty states; no person pages or contact details.
+- [x] Run focused GREEN, types and strict changed lint; commit.
+
+## Outcome notes
+
+Task 1 mutation results: each facts and query guard was mutated; single-layer mutations of the
+defence-in-depth pair (`overrideAccess: false` / `_status` predicate) survive by design, and removing
+both fails 2 (facts), 6 (queries) and 4 (government) tests. Task 4 module tests were written after the
+implementation, not before; holder-date mutations fail 3 and 4 tests. The independent review is run
+by the coordinator and is not ticked here.
 
 ## Final verification
 
-- [ ] Run full unit/integration checks serially against one guarded database, type
+- [x] Run full unit/integration checks serially against one guarded database, type
   check, full lint, production build, and a browser pass at 320 px and 200% zoom with
   synthetic data, including keyboard navigation and the denied/empty/error states.
 - [ ] One independent whole-slice review in the spec, evidence, compatibility,
   defects order; record observed results, skipped checks and untested boundaries.
-- [ ] Update the task checkpoint under `plans/` with commits, results and next action.
+- [x] Update the task checkpoint under `plans/` with commits, results and next action.
