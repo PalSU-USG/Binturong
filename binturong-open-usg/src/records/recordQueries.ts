@@ -538,3 +538,20 @@ export async function readPublicActivity(
     updatedAt: doc.updatedAt ?? null,
   }
 }
+
+export type YearOption = { slug: string; label: string }
+
+/** Published academic years for the filter control. */
+export async function listAcademicYears(payload: Payload): Promise<YearOption[]> {
+  const { docs } = await payload.find({
+    collection: 'academic-years',
+    ...base,
+    limit: 100,
+    sort: ['-startDate', '-label'],
+    select: { label: true, slug: true },
+    where: published,
+  })
+  return docs.flatMap((doc) =>
+    usableSlug(doc.slug) && doc.label?.trim() ? [{ slug: doc.slug, label: doc.label }] : [],
+  )
+}

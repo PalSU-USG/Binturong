@@ -1,4 +1,4 @@
-const longDate = new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' })
+const longDate = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long', timeZone: 'UTC' })
 
 export function formatLongDate(value: string | null | undefined): string | null {
   if (!value) return null
