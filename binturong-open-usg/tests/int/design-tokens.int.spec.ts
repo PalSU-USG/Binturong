@@ -125,6 +125,27 @@ describe('semantic design tokens', () => {
     expect(light['--target-min']).toBe('2.75rem')
   })
 
+  it('maps every semantic color token to a Tailwind color in @theme', () => {
+    const globals = read(path.join(root, 'src/app/(frontend)/globals.css'))
+    const theme = globals.slice(globals.indexOf('@theme inline'))
+    const semantic = Object.keys(light)
+      .filter((name) => /^--(status-|link$|focus-ring$)/.test(name))
+      .map((name) => name.slice(2))
+    for (const name of semantic)
+      expect(theme, `--color-${name}`).toMatch(new RegExp(`--color-${name}:\\s*var\\(--${name}\\)`))
+  })
+
+  it('uses only color utilities that exist in @theme within the home components', () => {
+    const globals = read(path.join(root, 'src/app/(frontend)/globals.css'))
+    const used = new Set<string>()
+    for (const file of walk(path.join(root, 'src/components/home'), ['.tsx']))
+      for (const m of read(file).matchAll(
+        /\b(?:bg|text|border)-((?:status-[a-z]+-(?:bg|fg|border))|link|focus-ring)\b/g,
+      ))
+        used.add(m[1])
+    expect(used.size).toBeGreaterThan(0)
+    for (const name of used) expect(globals, `--color-${name}`).toContain(`--color-${name}:`)
+  })
   it('never defines a variable that nothing resolves (no --text)', () => {
     expect(light['--text']).toBeUndefined()
   })
@@ -188,6 +209,24 @@ describe('public identity metadata', () => {
     expect(layout).not.toMatch(/creator/)
   })
 
+  it('has no Payload template title left outside the seeded starter content', () => {
+    // `/home` and `homeStatic` stay as they are until the owner decides (src/endpoints/seed).
+    const offenders = walk(path.join(root, 'src'), ['.ts', '.tsx'])
+      .map((file) => path.relative(root, file).replaceAll('\\', '/'))
+      .filter((file) => !file.startsWith('src/endpoints/seed/'))
+      .filter((file) => /Payload Website Template/.test(read(path.join(root, file))))
+    expect(offenders).toEqual([])
+  })
+
+  it('does not suffix a stored SEO title that generateMeta suffixes again', () => {
+    const plugins = read(path.join(root, 'src/plugins/index.ts'))
+    const generateTitle = plugins.slice(
+      plugins.indexOf('const generateTitle'),
+      plugins.indexOf('const generateURL'),
+    )
+    // Not the Post | Page generic: no string literal may contain a separator.
+    expect(generateTitle).not.toMatch(/(['`\"])[^'`\"\n]*\|[^'`\"\n]*\1/)
+  })
   it('no longer ships the remote Payload logo component', () => {
     expect(() => statSync(path.join(root, 'src/components/Logo/Logo.tsx'))).toThrow()
   })
