@@ -21,6 +21,7 @@ const entry = (over: Partial<HomeEntry> = {}): HomeEntry => ({
   href: '/posts/consultation-schedule',
   meta: null,
   fileHref: null,
+  instant: true,
   ...over,
 })
 const data = (over: Partial<HomeData> = {}): HomeData => ({
@@ -123,6 +124,23 @@ describe('front page', () => {
     expect(out).not.toMatch(/storage|sha256/i)
   })
 
+  it('shows publish instants in Manila time and date-only values on their stored day', () => {
+    // 17:00 UTC on the 9th is 01:00 on the 10th in Manila.
+    const iso = '2026-11-09T17:00:00.000Z'
+    const out = html(
+      data({
+        notice: { title: 'N', href: '/posts/n', date: iso },
+        updates: [entry({ date: iso, instant: true })],
+        activities: [entry({ key: 'a', date: iso, instant: false, title: 'Dateonly' })],
+        records: [],
+      }),
+    )
+    expect([...out.matchAll(/>(\d+ November 2026)<\/time>/g)].map((m) => m[1])).toEqual([
+      '10 November 2026',
+      '10 November 2026',
+      '9 November 2026',
+    ])
+  })
   it('escapes record titles as text', () => {
     const out = html(data({ updates: [entry({ title: '<img src=x onerror=alert(1)>' })] }))
     expect(out).toContain('&lt;img src=x onerror=alert(1)&gt;')

@@ -1,5 +1,14 @@
 const longDate = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long', timeZone: 'UTC' })
 
+const instantDate = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long', timeZone: 'Asia/Manila' })
+
+/** A publish instant as the calendar date it is in Manila, where the institution operates. */
+export function formatInstantDate(value: string | null | undefined): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : instantDate.format(date)
+}
+
 export function formatLongDate(value: string | null | undefined): string | null {
   if (!value) return null
   const date = new Date(value)

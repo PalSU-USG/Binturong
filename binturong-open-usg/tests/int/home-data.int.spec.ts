@@ -71,8 +71,23 @@ describe('homepage data', () => {
       const row = updates.find((r) => r.title === post.title)
       expect(row?.label).toBe('Notice')
       expect(Object.keys(row!).sort()).toEqual(
-        ['date', 'dateLabel', 'fileHref', 'href', 'key', 'label', 'meta', 'title'].sort(),
+        [
+          'date',
+          'dateLabel',
+          'fileHref',
+          'href',
+          'instant',
+          'key',
+          'label',
+          'meta',
+          'title',
+        ].sort(),
       )
+    })
+    it('excludes_a_post_dated_in_the_future', async () => {
+      const future = await fx.post({ title: `Home future ${fx.tag}`, publishedAt: ago(-5) })
+      const { updates } = await getHomeData(payload, NOW)
+      expect(updates.map((row) => row.title)).not.toContain(future.title)
     })
   })
 
@@ -136,6 +151,24 @@ describe('homepage data', () => {
       expect(activities.length).toBeLessThanOrEqual(5)
     })
 
+    it('treats_date_only_values_stored_at_noon_utc_as_that_calendar_day', async () => {
+      const at = (offset: number) => day(offset).replace('T00:00:00.000Z', 'T12:00:00.000Z')
+      const yesterday = await fx.activity({
+        title: `Noon yesterday ${fx.tag}`,
+        organization: org.id,
+        eventDate: at(-1),
+      })
+      const today = await fx.activity({
+        title: `Noon today ${fx.tag}`,
+        organization: org.id,
+        eventDate: at(0),
+      })
+      const { activities } = await getHomeData(payload, NOW)
+      const titles = activities.map((row) => row.title)
+      expect(titles).toContain(today.title)
+      expect(titles).not.toContain(yesterday.title)
+      expect(activities.find((row) => row.title === today.title)?.instant).toBe(false)
+    })
     it('uses_the_manila_calendar_date_for_today', async () => {
       // 20:00 UTC on the 10th is already the 11th in Manila, so an event dated the 10th is past.
       const evening = new Date('2026-11-10T20:00:00.000Z')
@@ -237,6 +270,54 @@ describe('homepage data', () => {
     })
   })
 
+  describe('header reference links', () => {
+    let original: unknown
+    const made: number[] = []
+    const page = async (label: string, status: 'published' | 'draft') => {
+      const doc = await payload.db.create({
+        collection: 'pages',
+        data: {
+          title: `${label} ${fx.tag}`,
+          slug: `synthetic-${label.toLowerCase().replaceAll(' ', '-')}-${fx.tag}`,
+          _status: status,
+          hero: { type: 'none' },
+        },
+      })
+      made.push(Number(doc.id))
+      return Number(doc.id)
+    }
+    beforeAll(async () => {
+      original = (await payload.findGlobal({ slug: 'header', depth: 0 })).navItems
+    })
+    afterAll(async () => {
+      await payload.updateGlobal({ slug: 'header', data: { navItems: original as never } })
+      for (const id of made)
+        await payload.db.deleteOne({ collection: 'pages', where: { id: { equals: id } } })
+    })
+
+    it('shows_a_child_pointing_to_a_published_page_and_hides_one_pointing_to_a_draft', async () => {
+      const live = await page('Live service', 'published')
+      const draft = await page('Draft service', 'draft')
+      const ref = (label: string, id: number) => ({
+        link: { type: 'reference', label, reference: { relationTo: 'pages', value: id } },
+      })
+      await payload.updateGlobal({
+        slug: 'header',
+        data: {
+          navItems: [
+            {
+              section: 'services',
+              link: { type: 'custom', label: 'Student services', url: '/services' },
+              children: [ref('Live service link', live), ref('Draft service link', draft)],
+            },
+          ],
+        } as never,
+      })
+      const { services } = await getHomeData(payload, NOW)
+      expect(services.map((l) => l.label)).toEqual(['Live service link'])
+      expect(services[0].href).toBe(`/synthetic-live-service-${fx.tag}`)
+    })
+  })
   describe('access boundary', () => {
     type Call = { kind: string; args: Record<string, unknown> }
     function spy(overrides: Partial<Record<'find' | 'findGlobal', () => Promise<unknown>>> = {}) {

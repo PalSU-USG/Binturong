@@ -2,7 +2,7 @@ import Link from 'next/link'
 import React from 'react'
 
 import type { HomeEntry, HomeLink, HomeNotice } from '@/home/getHomeData'
-import { formatLongDate } from '@/components/records/format'
+import { formatInstantDate, formatLongDate } from '@/components/records/format'
 
 const sectionTitle =
   'text-[length:var(--text-section)] font-semibold leading-tight [overflow-wrap:anywhere]'
@@ -71,7 +71,7 @@ export function Empty({ children }: { children: React.ReactNode }) {
 }
 
 export function HomeNoticeBlock({ notice }: { notice: HomeNotice }) {
-  const date = formatLongDate(notice.date)
+  const date = formatInstantDate(notice.date)
   return (
     <section
       aria-labelledby="home-notice"
@@ -101,7 +101,7 @@ export function EntryList({ entries }: { entries: HomeEntry[] }) {
   return (
     <ul className="m-0 list-none p-0">
       {entries.map((entry) => {
-        const date = formatLongDate(entry.date)
+        const date = (entry.instant ? formatInstantDate : formatLongDate)(entry.date)
         return (
           <li
             className="grid gap-x-6 border-t border-border py-3 first:border-t-0 sm:grid-cols-[10rem_minmax(0,1fr)]"

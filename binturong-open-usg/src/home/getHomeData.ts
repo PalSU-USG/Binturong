@@ -24,6 +24,8 @@ export type HomeEntry = {
   label: string | null
   title: string
   href: string
+  /** True for a publish instant (shown in Manila time); false for a date-only value (shown as stored). */
+  instant: boolean
   meta: string | null
   /** Controlled delivery route; null unless the main file is verified and ready. */
   fileHref: string | null
@@ -65,7 +67,10 @@ export function homeLinksFor(
   })
 }
 
-/** Events are stored as UTC midnight of their calendar date; "today" is the Manila date. */
+/**
+ * Date-only fields (ventDate) are stored at 12:00 UTC of their calendar date, so comparing against
+ * UTC midnight of the Manila calendar date keeps an event on its own day. "Today" is the Manila date.
+ */
 export function upcomingFrom(now: Date): string {
   return `${new Date(now.getTime() + MANILA_OFFSET_MS).toISOString().slice(0, 10)}T00:00:00.000Z`
 }
@@ -73,6 +78,7 @@ export function upcomingFrom(now: Date): string {
 const fromRecord = (row: RecordRowData): HomeEntry => ({
   key: row.key,
   date: row.sourceDate ?? row.publishedAt,
+  instant: !row.sourceDate,
   dateLabel: row.sourceDate ? row.sourceDateLabel : 'Published',
   label: row.typeLabel,
   title: row.title,
@@ -84,6 +90,7 @@ const fromRecord = (row: RecordRowData): HomeEntry => ({
 const fromActivity = (row: RecordRowData): HomeEntry => ({
   key: row.key,
   date: row.sourceDate,
+  instant: false,
   dateLabel: 'Date',
   label: row.typeLabel,
   title: row.title,
@@ -92,7 +99,7 @@ const fromActivity = (row: RecordRowData): HomeEntry => ({
   fileHref: null,
 })
 
-async function readUpdates(payload: Payload): Promise<HomeEntry[]> {
+async function readUpdates(payload: Payload, now: Date): Promise<HomeEntry[]> {
   const { docs } = await payload.find({
     collection: 'posts',
     ...base,
@@ -100,7 +107,8 @@ async function readUpdates(payload: Payload): Promise<HomeEntry[]> {
     limit: HOME_ROWS,
     sort: ['-publishedAt', '-id'],
     select: { title: true, slug: true, publishedAt: true, categories: true },
-    where: published,
+    // A future publishedAt is not yet an update (same rule as the notice).
+    where: { and: [published, { publishedAt: { less_than_equal: now.toISOString() } }] },
   })
   return docs.flatMap((doc) => {
     if (!usableSlug(doc.slug)) return []
@@ -111,6 +119,7 @@ async function readUpdates(payload: Payload): Promise<HomeEntry[]> {
       {
         key: `posts-${doc.id}`,
         date: doc.publishedAt ?? null,
+        instant: true,
         dateLabel: 'Published',
         label: category?.title?.trim() || null,
         title: doc.title,
@@ -160,7 +169,7 @@ async function readRecords(payload: Payload, now: Date): Promise<HomeEntry[] | n
 }
 
 async function readNavigation(payload: Payload) {
-  const header = await payload.findGlobal({ slug: 'header', ...base, depth: 0 })
+  const header = await payload.findGlobal({ slug: 'header', ...base, depth: 1 })
   const items = resolveNavigation(header)
   return {
     services: homeLinksFor(items, 'services'),
@@ -171,7 +180,7 @@ async function readNavigation(payload: Payload) {
 export async function getHomeData(payload: Payload, now: Date = new Date()): Promise<HomeData> {
   const [notice, updates, records, upcoming, navigation] = await Promise.all([
     readNotice(payload, now),
-    readUpdates(payload),
+    readUpdates(payload, now),
     readRecords(payload, now),
     listUpcomingActivities(payload, upcomingFrom(now), HOME_ROWS, now),
     readNavigation(payload),

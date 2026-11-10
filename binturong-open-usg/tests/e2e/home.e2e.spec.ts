@@ -90,6 +90,9 @@ test.describe('Front page', () => {
     const noticeRegion = page.getByRole('region', { name: 'Official notice' })
     await expect(noticeRegion).toContainText(t('Live notice'))
     await expect(noticeRegion).not.toContainText(t('Expired notice'))
+    // The notice colors come from @theme utilities; a missing mapping leaves it unstyled.
+    const bg = await noticeRegion.evaluate((el) => getComputedStyle(el).backgroundColor)
+    expect(bg).not.toMatch(/^rgba\(0, 0, 0, 0\)|^transparent/)
     for (const hidden of ['Draft update', 'Past activity', 'Draft activity'])
       expect(raw, hidden).not.toContain(t(hidden))
     expect(raw).not.toMatch(/storageKey|sha256/)
