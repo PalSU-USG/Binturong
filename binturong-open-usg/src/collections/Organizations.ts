@@ -63,7 +63,7 @@ export const Organizations: CollectionConfig = {
         },
       },
     ),
-    domainHistory('name'),
+    ...domainHistory('name'),
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],

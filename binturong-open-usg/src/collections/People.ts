@@ -77,7 +77,7 @@ export const People: CollectionConfig = {
         },
       },
     ),
-    domainHistory('name'),
+    ...domainHistory('name'),
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],

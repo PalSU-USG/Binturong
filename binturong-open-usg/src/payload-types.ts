@@ -885,10 +885,6 @@ export interface Activity {
     [k: string]: unknown;
   } | null;
   /**
-   * Filled in automatically with the person who last saved this.
-   */
-  lastEditedBy?: (number | null) | User;
-  /**
    * Set by the site when a publisher first makes this live. It cannot be edited.
    */
   publishedAt?: string | null;
@@ -904,6 +900,10 @@ export interface Activity {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -937,10 +937,6 @@ export interface Organization {
    */
   participating?: boolean | null;
   /**
-   * Filled in automatically with the person who last saved this.
-   */
-  lastEditedBy?: (number | null) | User;
-  /**
    * Set by the site when a publisher first makes this live. It cannot be edited.
    */
   publishedAt?: string | null;
@@ -956,6 +952,10 @@ export interface Organization {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -989,10 +989,6 @@ export interface AcademicYear {
    */
   endDate?: string | null;
   /**
-   * Filled in automatically with the person who last saved this.
-   */
-  lastEditedBy?: (number | null) | User;
-  /**
    * Set by the site when a publisher first makes this live. It cannot be edited.
    */
   publishedAt?: string | null;
@@ -1008,6 +1004,10 @@ export interface AcademicYear {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -1153,10 +1153,6 @@ export interface Issuance {
       )[]
     | null;
   /**
-   * Filled in automatically with the person who last saved this.
-   */
-  lastEditedBy?: (number | null) | User;
-  /**
    * Set by the site when a publisher first makes this live. It cannot be edited.
    */
   publishedAt?: string | null;
@@ -1172,6 +1168,10 @@ export interface Issuance {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -1209,10 +1209,6 @@ export interface Office {
    */
   branch?: ('executive' | 'legislative' | 'judicial') | null;
   /**
-   * Filled in automatically with the person who last saved this.
-   */
-  lastEditedBy?: (number | null) | User;
-  /**
    * Set by the site when a publisher first makes this live. It cannot be edited.
    */
   publishedAt?: string | null;
@@ -1228,6 +1224,10 @@ export interface Office {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -1334,10 +1334,6 @@ export interface Report {
       )[]
     | null;
   /**
-   * Filled in automatically with the person who last saved this.
-   */
-  lastEditedBy?: (number | null) | User;
-  /**
    * Set by the site when a publisher first makes this live. It cannot be edited.
    */
   publishedAt?: string | null;
@@ -1353,6 +1349,10 @@ export interface Report {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -1402,10 +1402,6 @@ export interface Person {
       }[]
     | null;
   /**
-   * Filled in automatically with the person who last saved this.
-   */
-  lastEditedBy?: (number | null) | User;
-  /**
    * Set by the site when a publisher first makes this live. It cannot be edited.
    */
   publishedAt?: string | null;
@@ -1421,6 +1417,10 @@ export interface Person {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -1931,7 +1931,6 @@ export interface ActivitiesSelect<T extends boolean = true> {
   time?: T;
   location?: T;
   description?: T;
-  lastEditedBy?: T;
   publishedAt?: T;
   lastTransition?:
     | T
@@ -1944,6 +1943,7 @@ export interface ActivitiesSelect<T extends boolean = true> {
         expectedVersionID?: T;
         expectedVersionHash?: T;
       };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1992,7 +1992,6 @@ export interface IssuancesSelect<T extends boolean = true> {
   mainDocument?: T;
   attachments?: T;
   relatedRecords?: T;
-  lastEditedBy?: T;
   publishedAt?: T;
   lastTransition?:
     | T
@@ -2005,6 +2004,7 @@ export interface IssuancesSelect<T extends boolean = true> {
         expectedVersionID?: T;
         expectedVersionHash?: T;
       };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -2029,7 +2029,6 @@ export interface ReportsSelect<T extends boolean = true> {
   mainDocument?: T;
   attachments?: T;
   relatedRecords?: T;
-  lastEditedBy?: T;
   publishedAt?: T;
   lastTransition?:
     | T
@@ -2042,6 +2041,7 @@ export interface ReportsSelect<T extends boolean = true> {
         expectedVersionID?: T;
         expectedVersionHash?: T;
       };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -2056,7 +2056,6 @@ export interface AcademicYearsSelect<T extends boolean = true> {
   label?: T;
   startDate?: T;
   endDate?: T;
-  lastEditedBy?: T;
   publishedAt?: T;
   lastTransition?:
     | T
@@ -2069,6 +2068,7 @@ export interface AcademicYearsSelect<T extends boolean = true> {
         expectedVersionID?: T;
         expectedVersionHash?: T;
       };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -2090,7 +2090,6 @@ export interface PeopleSelect<T extends boolean = true> {
         academicYear?: T;
         id?: T;
       };
-  lastEditedBy?: T;
   publishedAt?: T;
   lastTransition?:
     | T
@@ -2103,6 +2102,7 @@ export interface PeopleSelect<T extends boolean = true> {
         expectedVersionID?: T;
         expectedVersionHash?: T;
       };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -2118,7 +2118,6 @@ export interface OfficesSelect<T extends boolean = true> {
   organization?: T;
   parent?: T;
   branch?: T;
-  lastEditedBy?: T;
   publishedAt?: T;
   lastTransition?:
     | T
@@ -2131,6 +2130,7 @@ export interface OfficesSelect<T extends boolean = true> {
         expectedVersionID?: T;
         expectedVersionHash?: T;
       };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -2145,7 +2145,6 @@ export interface OrganizationsSelect<T extends boolean = true> {
   name?: T;
   kind?: T;
   participating?: T;
-  lastEditedBy?: T;
   publishedAt?: T;
   lastTransition?:
     | T
@@ -2158,6 +2157,7 @@ export interface OrganizationsSelect<T extends boolean = true> {
         expectedVersionID?: T;
         expectedVersionHash?: T;
       };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;

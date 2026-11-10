@@ -47,7 +47,7 @@ export const AcademicYears: CollectionConfig = {
         endDate: { label: 'Ends on', help: 'The last day of the academic year.' },
       },
     ),
-    domainHistory('label'),
+    ...domainHistory('label'),
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],

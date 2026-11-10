@@ -108,7 +108,7 @@ export const Reports: CollectionConfig = {
         },
       },
     ),
-    domainHistory('title'),
+    ...domainHistory('title'),
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],

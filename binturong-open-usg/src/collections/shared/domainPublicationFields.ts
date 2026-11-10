@@ -46,13 +46,23 @@ export const domainPublicationFields: Field[] = [
   },
 ]
 
-/** One collapsed section for everything an editor rarely needs, placed last in the form. */
-export const domainHistory = (useAsSlug: 'name' | 'label' | 'title'): Field => ({
-  type: 'collapsible',
-  label: 'History and advanced',
-  admin: { initCollapsed: true },
-  fields: [...domainPublicationFields, domainSlug(useAsSlug)],
-})
+/**
+ * Rarely needed fields, placed last in the form. The audit fields stay outside the collapsed
+ * section on purpose: their component marks them as server-controlled when it mounts, and a
+ * collapsed section does not mount its children, so the form would submit them.
+ */
+export const domainHistory = (useAsSlug: 'name' | 'label' | 'title'): Field[] => {
+  const [lastEditedBy, ...audit] = domainPublicationFields
+  return [
+    ...audit,
+    {
+      type: 'collapsible',
+      label: 'History and advanced',
+      admin: { initCollapsed: true },
+      fields: [lastEditedBy, domainSlug(useAsSlug)],
+    },
+  ]
+}
 
 export const retainDomainAudit: CollectionBeforeChangeHook = async ({
   collection,

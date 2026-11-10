@@ -58,7 +58,7 @@ export const Offices: CollectionConfig = {
         },
       },
     ),
-    domainHistory('name'),
+    ...domainHistory('name'),
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],

@@ -71,7 +71,7 @@ export const Activities: CollectionConfig = {
         },
       },
     ),
-    domainHistory('title'),
+    ...domainHistory('title'),
   ],
   hooks: {
     beforeOperation: [protectDomainWrites, protectDomainReferences],
