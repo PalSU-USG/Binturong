@@ -35,7 +35,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
       {q === null || results === null ? (
         <div className="container" role="status">
-          <p>Enter at least two characters to search published updates by title or summary.</p>
+          <p>Enter at least two characters to search updates, issuances and reports by title, number or summary.</p>
         </div>
       ) : (
         <SearchResults q={q} type={type} results={results} />

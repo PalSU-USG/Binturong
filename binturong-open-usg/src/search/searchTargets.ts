@@ -18,8 +18,8 @@ const target = (
 
 export const searchTargets = {
   posts: target('Update', 'updates', '/posts', true),
-  issuances: target('Issuance', 'issuances', '/issuances', false),
-  reports: target('Report', 'reports', '/reports', false),
+  issuances: target('Issuance', 'issuances', '/issuances', true),
+  reports: target('Report', 'reports', '/reports', true),
 } as const satisfies Record<string, SearchTarget>
 
 export type SearchCollection = keyof typeof searchTargets
