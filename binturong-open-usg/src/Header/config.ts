@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 import { publishContent } from '@/access/contentAccess'
 
+import { hiddenBelow } from '@/admin/navVisibility'
 import { link } from '@/fields/link'
 import { revalidateHeader } from './hooks/revalidateHeader'
 
@@ -18,6 +19,8 @@ const maxPrimaryItems = 7
 
 export const Header: GlobalConfig = {
   slug: 'header',
+  label: 'Top menu',
+  admin: { group: 'Site', hidden: hiddenBelow('publisher'), description: 'The links at the top of every page.' },
   access: {
     update: publishContent,
     read: () => true,
@@ -26,6 +29,7 @@ export const Header: GlobalConfig = {
     {
       name: 'navItems',
       type: 'array',
+      label: 'Menu items',
       fields: [
         link({
           appearances: false,
@@ -62,6 +66,7 @@ export const Header: GlobalConfig = {
       },
       admin: {
         initCollapsed: true,
+        description: 'The main links readers use to move around the site. Up to 7.',
         components: {
           RowLabel: '@/Header/RowLabel#RowLabel',
         },

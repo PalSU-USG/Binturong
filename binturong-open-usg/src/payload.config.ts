@@ -19,6 +19,7 @@ import { Issuances } from './collections/Issuances'
 import { Reports } from './collections/Reports'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { hiddenBelow } from './admin/navVisibility'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -35,7 +36,10 @@ export default buildConfig({
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
-      beforeDashboard: ['@/components/BeforeDashboard'],
+      views: {
+        dashboard: { Component: '@/admin/dashboard' },
+        howTo: { Component: '@/admin/howTo', path: '/how-to' },
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -72,20 +76,29 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
+  folders: {
+    collectionOverrides: [
+      ({ collection }) => ({
+        ...collection,
+        admin: { ...collection.admin, group: 'Advanced', hidden: hiddenBelow('super_admin') },
+      }),
+    ],
+  },
   collections: [
+    // Order sets the order of the admin menu groups: Publish, Records, People & Offices, Site, Accounts.
     Pages,
     Posts,
-    Media,
-    Categories,
-    Users,
-    Organizations,
-    AcademicYears,
-    Offices,
-    People,
     Activities,
     Documents,
     Issuances,
     Reports,
+    AcademicYears,
+    People,
+    Offices,
+    Organizations,
+    Media,
+    Categories,
+    Users,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],

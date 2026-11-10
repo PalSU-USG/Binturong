@@ -1,0 +1,92 @@
+.admin-home {
+  max-width: 60rem;
+  padding: var(--base);
+  font-size: 1rem;
+
+  h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  &__tasks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 0.75rem;
+    list-style: none;
+    margin: 1rem 0 2rem;
+    padding: 0;
+  }
+
+  &__task {
+    display: block;
+    height: 100%;
+    padding: 1rem;
+    border: 2px solid var(--theme-elevation-300);
+    border-radius: 0.5rem;
+    background: var(--theme-elevation-50);
+    color: var(--theme-text);
+    text-decoration: none;
+
+    &:hover {
+      border-color: var(--theme-text);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--theme-text);
+      outline-offset: 2px;
+    }
+  }
+
+  &__task-label {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  &__task-help {
+    display: block;
+    margin-top: 0.25rem;
+  }
+
+  &__section {
+    margin-bottom: 2rem;
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 1rem;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--theme-elevation-150);
+    }
+  }
+
+  &__item-title {
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  &__detail {
+    color: var(--theme-elevation-800);
+  }
+
+  &__error {
+    padding: 0.75rem;
+    border: 2px solid var(--theme-error-500);
+    border-radius: 0.25rem;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

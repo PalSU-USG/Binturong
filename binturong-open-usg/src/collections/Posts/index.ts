@@ -29,6 +29,9 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from 'payload'
+import { lastEditedByField, setLastEditedBy } from '@/fields/lastEditedBy'
+import { plainSlug } from '@/fields/plainSlug'
+import { statusPanelComponents } from '@/components/StatusPanel/components'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -51,8 +54,12 @@ export const Posts: CollectionConfig<'posts'> = {
       description: true,
     },
   },
+  labels: { singular: 'Post', plural: 'Posts' },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    group: 'Publish',
+    description: 'News, notices and announcements.',
+    components: statusPanelComponents,
+    defaultColumns: ['title', '_status', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -74,6 +81,10 @@ export const Posts: CollectionConfig<'posts'> = {
       name: 'title',
       type: 'text',
       required: true,
+      label: 'Headline',
+      admin: {
+        description: 'The headline readers see, for example "Orientation week schedule".',
+      },
     },
     {
       type: 'tabs',
@@ -134,11 +145,11 @@ export const Posts: CollectionConfig<'posts'> = {
               relationTo: 'categories',
             },
           ],
-          label: 'Meta',
+          label: 'Related and topics',
         },
         {
           name: 'meta',
-          label: 'SEO',
+          label: 'Search and sharing',
           fields: [
             OverviewField({
               titlePath: 'meta.title',
@@ -168,10 +179,12 @@ export const Posts: CollectionConfig<'posts'> = {
     {
       name: 'publishedAt',
       type: 'date',
+      label: 'Date shown to readers',
       admin: {
         date: {
           pickerAppearance: 'dayAndTime',
         },
+        description: 'The date readers see on the post. Leave empty to use the day it goes live.',
         position: 'sidebar',
       },
       hooks: {
@@ -188,7 +201,9 @@ export const Posts: CollectionConfig<'posts'> = {
     {
       name: 'authors',
       type: 'relationship',
+      label: 'Authors',
       admin: {
+        description: 'Staff members credited on the post.',
         position: 'sidebar',
       },
       hasMany: true,
@@ -219,9 +234,15 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-    slugField(),
+    {
+      type: 'collapsible',
+      label: 'History and advanced',
+      admin: { initCollapsed: true, position: 'sidebar' },
+      fields: [slugField({ overrides: plainSlug }), lastEditedByField],
+    },
   ],
   hooks: {
+    beforeChange: [setLastEditedBy],
     beforeOperation: [enforceEditorialWrites, protectDomainReferences],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],

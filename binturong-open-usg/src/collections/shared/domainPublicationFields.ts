@@ -1,5 +1,7 @@
 import type { CollectionBeforeChangeHook, CollectionConfig, Field, FieldAccess } from 'payload'
 import { getActiveAccount } from '@/access/activeAccount'
+import { domainSlug } from '@/fields/domainSlug'
+import { lastEditedByField } from '@/fields/lastEditedBy'
 import { hasDomainTransition } from './transitionDomainRecord'
 
 const staff: FieldAccess = async ({ req }) => Boolean(await getActiveAccount(req))
@@ -7,14 +9,17 @@ export const domainTransitionComponents: NonNullable<CollectionConfig['admin']>[
   edit: {
     PublishButton: '@/components/DomainTransitions#NativeTransitionButton',
     UnpublishButton: '@/components/DomainTransitions#NativeTransitionButton',
-    beforeDocumentControls: ['@/components/DomainTransitions'],
+    beforeDocumentControls: ['@/components/StatusPanel', '@/components/DomainTransitions'],
   },
 }
 export const domainPublicationFields: Field[] = [
+  lastEditedByField,
   {
     name: 'publishedAt',
     type: 'date',
+    label: 'First published',
     admin: {
+      description: 'Set by the site when a publisher first makes this live. It cannot be edited.',
       readOnly: true,
       components: { Field: '@/components/DomainTransitions#ProtectedAuditField' },
     },
@@ -22,7 +27,9 @@ export const domainPublicationFields: Field[] = [
   {
     name: 'lastTransition',
     type: 'group',
+    label: 'Last change of status',
     admin: {
+      description: 'Records the latest publication, withdrawal or restore. It cannot be edited.',
       readOnly: true,
       components: { Field: '@/components/DomainTransitions#ProtectedAuditField' },
     },
@@ -38,6 +45,14 @@ export const domainPublicationFields: Field[] = [
     ],
   },
 ]
+
+/** One collapsed section for everything an editor rarely needs, placed last in the form. */
+export const domainHistory = (useAsSlug: 'name' | 'label' | 'title'): Field => ({
+  type: 'collapsible',
+  label: 'History and advanced',
+  admin: { initCollapsed: true },
+  fields: [...domainPublicationFields, domainSlug(useAsSlug)],
+})
 
 export const retainDomainAudit: CollectionBeforeChangeHook = async ({
   collection,

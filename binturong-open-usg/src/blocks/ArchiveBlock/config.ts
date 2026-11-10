@@ -32,7 +32,7 @@ export const Archive: Block = {
       defaultValue: 'collection',
       options: [
         {
-          label: 'Collection',
+          label: 'Latest items of one kind',
           value: 'collection',
         },
         {
@@ -48,7 +48,7 @@ export const Archive: Block = {
         condition: (_, siblingData) => siblingData.populateBy === 'collection',
       },
       defaultValue: 'posts',
-      label: 'Collections To Show',
+      label: 'Kind of item to show',
       options: [
         {
           label: 'Posts',
