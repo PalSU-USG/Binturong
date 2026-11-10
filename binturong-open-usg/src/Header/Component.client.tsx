@@ -24,7 +24,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ children }) => {
   }, [headerTheme])
 
   return (
-    <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
+    <header className="site-header" {...(theme ? { 'data-theme': theme } : {})}>
       {children}
     </header>
   )
