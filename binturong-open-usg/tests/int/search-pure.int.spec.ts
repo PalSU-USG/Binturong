@@ -134,9 +134,9 @@ describe('isRecent', () => {
 })
 
 describe('search targets', () => {
-  it('indexes posts, issuances and reports and only posts are live', () => {
+  it('indexes posts, issuances and reports and all have live routes', () => {
     expect([...indexedCollections].sort()).toEqual(['issuances', 'posts', 'reports'])
-    expect([...liveCollections]).toEqual(['posts'])
+    expect([...liveCollections].sort()).toEqual(['issuances', 'posts', 'reports'])
   })
 
   it('builds encoded canonical paths', () => {
