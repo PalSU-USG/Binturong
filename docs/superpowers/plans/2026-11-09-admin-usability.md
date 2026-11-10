@@ -11,9 +11,10 @@ a useful dashboard, simpler forms and an explained draft-to-published flow.
 and scheduling are consumed unchanged; hiding is presentation, never authority.
 
 **Tech Stack:** Existing Payload 3.90.2 / Next / TypeScript baseline, `custom.scss`,
-Playwright. No new dependencies, schema or migration.
+Playwright. No new dependencies. One additive migration for the server-set lastEditedBy field (owner decision 3).
 
-**Spec:** [Admin usability](../specs/2026-11-09-admin-usability-design.md) (Draft until approved).
+**Spec:** [Admin usability](../specs/2026-11-09-admin-usability-design.md) (approved 9 November 2026).
+**Status:** implemented; deviations from the tasks below (custom dashboard view, kept drawer wording, jargon test, lastEditedBy, how-to page, hallway script) are in the spec's implementation record and in `plans/admin-usability.md`.
 
 ## Global constraints
 

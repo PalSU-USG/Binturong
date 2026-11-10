@@ -1,9 +1,11 @@
 # Admin usability
 
-Status: Approved by the owner on 9 November 2026 (decisions recorded below). Not yet implemented.
+Status: Approved by the owner on 9 November 2026 (decisions recorded below). Implemented on
+branch `Hawksprey420/admin-usability`; see the implementation record at the end.
 
-Scope: the Payload admin at `/admin` for non-technical USG staff. Admin UI only: no
-schema change, no new endpoint, no change to access, transition or scheduling code.
+Scope: the Payload admin at `/admin` for non-technical USG staff. Admin UI plus one additive
+column (`lastEditedBy`, decision 3). No new endpoint and no change to access, transition or
+scheduling code.
 
 ## Evidence (inspected on `dev` 5b858a2, Payload 3.90.2)
 
@@ -172,3 +174,42 @@ and completes common tasks without training or developer help.
 6. **Editors on Pages and Posts.** Recommend hiding Publish and Schedule with an explanatory
    line, not disabled buttons.
 7. **Dark mode.** Recommend keeping both; do not lock `theme`.
+
+## Implementation record (10 November 2026)
+
+**Banned-terms list.** `tests/int/admin-config.int.spec.ts` scans every label, description,
+option name, group, tab and admin-copy sentence an editor or publisher can reach, and fails
+on any of these whole words (case-insensitive): `slug`, `collection`, `collections`,
+`global`, `globals`, `relationship`, `json`, `payload`, `endpoint`, `schema`, `api`,
+`version`, `versions`, `draft status`, `_status`, `lastTransition`, `publishedAt`,
+`normalizedNumber`. Single source: `src/admin/bannedTerms.ts`; edit both together.
+Scope: collections and globals visible to a publisher, excluding Payload's internal
+`payload-*` records, hidden fields, and the framework's own `_status` field. Admin-only
+screens (Accounts, Forms) are out of scope. The same test requires an explicit label and
+one-line description on every editor-facing field of the seven record types and the
+top-level fields of Pages, Posts, Top menu and Bottom links.
+
+**Deviations from the draft above.**
+
+- The home page is a custom dashboard view (`admin.components.views.dashboard`), not
+  `admin.dashboard.widgets`. The widget API is experimental and lets each user rearrange or
+  add widgets, so an editor could add the publisher list to their own layout. A server view
+  fixes the content per role. It reads with the request user's own access
+  (`overrideAccess: false`) and shows an error, never an empty list, when a read fails.
+- Home sections: Your drafts (true `lastEditedBy` filter), Waiting for a publisher
+  (publishers and above, oldest first), Recently published or withdrawn. No scheduled-changes
+  section; scheduling stays in the review drawer.
+- The web address (slug) is not read-only for editors: a field-access rule would strip it
+  during automatic generation. It is labelled, described and moved into the collapsed
+  History and advanced section.
+- The domain review drawer keeps its current wording ("Review saved revision",
+  "Historical version", "(version N)"). Existing browser tests assert those strings and the
+  drawer is mostly a publisher tool. Revisit with the Filipino translation.
+- Search index, Form submissions and Folders are hidden below super_admin; Forms and
+  Redirects below admin; Accounts below admin; Top menu and Bottom links below publisher.
+- `lastEditedBy` is on Pages, Posts and the seven record types. It is written only by a
+  `beforeChange` hook from the active account, refused from client input by field access,
+  readable only by active staff, and absent from public reads. Publication transitions and
+  scheduled jobs write below the hooks, so the field means "last person who saved".
+
+**Hallway test.** `docs/superpowers/plans/2026-11-09-admin-usability-hallway-test.md`.
