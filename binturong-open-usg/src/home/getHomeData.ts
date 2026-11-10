@@ -1,0 +1,180 @@
+import type { Payload, Where } from 'payload'
+
+import { findSection, resolveNavigation, type NavItem } from '@/Header/resolveNavigation'
+import { listRecords, listUpcomingActivities, type RecordRowData } from '@/records/recordQueries'
+import { parseRecordFilters } from '@/records/recordFilters'
+import { searchTargets } from '@/search/searchTargets'
+
+/**
+ * Front-page reads. Every read runs as an anonymous visitor (`overrideAccess: false`,
+ * `draft: false`) and also filters to `_status = published`, so neither layer alone decides what
+ * the public sees. A failed read throws; an empty array always means "nothing published".
+ */
+
+export const HOME_ROWS = 5
+export const NOTICE_DAYS = 14
+export const NOTICE_CATEGORY_SLUG = 'notice'
+const MANILA_OFFSET_MS = 8 * 3_600_000
+const DAY_MS = 86_400_000
+
+export type HomeEntry = {
+  key: string
+  date: string | null
+  dateLabel: string | null
+  label: string | null
+  title: string
+  href: string
+  meta: string | null
+  /** Controlled delivery route; null unless the main file is verified and ready. */
+  fileHref: string | null
+}
+export type HomeNotice = { title: string; href: string; date: string | null }
+export type HomeLink = { label: string; href: string; newTab: boolean }
+export type HomeData = {
+  notice: HomeNotice | null
+  updates: HomeEntry[]
+  /** Null when no record type has a live route; otherwise rows (possibly none). */
+  records: HomeEntry[] | null
+  activities: HomeEntry[]
+  services: HomeLink[]
+  transparency: HomeLink[]
+}
+
+const base = { overrideAccess: false, draft: false } as const
+const published: Where = { _status: { equals: 'published' } }
+
+const usableSlug = (slug: unknown): slug is string =>
+  typeof slug === 'string' && slug.length > 0 && slug.length <= 200 && !slug.includes('\0')
+
+export function liveRecordCollections(
+  targets: Record<string, { live: boolean }> = searchTargets,
+): ('issuances' | 'reports')[] {
+  return (['issuances', 'reports'] as const).filter((slug) => targets[slug]?.live === true)
+}
+
+/** Verified child links of a navigation section. Unavailable or placeholder links are dropped. */
+export function homeLinksFor(
+  items: NavItem[],
+  section: NonNullable<NavItem['section']>,
+): HomeLink[] {
+  return (findSection(items, section)?.children ?? []).flatMap((child) => {
+    const href = child.href?.trim()
+    return child.available && href && href !== '#'
+      ? [{ label: child.label, href, newTab: child.newTab }]
+      : []
+  })
+}
+
+/** Events are stored as UTC midnight of their calendar date; "today" is the Manila date. */
+export function upcomingFrom(now: Date): string {
+  return `${new Date(now.getTime() + MANILA_OFFSET_MS).toISOString().slice(0, 10)}T00:00:00.000Z`
+}
+
+const fromRecord = (row: RecordRowData): HomeEntry => ({
+  key: row.key,
+  date: row.sourceDate ?? row.publishedAt,
+  dateLabel: row.sourceDate ? row.sourceDateLabel : 'Published',
+  label: row.typeLabel,
+  title: row.title,
+  href: row.href,
+  meta: row.identifier,
+  fileHref: row.fileHref,
+})
+
+const fromActivity = (row: RecordRowData): HomeEntry => ({
+  key: row.key,
+  date: row.sourceDate,
+  dateLabel: 'Date',
+  label: row.typeLabel,
+  title: row.title,
+  href: row.href,
+  meta: [row.time, row.location].filter(Boolean).join(' · ') || null,
+  fileHref: null,
+})
+
+async function readUpdates(payload: Payload): Promise<HomeEntry[]> {
+  const { docs } = await payload.find({
+    collection: 'posts',
+    ...base,
+    depth: 1,
+    limit: HOME_ROWS,
+    sort: ['-publishedAt', '-id'],
+    select: { title: true, slug: true, publishedAt: true, categories: true },
+    where: published,
+  })
+  return docs.flatMap((doc) => {
+    if (!usableSlug(doc.slug)) return []
+    const category = (doc.categories ?? []).find(
+      (c): c is Exclude<typeof c, number> => typeof c === 'object' && c !== null,
+    )
+    return [
+      {
+        key: `posts-${doc.id}`,
+        date: doc.publishedAt ?? null,
+        dateLabel: 'Published',
+        label: category?.title?.trim() || null,
+        title: doc.title,
+        href: `/posts/${encodeURIComponent(doc.slug)}`,
+        meta: null,
+        fileHref: null,
+      },
+    ]
+  })
+}
+
+async function readNotice(payload: Payload, now: Date): Promise<HomeNotice | null> {
+  const since = new Date(now.getTime() - NOTICE_DAYS * DAY_MS).toISOString()
+  const { docs } = await payload.find({
+    collection: 'posts',
+    ...base,
+    depth: 0,
+    limit: 1,
+    sort: ['-publishedAt', '-id'],
+    select: { title: true, slug: true, publishedAt: true },
+    where: {
+      and: [
+        published,
+        { 'categories.slug': { equals: NOTICE_CATEGORY_SLUG } },
+        { publishedAt: { greater_than_equal: since } },
+        { publishedAt: { less_than_equal: now.toISOString() } },
+      ],
+    },
+  })
+  const doc = docs[0]
+  if (!doc || !usableSlug(doc.slug)) return null
+  return {
+    title: doc.title,
+    href: `/posts/${encodeURIComponent(doc.slug)}`,
+    date: doc.publishedAt ?? null,
+  }
+}
+
+async function readRecords(payload: Payload, now: Date): Promise<HomeEntry[] | null> {
+  const live = liveRecordCollections()
+  if (live.length === 0) return null
+  const { rows } = await listRecords(payload, 'archives', parseRecordFilters({}, 'archives'), now)
+  return rows
+    .filter((row) => (live as string[]).includes(row.collection))
+    .slice(0, HOME_ROWS)
+    .map(fromRecord)
+}
+
+async function readNavigation(payload: Payload) {
+  const header = await payload.findGlobal({ slug: 'header', ...base, depth: 0 })
+  const items = resolveNavigation(header)
+  return {
+    services: homeLinksFor(items, 'services'),
+    transparency: homeLinksFor(items, 'transparency'),
+  }
+}
+
+export async function getHomeData(payload: Payload, now: Date = new Date()): Promise<HomeData> {
+  const [notice, updates, records, upcoming, navigation] = await Promise.all([
+    readNotice(payload, now),
+    readUpdates(payload),
+    readRecords(payload, now),
+    listUpcomingActivities(payload, upcomingFrom(now), HOME_ROWS, now),
+    readNavigation(payload),
+  ])
+  return { notice, updates, records, activities: upcoming.map(fromActivity), ...navigation }
+}

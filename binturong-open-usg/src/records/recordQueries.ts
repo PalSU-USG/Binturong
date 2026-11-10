@@ -313,43 +313,32 @@ async function toRows(
   })
 }
 
-export async function listActivities(
+type ListedActivity = Pick<
+  Activity,
+  'id' | 'title' | 'slug' | 'publishedAt' | 'organization' | 'eventDate' | 'time' | 'location'
+>
+const ACTIVITY_SELECT = {
+  title: true,
+  slug: true,
+  publishedAt: true,
+  organization: true,
+  eventDate: true,
+  time: true,
+  location: true,
+} as const
+
+async function activityRows(
   payload: Payload,
-  filters: RecordFilters,
-  now: Date = new Date(),
-): Promise<RecordList> {
-  const notices = [...filters.notices]
-  const yearID = await resolveYear(payload, filters.year, notices)
-  const wanted = Math.min(Math.max(1, Math.trunc(filters.page) || 1), MAX_PAGE)
-  const fetchPage = (page: number) =>
-    payload.find({
-      collection: 'activities',
-      ...base,
-      limit: RECORD_PAGE_SIZE,
-      page,
-      sort: ['-eventDate', '-id'],
-      select: {
-        title: true,
-        slug: true,
-        publishedAt: true,
-        organization: true,
-        eventDate: true,
-        time: true,
-        location: true,
-      },
-      where: { and: [published, ...(yearID ? [{ academicYear: { equals: yearID } }] : [])] },
-    })
-  let result = await fetchPage(wanted)
-  // An over-range page shows the last page instead of an empty state while records exist.
-  if (result.docs.length === 0 && result.totalPages > 0 && wanted > result.totalPages)
-    result = await fetchPage(result.totalPages)
+  docs: ListedActivity[],
+  now: Date,
+): Promise<RecordRowData[]> {
   const orgs = await publishedFields(
     payload,
     'organizations',
-    result.docs.flatMap((doc) => relationID(doc.organization) ?? []),
+    docs.flatMap((doc) => relationID(doc.organization) ?? []),
     { name: true },
   )
-  const rows = result.docs.map((doc): RecordRowData => ({
+  return docs.map((doc): RecordRowData => ({
     key: `activities-${doc.id}`,
     collection: 'activities',
     id: doc.id,
@@ -366,6 +355,52 @@ export async function listActivities(
     time: doc.time?.trim() || null,
     fileHref: null,
   }))
+}
+
+/**
+ * Published activities on or after `fromDate` (an ISO instant at UTC midnight of a calendar
+ * date), soonest first. Past activities stay on their own records and list.
+ */
+export async function listUpcomingActivities(
+  payload: Payload,
+  fromDate: string,
+  limit: number,
+  now: Date = new Date(),
+): Promise<RecordRowData[]> {
+  const { docs } = await payload.find({
+    collection: 'activities',
+    ...base,
+    limit,
+    page: 1,
+    sort: ['eventDate', 'id'],
+    select: ACTIVITY_SELECT,
+    where: { and: [published, { eventDate: { greater_than_equal: fromDate } }] },
+  })
+  return activityRows(payload, docs, now)
+}
+export async function listActivities(
+  payload: Payload,
+  filters: RecordFilters,
+  now: Date = new Date(),
+): Promise<RecordList> {
+  const notices = [...filters.notices]
+  const yearID = await resolveYear(payload, filters.year, notices)
+  const wanted = Math.min(Math.max(1, Math.trunc(filters.page) || 1), MAX_PAGE)
+  const fetchPage = (page: number) =>
+    payload.find({
+      collection: 'activities',
+      ...base,
+      limit: RECORD_PAGE_SIZE,
+      page,
+      sort: ['-eventDate', '-id'],
+      select: ACTIVITY_SELECT,
+      where: { and: [published, ...(yearID ? [{ academicYear: { equals: yearID } }] : [])] },
+    })
+  let result = await fetchPage(wanted)
+  // An over-range page shows the last page instead of an empty state while records exist.
+  if (result.docs.length === 0 && result.totalPages > 0 && wanted > result.totalPages)
+    result = await fetchPage(result.totalPages)
+  const rows = await activityRows(payload, result.docs, now)
   return {
     rows,
     total: result.totalDocs,
