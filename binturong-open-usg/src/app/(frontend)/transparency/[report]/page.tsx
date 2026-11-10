@@ -5,6 +5,9 @@ import { RecordListPage, type SearchParams } from '@/components/records/RecordLi
 import type { RecordScope } from '@/records/recordFilters'
 
 export const dynamic = 'force-dynamic'
+// Unknown segments get a real 404 response before anything streams.
+export const dynamicParams = false
+export const generateStaticParams = () => Object.keys(pages).map((report) => ({ report }))
 
 const pages: Record<string, { scope: RecordScope; title: string }> = {
   'financial-reports': { scope: 'financial', title: 'Financial reports' },
