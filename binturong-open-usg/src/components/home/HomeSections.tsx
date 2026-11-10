@@ -7,9 +7,15 @@ import { formatInstantDate, formatLongDate } from '@/components/records/format'
 const sectionTitle =
   'text-[length:var(--text-section)] font-semibold leading-tight [overflow-wrap:anywhere]'
 const linkClass = 'inline-flex min-h-11 items-center text-link underline underline-offset-4'
+export const actionClass = `${linkClass} font-heading font-semibold`
+const metaClass = 'text-[length:var(--text-meta)] text-muted-foreground'
+const rowClass = 'grid gap-x-6 gap-y-1 border-t border-border py-3 first:border-t-0'
+
+const rowDate = (entry: HomeEntry) =>
+  (entry.instant ? formatInstantDate : formatLongDate)(entry.date)
 
 /** Internal paths use the router; anything else is a plain anchor. */
-function SmartLink({
+export function SmartLink({
   href,
   newTab = false,
   className,
@@ -50,18 +56,18 @@ export function HomeSection({
   children: React.ReactNode
 }) {
   return (
-    <section aria-labelledby={id} className="border-b border-border py-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6">
+    <section aria-labelledby={id} className="pt-10">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 border-b-2 border-brand pb-2">
         <h2 className={sectionTitle} id={id}>
           {title}
         </h2>
         {all && (
-          <SmartLink className={linkClass} href={all.href}>
-            {all.label}
+          <SmartLink className={actionClass} href={all.href}>
+            {all.label} <span aria-hidden="true">→</span>
           </SmartLink>
         )}
       </div>
-      <div className="mt-4">{children}</div>
+      <div className="mt-3">{children}</div>
     </section>
   )
 }
@@ -70,44 +76,51 @@ export function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-muted-foreground">{children}</p>
 }
 
+/** Yellow notice band, full width; only rendered when a notice qualifies. */
 export function HomeNoticeBlock({ notice }: { notice: HomeNotice }) {
   const date = formatInstantDate(notice.date)
   return (
-    <section
-      aria-labelledby="home-notice"
-      className="my-6 border-l-4 border-status-warning-border bg-status-warning-bg p-4 text-status-warning-fg"
-    >
-      <h2
-        className="text-[length:var(--text-label)] font-semibold uppercase tracking-wide"
-        id="home-notice"
-      >
-        Official notice
-      </h2>
-      <p className="mt-1 text-[length:var(--text-record-title)] font-semibold [overflow-wrap:anywhere]">
-        <SmartLink className="underline underline-offset-4" href={notice.href}>
-          {notice.title}
-        </SmartLink>
-      </p>
-      {date && (
-        <p className="mt-1 text-[length:var(--text-meta)]">
-          <time dateTime={notice.date ?? undefined}>{date}</time>
-        </p>
-      )}
+    <section aria-labelledby="home-notice" className="bg-status-warning-bg text-status-warning-fg">
+      <div className="container py-3 text-center">
+        <h2
+          className="inline text-[length:var(--text-label)] font-semibold uppercase tracking-wide"
+          id="home-notice"
+        >
+          Official notice
+        </h2>
+        <span aria-hidden="true"> · </span>
+        <span className="font-heading text-[length:var(--text-record-title)] font-semibold [overflow-wrap:anywhere]">
+          <SmartLink className="underline underline-offset-4" href={notice.href}>
+            {notice.title}
+          </SmartLink>
+        </span>
+        {date && (
+          <span className="block text-[length:var(--text-meta)]">
+            <time dateTime={notice.date ?? undefined}>{date}</time>
+          </span>
+        )}
+      </div>
     </section>
   )
 }
 
-export function EntryList({ entries }: { entries: HomeEntry[] }) {
+function TypeTag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-block rounded-sm border border-link px-2 py-0.5 font-heading text-[length:var(--text-label)] font-semibold uppercase tracking-wide text-link">
+      {children}
+    </span>
+  )
+}
+
+/** Latest updates: date, type tag, title and the actions that fit the record. */
+export function UpdateList({ entries }: { entries: HomeEntry[] }) {
   return (
     <ul className="m-0 list-none p-0">
       {entries.map((entry) => {
-        const date = (entry.instant ? formatInstantDate : formatLongDate)(entry.date)
+        const date = rowDate(entry)
         return (
-          <li
-            className="grid gap-x-6 border-t border-border py-3 first:border-t-0 sm:grid-cols-[10rem_minmax(0,1fr)]"
-            key={entry.key}
-          >
-            <p className="text-[length:var(--text-meta)] text-muted-foreground">
+          <li className={`${rowClass} sm:grid-cols-[8.5rem_minmax(0,1fr)_auto]`} key={entry.key}>
+            <p className={`${metaClass} m-0`}>
               {date ? (
                 <>
                   <span className="sr-only">{entry.dateLabel}: </span>
@@ -116,12 +129,52 @@ export function EntryList({ entries }: { entries: HomeEntry[] }) {
               ) : null}
             </p>
             <div className="min-w-0">
-              {entry.label && (
-                <p className="text-[length:var(--text-label)] font-semibold uppercase tracking-wide">
-                  {entry.label}
-                </p>
+              {entry.label && <TypeTag>{entry.label}</TypeTag>}
+              <p className="m-0 mt-1 font-heading text-[length:var(--text-record-title)] font-semibold leading-snug [overflow-wrap:anywhere]">
+                {entry.title}
+              </p>
+              {entry.meta && (
+                <p className={`${metaClass} m-0 [overflow-wrap:anywhere]`}>{entry.meta}</p>
               )}
-              <p className="text-[length:var(--text-record-title)] font-semibold [overflow-wrap:anywhere]">
+            </div>
+            <p className="m-0 flex flex-wrap items-center gap-x-5">
+              <SmartLink className={actionClass} href={entry.href}>
+                {entry.kind === 'record' ? 'Record' : 'Read'}
+                <span className="sr-only">: {entry.title}</span>
+                <span aria-hidden="true">&nbsp;→</span>
+              </SmartLink>
+              {entry.fileHref && (
+                <a className={actionClass} href={entry.fileHref} download>
+                  PDF<span className="sr-only">: {entry.title}</span>
+                  <span aria-hidden="true">&nbsp;↓</span>
+                </a>
+              )}
+            </p>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+/** Activities: date, linked title and time/place. */
+export function EntryList({ entries }: { entries: HomeEntry[] }) {
+  return (
+    <ul className="m-0 list-none p-0">
+      {entries.map((entry) => {
+        const date = rowDate(entry)
+        return (
+          <li className={`${rowClass} sm:grid-cols-[8.5rem_minmax(0,1fr)]`} key={entry.key}>
+            <p className={`${metaClass} m-0`}>
+              {date ? (
+                <>
+                  <span className="sr-only">{entry.dateLabel}: </span>
+                  <time dateTime={entry.date ?? undefined}>{date}</time>
+                </>
+              ) : null}
+            </p>
+            <div className="min-w-0">
+              <p className="m-0 font-heading text-[length:var(--text-record-title)] font-semibold leading-snug [overflow-wrap:anywhere]">
                 <SmartLink
                   className="inline-block py-1 text-link underline underline-offset-4"
                   href={entry.href}
@@ -130,18 +183,43 @@ export function EntryList({ entries }: { entries: HomeEntry[] }) {
                 </SmartLink>
               </p>
               {entry.meta && (
-                <p className="text-[length:var(--text-meta)] text-muted-foreground [overflow-wrap:anywhere]">
-                  {entry.meta}
-                </p>
-              )}
-              {entry.fileHref && (
-                <p>
-                  <a className={linkClass} download href={entry.fileHref}>
-                    Download PDF<span className="sr-only">: {entry.title}</span>
-                  </a>
-                </p>
+                <p className={`${metaClass} m-0 [overflow-wrap:anywhere]`}>{entry.meta}</p>
               )}
             </div>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+/** Latest issuances: number, linked title, date. */
+export function IssuanceList({ entries }: { entries: HomeEntry[] }) {
+  return (
+    <ul className="m-0 list-none p-0">
+      {entries.map((entry) => {
+        const date = rowDate(entry)
+        return (
+          <li className={`${rowClass} sm:grid-cols-[10rem_minmax(0,1fr)_auto]`} key={entry.key}>
+            <p className="m-0 font-heading font-semibold [overflow-wrap:anywhere]">
+              {entry.meta ?? entry.label}
+            </p>
+            <p className="m-0 min-w-0 [overflow-wrap:anywhere]">
+              <SmartLink
+                className="inline-block py-1 text-link underline underline-offset-4"
+                href={entry.href}
+              >
+                {entry.title}
+              </SmartLink>
+            </p>
+            <p className={`${metaClass} m-0`}>
+              {date ? (
+                <>
+                  <span className="sr-only">{entry.dateLabel}: </span>
+                  <time dateTime={entry.date ?? undefined}>{date}</time>
+                </>
+              ) : null}
+            </p>
           </li>
         )
       })}
@@ -154,8 +232,8 @@ export function LinkList({ links }: { links: HomeLink[] }) {
     <ul className="m-0 flex list-none flex-wrap gap-x-8 p-0">
       {links.map((link) => (
         <li key={`${link.label}-${link.href}`}>
-          <SmartLink className={linkClass} href={link.href} newTab={link.newTab}>
-            {link.label}
+          <SmartLink className={actionClass} href={link.href} newTab={link.newTab}>
+            {link.label} <span aria-hidden="true">→</span>
           </SmartLink>
         </li>
       ))}
