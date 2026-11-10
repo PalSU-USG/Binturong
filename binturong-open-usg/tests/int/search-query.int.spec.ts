@@ -5,7 +5,6 @@ import { randomUUID } from 'node:crypto'
 import config from '@/payload.config'
 import type { Post } from '@/payload-types'
 import { runSearch } from '@/search/query'
-import { searchTargets } from '@/search/searchTargets'
 import { createAccessFixtures, removeTestAccounts } from '../helpers/accessFixtures'
 import { syntheticContent } from '../helpers/contentFixtures'
 import { createRecordFixtures } from '../helpers/searchFixtures'
@@ -104,7 +103,7 @@ describe('public search query', () => {
     expect(result.totalDocs).toBe(1)
   })
 
-  it('filters_by_type_and_never_lists_non_live_collections', async () => {
+  it('filters_by_type_across_posts_issuances_and_reports', async () => {
     await post(`Typed${tag} update`)
     await records.issuance({ title: `Typed${tag} issuance`, identifier: `ZZ-${tag}` })
     await records.report({ title: `Typed${tag} report`, identifier: `RR-${tag}` })
@@ -121,11 +120,11 @@ describe('public search query', () => {
     })
     expect(reindexed.status).toBe(200)
     const all = await search(`typed${tag}`)
-    expect(all.hits.map((h) => h.label)).toEqual(['Update'])
+    expect(all.hits.map((h) => h.label).sort()).toEqual(['Issuance', 'Report', 'Update'])
     expect((await search(`typed${tag}`, 'updates')).totalDocs).toBe(1)
-    expect((await search(`typed${tag}`, 'issuances')).hits).toEqual([])
-    expect((await search(`typed${tag}`, 'reports')).hits).toEqual([])
-    expect((await search(`zz-${tag}`)).hits).toEqual([])
+    expect((await search(`typed${tag}`, 'issuances')).totalDocs).toBe(1)
+    expect((await search(`typed${tag}`, 'reports')).totalDocs).toBe(1)
+    expect((await search(`zz-${tag}`)).hits.map((h) => h.label)).toEqual(['Issuance'])
   })
 
   it('omits_draft_only_and_withdrawn_posts', async () => {
@@ -197,7 +196,7 @@ describe('public search query', () => {
       failure.mockRestore()
     }
   })
-  it('finds_issuances_by_normalized_identifier_and_alias_once_their_routes_are_live', async () => {
+  it('finds_issuances_by_normalized_identifier_and_alias', async () => {
     const issuance = await records.issuance({
       title: `Resolved${tag} measure`,
       identifier: `Res. No. 2026-${tag}`,
@@ -214,9 +213,7 @@ describe('public search query', () => {
       }),
     })
     expect(reindexed.status).toBe(200)
-    const target = searchTargets.issuances as { live: boolean }
-    target.live = true
-    try {
+    {
       for (const q of [`res no 2026${tag}`, `Resolution No. 2026-${tag}`, `RES-NO-2026${tag}`]) {
         const { hits } = await search(q)
         expect(hits, q).toHaveLength(1)
@@ -229,8 +226,6 @@ describe('public search query', () => {
       expect((await search(`eo no 2026${tag}`)).hits).toEqual([])
       expect((await search(`resolved${tag}`, 'issuances')).totalDocs).toBe(1)
       expect((await search(`resolved${tag}`, 'updates')).totalDocs).toBe(0)
-    } finally {
-      target.live = false
     }
   })
 })

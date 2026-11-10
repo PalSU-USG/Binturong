@@ -39,15 +39,39 @@ Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
   with one `domain.e2e` ECONNRESET that passed on rerun. Follow-ups in
   `plans/public-search.md` (published-id IN list scaling, swallowed live-hook sync
   errors, unverified hook withdraw/restore for Issuances/Reports and scheduled publish).
-- **Next to integrate:** `Hawksprey420/navigation` (reviewed; merge dev, regenerate its
-  migration after search, apply review P2 follow-ups, re-verify).
-- **Drafting:** `Hawksprey420/identity-home` (placeholder tokens + homepage) and
-  `Hawksprey420/record-sections` (record pages + Archives/Transparency/Government).
-  Brand seal, logo and palette are still needed from the owner.
+- **Navigation integrated** (`0e7dabd`): migration `20261109_045910_navigation_hierarchy`
+  (13 total). Final tree: 379/379 integration, 43 browser, production-cache 2/2, tsc and
+  build pass; full lint 5 inherited errors, 14 warnings (4 new, in untouched files).
+  Review ACCEPT WITH FOLLOW-UPS; follow-ups applied with revert proofs; delta re-check
+  OK. Open P2: a flipped menu could overflow the left edge at very narrow widths;
+  `revalidateRedirects` still uses `'max'`.
+- **Record sections integrated** (`cd703a4`, no migration): detail pages for
+  Issuances/Reports/Activities, Archives, Transparency overview, Government. Final tree:
+  436/436 integration, 49/49 browser, production-cache 3/3, tsc and build pass. Review
+  P1 (rich-text internal link crash) fixed via `src/records/richTextLinks.ts`; delta
+  re-check MERGE OK. Owner-open: `loading.tsx` dropped (hid content without JS); P3s
+  left: version numbering shifts after `maxPerDoc` pruning, office pages serve CSG
+  offices, withdrawal e2e bypasses the real transition. Checkpoint: `plans/record-sections.md`.
+- **Approved spec, not implemented:** identity-home (`31a02a1`). Brand seal/logo/palette,
+  section intro copy, office branches, CSG list and commissions data remain owner inputs;
+  publishers must link the new sections in the Header global.
 - **Workflow notes:** no AI attribution trailers (engineering workflow); Codex
   sandbox needs the oh-my-posh cache, the repo `.git` and loopback network allowed,
   and cannot write git metadata, so the coordinator commits its work.
-- **Next action:** update `Hawksprey420/navigation` onto this `dev` and integrate it.
+- **Local dev server (owner, 9 Nov):** main checkout `.env` points to
+  `127.0.0.1:56323/binturong_domain`, a migrated copy of the local dev content where
+  `usg@psu.palawan.edu.ph` was promoted to super_admin with the bootstrap script (dry
+  run, then apply). The original `postgres` DB on 56322 is untouched (baseline only).
+  Backups: `C:/Users/Hawksprey/binturong-backups/` (public-schema dump, old `.env`).
+  `binturong-dev-db-56324` is an unused intermediate copy. The hosted Supabase project
+  is paused; restoring it is an owner dashboard action.
+- **Approved, queued after navigation:** `Hawksprey420/admin-usability` (`4a15eca`):
+  stay on Payload admin; acceptance = a non-technical editor completes tasks unaided;
+  adds server-set `lastEditedBy` (one migration); merges last.
+- **Next action:** implement identity-home, sequentially on
+  56323/binturong_test (56322 binturong_test holds stale columns from the superseded
+  search migration; reset it only with owner approval). Then admin-usability. Never
+  touch `binturong_domain` (owner dev server).
 
 ## Sources and reconnaissance snapshot
 
