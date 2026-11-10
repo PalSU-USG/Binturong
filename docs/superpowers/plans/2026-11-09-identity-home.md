@@ -15,7 +15,7 @@ data; a server-rendered homepage that replaces the starter fallback at `/`.
 dependencies, fonts, migrations or lockfile changes.
 
 **Spec:** [Identity and homepage design](../specs/2026-11-09-identity-home-design.md).
-Status: draft; do not start until the owner approves it and answers its open decisions.
+Status: approved; owner decisions settled (see spec). Implementation started 10 November 2026 on dev merge d87070f; the refinements below supersede the draft task text where they differ.
 
 ## Global constraints
 
@@ -130,3 +130,29 @@ metadata, `public/` default OG reference.
   brand inputs arrive. Real palette values must be re-run through the token test.
 - Cached front page may show stale or briefly unpublished titles if revalidation is
   incomplete; Task 3 owns that proof.
+
+## Implementation refinements (10 November 2026)
+
+Preconditions are met: navigation (`Wordmark`, header/footer, opacity fix), `searchTargets`
+and the record sections (`listRecords`, `listActivities`, `/archives`, `/transparency`,
+`/activities`) are in `dev`. Differences from the draft above:
+
+1. **Links.** The homepage links to Updates (`/posts`), Archives (`/archives`) and Activities
+   (`/activities`) because those routes now exist. Issuance/Report rows appear only for
+   collections whose `searchTargets` entry is `live`.
+2. **Rendering mode.** `/` is `force-dynamic` like the record sections. The notice window
+   (14 days) and "upcoming" depend on the clock, so a statically cached page would go stale
+   with no publish event to revalidate it. No cache entry means no leak and nothing to revalidate.
+3. **Reads.** `src/home/getHomeData.ts` reuses `listRecords`; upcoming activities add one
+   query beside `listActivities`. Every read: `overrideAccess: false`, `draft: false`, an explicit
+   `_status = published` filter. A spy test asserts both layers on every `find`; the mutation
+   proof (remove both, test must fail) is recorded in the checkpoint.
+4. **Notice.** Newest published Post with category slug `notice`, `publishedAt` within the last 14
+   days (and not in the future). Absent otherwise.
+5. **Upcoming.** `eventDate` on or after the Asia/Manila calendar date, soonest first. Events are
+   stored as UTC midnight of their calendar date.
+6. **Order of work (RED first each time):** (a) token + metadata guard tests then
+   `tokens.css`; (b) `getHomeData` int tests then module; (c) render tests then components and
+   `/` route; (d) Playwright 320/1280, keyboard, no-JS, draft absence. One commit per task.
+7. **Border contrast.** `--border` is a decorative divider (exempt from WCAG 1.4.11); control
+   boundaries use `--input`, asserted at 3:1.
