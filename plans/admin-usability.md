@@ -21,7 +21,7 @@ Hallway test: `docs/superpowers/plans/2026-11-09-admin-usability-hallway-test.md
   domain-transitions and admin-usability: 10 passed.
 - tsc `--noEmit --incremental false`: clean. Full lint: 5 errors / 14 warnings (the inherited
   baseline). Changed files: clean.
-- Production-cache suite and `npm run build`: see the final report (run last under the lock).
+- Production-cache suite (port 3004): 3 passed. `npm run build`: compiled successfully (exit 0).
 
 ## Decisions and deviations
 
