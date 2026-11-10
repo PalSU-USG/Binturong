@@ -214,7 +214,7 @@ export function createRecordSectionFixtures(payload: Payload) {
     await payload.db.updateOne({
       collection: 'people',
       where: { id: { equals: id } },
-      data: { terms: o.terms },
+      data: { terms: o.terms.map((term) => ({ id: randomUUID(), ...term })) },
     })
     return { id, name }
   }
