@@ -136,6 +136,16 @@
   body {
     @apply bg-background text-foreground min-h-[100vh] flex flex-col;
   }
+  /* One visible keyboard focus indicator, at least 3:1 against the page (see tokens.css). */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 /* Hidden only until the theme script sets data-theme; never leave the page hidden when that
