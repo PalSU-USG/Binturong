@@ -173,3 +173,45 @@ rendered at `/`); 5 rows per section; upcoming activities only.
 - Favicon/app icon and a default social-sharing image.
 - Approved documentary photography with usage permission, if a hero image is wanted.
 - Official site name, tagline and description for metadata.
+
+
+## Owner design realignment (11 November 2026)
+
+The owner rejected the placeholder identity shipped by this slice: a plain white text page with no
+identity that ignored `docs/design.md`'s Home layout and the Figma sources. This section supersedes
+the "placeholder identity" parts of this spec; data, access and rendering rules above still hold.
+
+Sources: `docs/design.md` (Global page shell, Home layout, Latest Updates layout, Deliberate
+non-goals); `docs/design-architecture-findings.md` Homepage direction; the FigJam requirements board
+(Palawan provincial site as inspiration, PalSU hero, horizontal nav, Home = officers hero,
+announcements, general plan of activities, latest updates with a tag per post and 1 month of
+freshness); the Project Akademya Figma node 1072:424 (burnt-orange `#B4440C` authority bar with
+seal and League Spartan wordmark, yellow notice band, campus photo hero with a translucent rust
+band, deep-rust panel).
+
+Decisions:
+
+1. Palette from Akademya as brand-layer tokens: `--brand #B4440C`, `--brand-deep #853107`,
+   `--accent-gold #BD8C0F`, `--notice` yellow, `--on-brand #FFF6F6`. Mapped through `--primary`,
+   `--link`, `--focus-ring` and `--status-warning-*`. Shades are adjusted only where the contrast
+   test requires. The token test now accepts hex and covers the new pairs plus the worst-case
+   hero band blend.
+2. League Spartan (`next/font/google`) for headings, wordmark, nav and tags. Body stays Geist Sans:
+   `docs/design.md` asks for a highly readable information face for most of the interface, not a
+   display face everywhere.
+3. Seal and campus photo are the owner's Akademya files in `public/brand/`, flagged in
+   `tokens.css` as "replace with approved originals". Seal `alt=""` (adjacent wordmark names it);
+   the hero photo is decorative (`alt=""`), the statement is real text.
+4. Header: rust authority band (seal, two-line wordmark) over a deeper rust navigation band. Menu
+   logic, dropdowns and the Header global are unchanged. No gold "portal" button: there is no
+   approved portal URL and white on `#BD8C0F` is 3.0:1.
+5. Home order follows `docs/design.md` exactly: hero, notice, Latest updates, Student services,
+   General plan of activities, Transparency, Latest issuances. Hero is 40-55vh on desktop with a
+   90 percent deep-rust band so the h1 stays readable on any part of the photo.
+6. Latest updates is a mixed list of published posts and issuances/reports from the last 30 days
+   (by `publishedAt`, not future-dated), newest first, 5 rows, a type tag per row. Fallback when
+   nothing is that fresh: the newest items, with the sentence "No updates in the last 30 days;
+   showing the most recent." (chosen over an empty state so the front page is never blank while
+   records exist). The 14-day notice rule is unchanged.
+7. `/home` redirects to `/` outside draft mode; draft mode still renders a stored `home` Page for
+   live preview; the `homeStatic` template fallback is dropped for public visitors.

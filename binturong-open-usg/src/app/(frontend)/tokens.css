@@ -2,11 +2,16 @@
  * Design tokens in three layers. Components consume only layer 3 (the Tailwind utilities that
  * bind to the semantic names below); nothing in a component carries a raw color.
  *
- * Layer 1, brand: the ONLY layer a real palette edits. Values are neutral greys on purpose:
- * no hue is invented, nothing is sampled from screenshots and no mark is recreated.
+ * Layer 1, brand: the ONLY layer a real palette edits. The PalSU palette below is taken from the
+ * owner's Project Akademya Figma (node 1072:424): --brand #B4440C (authority bar), --brand-deep
+ * (footer, hero band), --accent-gold #BD8C0F, --notice (notice band) and --on-brand #FFF6F6.
+ * Brand inputs from the owner's Project Akademya Figma; replace with approved originals:
+ * public/brand/palsu-seal.png (900x900) and public/brand/campus-gate.png (1024x768), the palette
+ * above and League Spartan (Google Fonts, SIL OFL). --brand-deep and --notice are adjusted shades
+ * chosen only to meet contrast, not owner-approved values.
  * Inputs still expected from the owner: approved PalSU seal and USG logo files, authoritative
- * palette (primary, secondary, accent, status) with permitted combinations and dark-mode rules,
- * an approved typeface with web licence, favicon and default share image.
+ * palette with permitted combinations and dark-mode rules, an approved typeface with web licence,
+ * officer photograph, favicon and default share image.
  * After editing layer 1, run tests/int/design-tokens.int.spec.ts: it resolves every pair below
  * in both themes and fails under 4.5:1 (text) or 3:1 (focus ring, control boundary, status border).
  *
@@ -17,7 +22,13 @@
  */
 
 :root {
-  /* Layer 1: brand (placeholder neutrals) */
+  /* Layer 1: brand (PalSU palette from Project Akademya, plus neutrals) */
+  --brand: #b4440c;
+  --brand-deep: #853107;
+  --brand-light: oklch(76% 0.13 50deg);
+  --accent-gold: #bd8c0f;
+  --notice: #e0cb1c;
+  --on-brand: #fff6f6;
   --brand-ink: oklch(20.5% 0 0deg);
   --brand-paper: oklch(100% 0 0deg);
   --brand-grey-50: oklch(97% 0 0deg);
@@ -38,16 +49,16 @@
   --card-foreground: var(--foreground);
   --popover: var(--brand-paper);
   --popover-foreground: var(--foreground);
-  --primary: var(--brand-ink);
-  --primary-foreground: oklch(98.5% 0 0deg);
+  --primary: var(--brand);
+  --primary-foreground: var(--on-brand);
   --secondary: var(--brand-grey-50);
   --secondary-foreground: var(--brand-ink);
   --muted: var(--brand-grey-50);
   --muted-foreground: var(--brand-grey-500);
   --accent: var(--brand-grey-50);
   --accent-foreground: var(--brand-ink);
-  --link: var(--brand-ink);
-  --focus-ring: var(--brand-ink);
+  --link: var(--brand);
+  --focus-ring: var(--brand-deep);
   --destructive: oklch(57.7% 0.245 27.325deg);
   --destructive-foreground: oklch(57.7% 0.245 27.325deg);
   /* Decorative divider; control boundaries use --input (3:1). */
@@ -57,9 +68,10 @@
   --status-info-bg: oklch(96% 0 0deg);
   --status-info-fg: oklch(25% 0 0deg);
   --status-info-border: oklch(55% 0 0deg);
-  --status-warning-bg: oklch(95% 0.05 85deg);
-  --status-warning-fg: oklch(32% 0.07 70deg);
-  --status-warning-border: oklch(55% 0.12 75deg);
+  /* Warning is the Akademya notice yellow: it styles the front-page official notice. */
+  --status-warning-bg: var(--notice);
+  --status-warning-fg: var(--brand-ink);
+  --status-warning-border: var(--brand);
   --status-error-bg: oklch(95% 0.03 25deg);
   --status-error-fg: oklch(38% 0.14 27deg);
   --status-error-border: oklch(55% 0.18 27deg);
@@ -114,15 +126,15 @@
   --card-foreground: var(--brand-ink-on-dark);
   --popover: var(--brand-paper-dark);
   --popover-foreground: var(--brand-ink-on-dark);
-  --primary: var(--brand-ink-on-dark);
-  --primary-foreground: oklch(20.5% 0 0deg);
+  --primary: var(--brand-light);
+  --primary-foreground: var(--brand-ink);
   --secondary: var(--brand-grey-800);
   --secondary-foreground: var(--brand-ink-on-dark);
   --muted: var(--brand-grey-800);
   --muted-foreground: var(--brand-grey-300);
   --accent: var(--brand-grey-800);
   --accent-foreground: var(--brand-ink-on-dark);
-  --link: var(--brand-ink-on-dark);
+  --link: var(--brand-light);
   --focus-ring: var(--brand-ink-on-dark);
   --destructive: oklch(39.6% 0.141 25.723deg);
   --destructive-foreground: oklch(63.7% 0.237 25.331deg);
@@ -132,9 +144,9 @@
   --status-info-bg: oklch(24% 0 0deg);
   --status-info-fg: oklch(95% 0 0deg);
   --status-info-border: oklch(65% 0 0deg);
-  --status-warning-bg: oklch(28% 0.05 75deg);
-  --status-warning-fg: oklch(93% 0.06 85deg);
-  --status-warning-border: oklch(70% 0.12 75deg);
+  --status-warning-bg: var(--notice);
+  --status-warning-fg: var(--brand-ink);
+  --status-warning-border: var(--accent-gold);
   --status-error-bg: oklch(28% 0.07 25deg);
   --status-error-fg: oklch(93% 0.04 25deg);
   --status-error-border: oklch(65% 0.18 27deg);

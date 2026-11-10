@@ -7,11 +7,17 @@ import { HeaderNavigation, MinimalNavigation } from './Navigation'
 export function Header() {
   return (
     <HeaderClient>
-      <div className="site-header-bar">
-        <Wordmark />
-        <Suspense fallback={<MinimalNavigation />}>
-          <HeaderNavigation />
-        </Suspense>
+      <div className="site-authority">
+        <div className="container">
+          <Wordmark />
+        </div>
+      </div>
+      <div className="site-navband">
+        <div className="container">
+          <Suspense fallback={<MinimalNavigation />}>
+            <HeaderNavigation />
+          </Suspense>
+        </div>
       </div>
     </HeaderClient>
   )
