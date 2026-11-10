@@ -20,6 +20,7 @@
   h6 {
     font-weight: unset;
     font-size: unset;
+    font-family: var(--font-heading);
   }
 }
 
@@ -46,6 +47,8 @@
   --breakpoint-2xl: 86rem;
   --font-mono: var(--font-geist-mono);
   --font-sans: var(--font-geist-sans);
+  /* Display face for headings, wordmark, navigation and tags; body stays on the sans face. */
+  --font-heading: var(--font-league-spartan), var(--font-geist-sans), system-ui, sans-serif;
 }
 
 @layer utilities {
@@ -129,6 +132,11 @@
   --color-error: var(--error);
   --color-link: var(--link);
   --color-focus-ring: var(--focus-ring);
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-accent-gold: var(--accent-gold);
+  --color-on-brand: var(--on-brand);
+  --color-notice: var(--notice);
   --color-status-info-bg: var(--status-info-bg);
   --color-status-info-fg: var(--status-info-fg);
   --color-status-info-border: var(--status-info-border);
@@ -205,22 +213,73 @@ html[data-theme='light'] {
     outline: none;
   }
 
-  .site-header-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem 1.5rem;
-    padding-block: 1rem;
+  /* Authority band (seal and identity) over a deeper navigation band; both full width. The
+     --nav-* variables put on-brand text and focus rings on the rust bands. */
+  .site-header {
+    position: relative;
+    z-index: 20;
+    background: var(--brand);
+    color: var(--on-brand);
+    --nav-fg: var(--on-brand);
+    --nav-ring: var(--on-brand);
+  }
+  .site-authority {
+    padding-block: 0.75rem;
+  }
+  .site-navband {
+    background: var(--brand-deep);
+    border-top: 1px solid var(--accent-gold);
   }
   .site-wordmark {
     display: inline-flex;
     align-items: center;
+    gap: 0.75rem;
     min-height: 2.75rem;
-    max-width: 22rem;
-    font-weight: 600;
-    line-height: 1.25;
+    max-width: 100%;
+    font-family: var(--font-heading);
+    line-height: 1.15;
+    color: inherit;
     overflow-wrap: anywhere;
+  }
+  .site-wordmark-seal {
+    flex: none;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+  }
+  .site-wordmark-name {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .site-wordmark-unit {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  @media (min-width: 48rem) {
+    .site-authority {
+      padding-block: 1rem;
+    }
+    .site-wordmark {
+      gap: 1rem;
+    }
+    .site-wordmark-seal {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+    .site-wordmark-name {
+      font-size: 1.75rem;
+    }
+    .site-wordmark-unit {
+      font-size: 0.875rem;
+    }
+  }
+  .site-footer a:focus-visible,
+  .site-footer select:focus-visible {
+    outline-color: var(--on-brand);
   }
   .site-nav {
     min-width: 0;
@@ -256,7 +315,9 @@ html[data-theme='light'] {
     min-height: 2.75rem;
     padding-inline: 0.5rem;
     overflow-wrap: anywhere;
-    color: var(--foreground);
+    font-family: var(--font-heading);
+    font-weight: 500;
+    color: var(--nav-fg, var(--foreground));
     text-underline-offset: 0.25em;
   }
   a.site-nav-link:hover {
@@ -267,18 +328,18 @@ html[data-theme='light'] {
     text-decoration: underline;
   }
   a.site-nav-link[data-section-current='true'] {
-    box-shadow: inset 0.25rem 0 0 var(--foreground);
+    box-shadow: inset 0.25rem 0 0 var(--nav-fg, var(--foreground));
     font-weight: 600;
   }
   .site-nav-note {
     margin-left: 0.5rem;
-    color: var(--muted-foreground);
+    color: var(--nav-fg, var(--muted-foreground));
     font-size: 0.875rem;
   }
   .site-nav-notice {
     margin: 0;
     padding-inline: 0.5rem;
-    color: var(--foreground);
+    color: var(--nav-fg, var(--foreground));
     font-size: 0.875rem;
   }
   .site-nav-toggle {
@@ -290,7 +351,7 @@ html[data-theme='light'] {
     padding-inline: 0.75rem;
     list-style: none;
     cursor: pointer;
-    border: 1px solid var(--muted-foreground);
+    border: 1px solid var(--nav-fg, var(--muted-foreground));
     border-radius: 0.375rem;
   }
   .site-nav-toggle::-webkit-details-marker {
@@ -309,7 +370,7 @@ html[data-theme='light'] {
   .site-nav a:focus-visible,
   .site-nav summary:focus-visible,
   .site-wordmark:focus-visible {
-    outline: 3px solid var(--foreground);
+    outline: 3px solid var(--nav-ring, var(--foreground));
     outline-offset: 2px;
   }
 
@@ -349,6 +410,9 @@ html[data-theme='light'] {
         background: var(--background);
         border: 1px solid var(--muted-foreground);
         border-radius: 0.375rem;
+        /* The floating panel is a light surface: restore dark text and ring on it. */
+        --nav-fg: var(--foreground);
+        --nav-ring: var(--focus-ring);
       }
       /* Set by the navigation script when a menu would leave the viewport. */
       .site-nav-group[data-align='end'] > .site-nav-children {

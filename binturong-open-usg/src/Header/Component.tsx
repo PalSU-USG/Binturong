@@ -1,17 +1,21 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 
 import { Wordmark } from '@/components/Wordmark'
 import { HeaderClient } from './Component.client'
-import { HeaderNavigation, MinimalNavigation } from './Navigation'
+import { HeaderNavigation } from './Navigation'
 
 export function Header() {
   return (
     <HeaderClient>
-      <div className="site-header-bar">
-        <Wordmark />
-        <Suspense fallback={<MinimalNavigation />}>
+      <div className="site-authority">
+        <div className="container">
+          <Wordmark />
+        </div>
+      </div>
+      <div className="site-navband">
+        <div className="container">
           <HeaderNavigation />
-        </Suspense>
+        </div>
       </div>
     </HeaderClient>
   )

@@ -34,7 +34,16 @@ function oklchToLinear(l: number, c: number, hDeg: number): RGB {
   ]
   return rgb.map((v) => Math.min(1, Math.max(0, v))) as RGB
 }
-const luminance = ([r, g, b]: RGB) => 0.2126 * r + 0.7152 * g + 0.0722 * b
+function hexToLinear(hex: string): RGB {
+  return [0, 2, 4].map((i) => {
+    const v = parseInt(hex.slice(i, i + 2), 16) / 255
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+  }) as RGB
+}
+/** Linear-light blend of `top` over `bottom` at `alpha` (what a translucent band looks like). */
+const blend = (top: RGB, bottom: RGB, alpha: number): RGB =>
+  top.map((v, i) => v * alpha + bottom[i] * (1 - alpha)) as RGB
+const luminance =([r, g, b]: RGB) => 0.2126 * r + 0.7152 * g + 0.0722 * b
 function contrast(a: RGB, b: RGB) {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
   return (hi + 0.05) / (lo + 0.05)
@@ -60,6 +69,8 @@ function resolve(tokens: Record<string, string>, name: string, depth = 0): RGB {
   if (value === undefined) throw new Error(`Undefined token ${name}`)
   const ref = value.match(/^var\((--[\w-]+)\)$/)
   if (ref) return resolve(tokens, ref[1], depth + 1)
+  const hex = value.match(/^#([0-9a-fA-F]{6})$/)
+  if (hex) return hexToLinear(hex[1])
   const color = value.match(/^oklch\(\s*([\d.]+)%\s+([\d.]+)\s+([\d.]+)(?:deg)?\s*\)$/)
   if (!color) throw new Error(`Token ${name} is not an oklch color or var(): ${value}`)
   return oklchToLinear(Number(color[1]) / 100, Number(color[2]), Number(color[3]))
@@ -79,6 +90,11 @@ const pairs: [string, string, number][] = [
   ['--primary-foreground', '--primary', 4.5],
   ['--secondary-foreground', '--secondary', 4.5],
   ['--accent-foreground', '--accent', 4.5],
+  ['--on-brand', '--brand', 4.5],
+  ['--on-brand', '--brand-deep', 4.5],
+  ['--status-warning-fg', '--notice', 4.5],
+  ['--accent-gold', '--background', 3],
+  ['--brand', '--background', 3],
   ['--focus-ring', '--background', 3],
   ['--focus-ring', '--card', 3],
   ['--input', '--background', 3],
@@ -102,8 +118,32 @@ describe('semantic design tokens', () => {
 
   it('keeps brand values in one layer that semantic tokens map from', () => {
     expect(Object.keys(light).some((name) => name.startsWith('--brand-'))).toBe(true)
-    expect(light['--link']).toMatch(/^var\(--brand-/)
-    expect(light['--primary']).toMatch(/^var\(--brand-/)
+    expect(light['--link']).toMatch(/^var\(--brand/)
+    expect(light['--primary']).toMatch(/^var\(--brand/)
+  })
+
+  it('carries the owner PalSU palette from Project Akademya in the brand layer', () => {
+    expect(light['--brand'].toLowerCase()).toBe('#b4440c')
+    expect(light['--accent-gold'].toLowerCase()).toBe('#bd8c0f')
+    expect(light['--on-brand'].toLowerCase()).toBe('#fff6f6')
+    expect(light['--brand-deep']).toBeDefined()
+    expect(light['--notice']).toBeDefined()
+    expect(light['--status-warning-bg']).toBe('var(--notice)')
+    expect(css).toMatch(/Project Akademya[^*]*replace with approved originals/is)
+  })
+
+  it('keeps the hero text readable on the worst possible photo pixel', () => {
+    const hero = read(path.join(root, 'src/components/home/HomePage.tsx'))
+    const alpha = Number(hero.match(/bg-brand-deep\/(\d+)/)?.[1]) / 100
+    expect(alpha).toBeGreaterThanOrEqual(0.85)
+    for (const [theme, tokens] of [
+      ['light', light],
+      ['dark', dark],
+    ] as const)
+      for (const photo of [[1, 1, 1] as RGB, [0, 0, 0] as RGB]) {
+        const band = blend(resolve(tokens, '--brand-deep'), photo, alpha)
+        expect(contrast(resolve(tokens, '--on-brand'), band), theme).toBeGreaterThanOrEqual(4.5)
+      }
   })
 
   it('declares the scale tokens the design guide asks for', () => {
@@ -129,7 +169,9 @@ describe('semantic design tokens', () => {
     const globals = read(path.join(root, 'src/app/(frontend)/globals.css'))
     const theme = globals.slice(globals.indexOf('@theme inline'))
     const semantic = Object.keys(light)
-      .filter((name) => /^--(status-|link$|focus-ring$)/.test(name))
+      .filter((name) =>
+        /^--(status-|link$|focus-ring$|brand$|brand-deep$|accent-gold$|on-brand$|notice$)/.test(name),
+      )
       .map((name) => name.slice(2))
     for (const name of semantic)
       expect(theme, `--color-${name}`).toMatch(new RegExp(`--color-${name}:\\s*var\\(--${name}\\)`))
@@ -140,7 +182,7 @@ describe('semantic design tokens', () => {
     const used = new Set<string>()
     for (const file of walk(path.join(root, 'src/components/home'), ['.tsx']))
       for (const m of read(file).matchAll(
-        /\b(?:bg|text|border)-((?:status-[a-z]+-(?:bg|fg|border))|link|focus-ring)\b/g,
+        /\b(?:bg|text|border)-((?:status-[a-z]+-(?:bg|fg|border))|link|focus-ring|brand-deep|brand|on-brand|accent-gold|notice)\b/g,
       ))
         used.add(m[1])
     expect(used.size).toBeGreaterThan(0)
@@ -159,7 +201,7 @@ describe('semantic design tokens', () => {
     for (const file of files.filter((f) => /\.s?css$/.test(f)))
       for (const m of read(file).matchAll(/(--[\w-]+)\s*:/g)) defined.add(m[1])
     // Tailwind internals, next/font and the Radix select primitive define their own variables.
-    const external = /^--(tw-|font-geist-|radix-)/
+    const external = /^--(tw-|font-geist-|font-league-|radix-)/
     const missing: string[] = []
     for (const file of files)
       for (const m of read(file).matchAll(/var\((--[\w-]+)/g))
@@ -177,7 +219,6 @@ describe('semantic design tokens', () => {
       'src/blocks/Form/Error/index.tsx',
       'src/heros/HighImpact/index.tsx',
       'src/heros/PostHero/index.tsx',
-      'src/Footer/Component.tsx',
     ])
     const raw =
       /#[0-9a-fA-F]{3,8}\b|oklch\(|rgba?\(|hsla?\(|\[#|\b(?:bg|text|border|from|to|via)-(?:black|white|red|green|blue|yellow|gray|slate|zinc|neutral)\b/

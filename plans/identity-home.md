@@ -41,3 +41,11 @@ listed), future-dated posts excluded from Latest updates, noon-UTC date-only com
 
 Re-run results: full int suite 42 files / 526 passed; full browser suite 55 passed; production-cache 3 passed;
 `npm run build` succeeded; tsc clean; changed-file eslint clean; full lint 5 errors / 12 warnings (baseline 5 / 14).
+
+## PalSU / Project Akademya realignment (`Hawksprey420/home-akademya` on `1b52772`)
+
+Reworked the public shell and `/` after owner review against the FigJam requirements board and Project Akademya Figma:
+- Commits `1012733`, `1b9eadd`, `afef4a4`, plus vendored League Spartan variable font, SSR header/footer landmark fixes and `home.e2e.spec.ts` revalidation fix.
+- `/home` redirects to `/` outside draft mode (`src/app/(frontend)/[slug]/page.tsx`); Latest updates mixes posts, issuances and reports from the last 30 days with bordered uppercase tags and `Read →` / `Record →` / `PDF ↓` links (`src/home/getHomeData.ts`, `src/components/home/HomeSections.tsx`).
+- Shell uses `#B4440C` PalSU authority band with seal (`public/brand/palsu-seal.png`), `#853107` deep-rust navband/footer with `#BD8C0F` gold rule, campus gate hero (`public/brand/campus-gate.png`) with 90% deep-rust statement band, and `#E0CB1C` official notice band.
+- Verified on `56323/binturong_test`: 58/58 browser e2e passed (`home.e2e.spec.ts` 8/8, `navigation.e2e.spec.ts` 24/24), production-cache 3/3 passed (`npm run build` succeeded), `tsc --noEmit --incremental false` clean, changed-file eslint clean, full lint 5 errors / 12 warnings (baseline). Screenshots verified at 1280×900, 390×844 and full-page.
