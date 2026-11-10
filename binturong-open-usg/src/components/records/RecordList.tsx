@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 
-import type { RecordFilters } from '@/records/recordFilters'
+import { MAX_PAGE, type RecordFilters } from '@/records/recordFilters'
 import type { RecordList as RecordListData } from '@/records/recordQueries'
 import { RecordRow } from './RecordRow'
 
@@ -65,7 +65,7 @@ export function RecordList({
           ) : (
             <span />
           )}
-          {page < pageCount ? (
+          {page < pageCount && page < MAX_PAGE ? (
             <Link
               className="inline-flex min-h-11 items-center underline"
               href={listHref(basePath, filters, page + 1)}

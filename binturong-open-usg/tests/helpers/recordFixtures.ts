@@ -12,6 +12,7 @@ type Slug =
   | 'reports'
   | 'activities'
   | 'people'
+  | 'posts'
 type Status = 'published' | 'draft'
 type Data = Record<string, unknown>
 
@@ -130,6 +131,7 @@ export function createRecordSectionFixtures(payload: Payload) {
       type?: string
       identifier?: string
       summary?: string
+      richState?: unknown
       related?: { relationTo: string; value: number }[]
       extra?: Data
     },
@@ -154,14 +156,14 @@ export function createRecordSectionFixtures(payload: Payload) {
             documentNumber: o.identifier ?? `No. ${randomUUID().slice(0, 4)}`,
             normalizedNumber: randomUUID(),
             issuingOffice: o.issuingOffice,
-            summary: o.summary ? richText(o.summary) : undefined,
+            summary: o.richState ?? (o.summary ? richText(o.summary) : undefined),
           }
         : {
             ...common,
             type: o.type ?? 'financial',
             reportingPeriod: o.identifier ?? `Period ${randomUUID().slice(0, 4)}`,
             responsibleOffices: o.responsibleOffices,
-            abstract: o.summary ? richText(o.summary) : undefined,
+            abstract: o.richState ?? (o.summary ? richText(o.summary) : undefined),
           },
     )
     // Relationship rows (attachments, related records) need the real join tables.
@@ -183,6 +185,7 @@ export function createRecordSectionFixtures(payload: Payload) {
     time?: string
     location?: string
     description?: string
+    richState?: unknown
   }) => {
     const title = o.title ?? `Synthetic activity ${randomUUID().slice(0, 6)}`
     const id = await make('activities', {
@@ -193,11 +196,22 @@ export function createRecordSectionFixtures(payload: Payload) {
       academicYear: o.academicYear,
       time: o.time,
       location: o.location,
-      description: o.description ? richText(o.description) : undefined,
+      description: o.richState ?? (o.description ? richText(o.description) : undefined),
       _status: o.status ?? 'published',
       publishedAt: o.eventDate,
     })
     return { id, title, slug: await slugOf('activities', id) }
+  }
+
+  const post = async (o: { title?: string; status?: Status } = {}) => {
+    const title = o.title ?? `Synthetic post ${randomUUID().slice(0, 6)}`
+    const id = await make('posts', {
+      title,
+      slug: slug('post'),
+      _status: o.status ?? 'published',
+      publishedAt: new Date().toISOString(),
+    })
+    return { id, title, slug: await slugOf('posts', id) }
   }
 
   const person = async (o: {
@@ -230,6 +244,7 @@ export function createRecordSectionFixtures(payload: Payload) {
 
   return {
     tag,
+    post,
     org,
     office,
     year,

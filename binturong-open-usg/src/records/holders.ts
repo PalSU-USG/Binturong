@@ -22,23 +22,30 @@ const day = (value: string | null | undefined): number | null => {
 
 /**
  * "Current" comes only from supplied dates: the term's own, else its academic year's. A start
- * date alone means "since"; an end date alone means "until" (inclusive of that day). With no usable
+ * date alone means "since", running to the academic year's end date when it has one; an end date\n * alone means "until" (inclusive of that day). With no usable
  * date a holder is never current. Past terms are kept.
  */
 export function resolveHolders(terms: TermInput[], now: Date): Holder[] {
-  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  // The university's calendar day, not the server's: Philippine time (UTC+8, no daylight saving).
+  const [y, m, d] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' })
+    .format(now)
+    .split('-')
+    .map(Number)
+  const today = Date.UTC(y!, m! - 1, d!)
   const holders = terms.map((term): Holder => {
     const own = day(term.startDate) !== null || day(term.endDate) !== null
     const source = own
       ? term
       : (term.academicYear ?? ({} as { startDate?: string | null; endDate?: string | null }))
     const start = day(source.startDate)
-    const end = day(source.endDate)
+    // A term with a start but no end runs to the end of its academic year when that is set.
+    const endSource = source.endDate ?? (own && start !== null ? term.academicYear?.endDate : null)
+    const end = day(endSource)
     const supplied = start !== null || end !== null
     return {
       name: term.name,
       start: supplied ? (source.startDate ?? null) : null,
-      end: supplied ? (source.endDate ?? null) : null,
+      end: supplied ? (endSource ?? null) : null,
       academicYear: term.academicYear?.label ?? null,
       current: supplied && (start === null || start <= today) && (end === null || today <= end),
     }

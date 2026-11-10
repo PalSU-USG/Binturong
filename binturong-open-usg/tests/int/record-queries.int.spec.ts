@@ -1,7 +1,10 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { getPayload, type Payload } from 'payload'
 
 import config from '@/payload.config'
+import RichText from '@/components/RichText'
 import { parseRecordFilters, type RecordFilters } from '@/records/recordFilters'
 import {
   listActivities,
@@ -10,6 +13,16 @@ import {
   readPublicRecord,
 } from '@/records/recordQueries'
 import { createRecordSectionFixtures } from '../helpers/recordFixtures'
+
+vi.mock('@/blocks/MediaBlock/Component', () => ({ MediaBlock: () => null }))
+vi.mock('@/blocks/Code/Component', () => ({ CodeBlock: () => null }))
+vi.mock('@/blocks/Banner/Component', () => ({ BannerBlock: () => null }))
+vi.mock('@/blocks/CallToAction/Component', () => ({ CallToActionBlock: () => null }))
+vi.mock('next/cache', () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn(),
+}))
 
 const DAY = 86_400_000
 const NOW = new Date('2026-11-09T00:00:00.000Z')
@@ -338,5 +351,103 @@ describe('record queries', () => {
       location: 'Hall',
       organization: usg.name,
     })
+  })
+
+  const linkState = (...links: { relationTo: string; value: unknown; text: string }[]) => ({
+    root: {
+      type: 'root',
+      version: 1,
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      children: [
+        {
+          type: 'paragraph',
+          version: 1,
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          children: links.map((l) => ({
+            type: 'link',
+            version: 3,
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            fields: {
+              linkType: 'internal',
+              newTab: false,
+              doc: { relationTo: l.relationTo, value: l.value },
+            },
+            children: [
+              {
+                type: 'text',
+                version: 1,
+                text: l.text,
+                format: 0,
+                mode: 'normal',
+                style: '',
+                detail: 0,
+              },
+            ],
+          })),
+        },
+      ],
+    },
+  })
+  const html = (state: unknown) =>
+    renderToStaticMarkup(React.createElement(RichText, { data: state as never }))
+
+  it('renders_internal_rich_text_links_to_published_targets_and_plain_text_for_the_rest', async () => {
+    const live = await fx.post({ title: `LiveLink ${fx.tag}` })
+    const hidden = await fx.post({ title: `HiddenLink ${fx.tag}`, status: 'draft' })
+    const liveIssuance = await issuance({ title: `LinkedIssuance ${fx.tag}` })
+    const draftIssuance = await issuance({ title: `DraftIssuance ${fx.tag}`, status: 'draft' })
+    const state = linkState(
+      { relationTo: 'posts', value: live.id, text: 'live post' },
+      { relationTo: 'posts', value: hidden.id, text: 'hidden post' },
+      { relationTo: 'issuances', value: liveIssuance.id, text: 'live issuance' },
+      { relationTo: 'issuances', value: draftIssuance.id, text: 'draft issuance' },
+      { relationTo: 'posts', value: 999_999_999, text: 'missing post' },
+      { relationTo: 'media', value: 1, text: 'unsupported' },
+    )
+    const rec = await issuance({ title: `Links ${fx.tag}`, richState: state })
+    const found = await readPublicRecord(payload, 'issuances', rec.slug)
+    const out = html(found!.summary)
+    expect(out).toContain(`href="/posts/${live.slug}"`)
+    expect(out).toContain(`href="/issuances/${liveIssuance.slug}"`)
+    for (const text of ['hidden post', 'draft issuance', 'missing post', 'unsupported'])
+      expect(out).toContain(text)
+    for (const secret of [hidden.slug, draftIssuance.slug, hidden.title, draftIssuance.title])
+      expect(out).not.toContain(secret)
+    expect(out.match(/<a /g)).toHaveLength(2)
+    const report = await fx.report({
+      organization: usg.id,
+      mainDocument: file,
+      academicYear: year.id,
+      richState: linkState({ relationTo: 'posts', value: hidden.id, text: 'gone' }),
+    })
+    expect(html((await readPublicRecord(payload, 'reports', report.slug))!.summary)).not.toContain(
+      '<a ',
+    )
+    const act = await fx.activity({
+      organization: usg.id,
+      eventDate: ago(1),
+      richState: linkState(
+        { relationTo: 'posts', value: live.id, text: 'go' },
+        { relationTo: 'posts', value: hidden.id, text: 'nope' },
+      ),
+    })
+    const out2 = html((await readPublicActivity(payload, act.slug))!.description)
+    expect(out2).toContain(`href="/posts/${live.slug}"`)
+    expect(out2).not.toContain(hidden.slug)
+  })
+
+  it('clamps_an_over_range_activities_page_and_ignores_a_type_filter', async () => {
+    const y = await fx.year()
+    for (let i = 0; i < 14; i++)
+      await fx.activity({ organization: usg.id, academicYear: y.id, eventDate: ago(i + 1) })
+    const f = parseRecordFilters({ year: y.slug, page: '50', type: 'act' }, 'archives')
+    const list = await listActivities(payload, { ...f, type: null }, NOW)
+    expect([list.page, list.pageCount, list.rows.length]).toEqual([2, 2, 2])
   })
 })

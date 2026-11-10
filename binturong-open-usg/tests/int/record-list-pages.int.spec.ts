@@ -121,6 +121,20 @@ describe('record list pages', () => {
     expect(out).toContain('href="/archives?type=act&amp;page=3"')
   })
 
+  it('hides_next_at_the_browsing_depth_limit', async () => {
+    listRecords.mockResolvedValue(list({ page: 50, pageCount: 60, total: 700 }))
+    const out = await page({ page: '50' })
+    expect(out).toContain('Previous page')
+    expect(out).not.toContain('Next page')
+  })
+
+  it('ignores_the_type_parameter_on_activities', async () => {
+    listActivities.mockResolvedValue(list())
+    const out = await page({ type: 'act' }, { activities: true })
+    expect(listActivities.mock.calls[0]![1]).toMatchObject({ type: null })
+    expect(out).not.toContain('id="filter-type"')
+    expect(out).not.toContain('not recognised')
+  })
   it('propagates_a_failed_read_so_the_error_boundary_renders_instead_of_an_empty_list', async () => {
     listRecords.mockRejectedValue(new Error('Synthetic outage'))
     await expect(page()).rejects.toThrow('Synthetic outage')

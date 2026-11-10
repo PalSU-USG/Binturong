@@ -41,7 +41,9 @@ export async function RecordListPage({
   trail?: { label: string; href?: string }[]
   searchParams: Promise<SearchParams>
 }) {
-  const filters = parseRecordFilters(await searchParams, scope)
+  const { type: _ignored, ...params } = await searchParams
+  // Activities have no record types, so a 	ype parameter is ignored.
+  const filters = parseRecordFilters(activities ? params : { ...params, type: _ignored }, scope)
   const payload = await getPayload({ config: configPromise })
   const [list, years] = await Promise.all([
     activities ? listActivities(payload, filters) : listRecords(payload, scope, filters),

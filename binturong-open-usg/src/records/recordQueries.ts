@@ -1,7 +1,9 @@
+import { cache } from 'react'
 import type { CollectionSlug, Payload, Where } from 'payload'
 
 import type { Activity, Issuance, Report } from '@/payload-types'
 import { isRecent } from '@/search/params'
+import { resolveRichTextLinks } from './richTextLinks'
 import { readReadyMainDocuments, type FileOwner } from './publicFileFacts'
 import {
   issuanceTypes,
@@ -52,6 +54,7 @@ const relationID = (value: unknown): number | null => {
   const id = value && typeof value === 'object' ? (value as { id?: unknown }).id : value
   return typeof id === 'number' && Number.isSafeInteger(id) && id > 0 ? id : null
 }
+const ids = (...values: unknown[]) => values.flatMap((value) => relationID(value) ?? [])
 const usableSlug = (slug: unknown): slug is string =>
   typeof slug === 'string' && slug.length > 0 && slug.length <= MAX_SLUG && !slug.includes('\0')
 
@@ -318,23 +321,28 @@ export async function listActivities(
   const notices = [...filters.notices]
   const yearID = await resolveYear(payload, filters.year, notices)
   const wanted = Math.min(Math.max(1, Math.trunc(filters.page) || 1), MAX_PAGE)
-  const result = await payload.find({
-    collection: 'activities',
-    ...base,
-    limit: RECORD_PAGE_SIZE,
-    page: wanted,
-    sort: ['-eventDate', '-id'],
-    select: {
-      title: true,
-      slug: true,
-      publishedAt: true,
-      organization: true,
-      eventDate: true,
-      time: true,
-      location: true,
-    },
-    where: { and: [published, ...(yearID ? [{ academicYear: { equals: yearID } }] : [])] },
-  })
+  const fetchPage = (page: number) =>
+    payload.find({
+      collection: 'activities',
+      ...base,
+      limit: RECORD_PAGE_SIZE,
+      page,
+      sort: ['-eventDate', '-id'],
+      select: {
+        title: true,
+        slug: true,
+        publishedAt: true,
+        organization: true,
+        eventDate: true,
+        time: true,
+        location: true,
+      },
+      where: { and: [published, ...(yearID ? [{ academicYear: { equals: yearID } }] : [])] },
+    })
+  let result = await fetchPage(wanted)
+  // An over-range page shows the last page instead of an empty state while records exist.
+  if (result.docs.length === 0 && result.totalPages > 0 && wanted > result.totalPages)
+    result = await fetchPage(result.totalPages)
   const orgs = await publishedFields(
     payload,
     'organizations',
@@ -427,7 +435,7 @@ async function readRelated(payload: Payload, raw: unknown): Promise<RelatedRecor
 }
 
 /** A currently published Issuance or Report by slug, or null. Never reads a draft. */
-export async function readPublicRecord(
+export const readPublicRecord = cache(async function readPublicRecord(
   payload: Payload,
   collection: FileOwner,
   slug: string,
@@ -441,23 +449,26 @@ export async function readPublicRecord(
   })
   const doc = docs[0] as unknown as CommonDoc | undefined
   if (!doc || !usableSlug(doc.slug)) return null
+  const isIssuanceDoc = collection === 'issuances'
 
   const officeIDs =
     collection === 'issuances'
       ? [relationID((doc as Issuance).issuingOffice)]
       : ((doc as Report).responsibleOffices ?? []).map(relationID)
-  const [orgs, offices, years, related] = await Promise.all([
-    publishedFields(payload, 'organizations', [relationID(doc.organization) ?? 0], { name: true }),
+  const richSource = isIssuanceDoc ? (doc as Issuance).summary : (doc as Report).abstract
+  const [orgs, offices, years, related, summary] = await Promise.all([
+    publishedFields(payload, 'organizations', ids(doc.organization), { name: true }),
     publishedFields(
       payload,
       'offices',
       officeIDs.flatMap((id) => id ?? []),
       { name: true, slug: true },
     ),
-    publishedFields(payload, 'academic-years', [relationID(doc.academicYear) ?? 0], {
+    publishedFields(payload, 'academic-years', ids(doc.academicYear), {
       label: true,
     }),
     readRelated(payload, doc.relatedRecords),
+    resolveRichTextLinks(payload, richSource),
   ])
   const isIssuance = collection === 'issuances'
   const issuance = doc as Issuance
@@ -477,7 +488,7 @@ export async function readPublicRecord(
     periodStartDate: isIssuance ? null : (report.periodStartDate ?? null),
     periodEndDate: isIssuance ? null : (report.periodEndDate ?? null),
     sourceVersionLabel: isIssuance ? null : report.sourceVersionLabel?.trim() || null,
-    summary: (isIssuance ? issuance.summary : report.abstract) ?? null,
+    summary,
     organization: textOf(orgs.get(relationID(doc.organization) ?? 0), 'name'),
     offices: officeIDs.flatMap((id) => {
       const row = offices.get(id ?? 0)
@@ -489,7 +500,7 @@ export async function readPublicRecord(
     academicYear: textOf(years.get(relationID(doc.academicYear) ?? 0), 'label'),
     related,
   }
-}
+})
 
 export type PublicActivity = {
   id: number
@@ -505,7 +516,7 @@ export type PublicActivity = {
   updatedAt: string | null
 }
 
-export async function readPublicActivity(
+export const readPublicActivity = cache(async function readPublicActivity(
   payload: Payload,
   slug: string,
 ): Promise<PublicActivity | null> {
@@ -518,11 +529,12 @@ export async function readPublicActivity(
   })
   const doc = docs[0]
   if (!doc || !usableSlug(doc.slug)) return null
-  const [orgs, years] = await Promise.all([
-    publishedFields(payload, 'organizations', [relationID(doc.organization) ?? 0], { name: true }),
-    publishedFields(payload, 'academic-years', [relationID(doc.academicYear) ?? 0], {
+  const [orgs, years, description] = await Promise.all([
+    publishedFields(payload, 'organizations', ids(doc.organization), { name: true }),
+    publishedFields(payload, 'academic-years', ids(doc.academicYear), {
       label: true,
     }),
+    resolveRichTextLinks(payload, doc.description),
   ])
   return {
     id: doc.id,
@@ -533,11 +545,11 @@ export async function readPublicActivity(
     location: doc.location?.trim() || null,
     organization: textOf(orgs.get(relationID(doc.organization) ?? 0), 'name'),
     academicYear: textOf(years.get(relationID(doc.academicYear) ?? 0), 'label'),
-    description: doc.description ?? null,
+    description,
     publishedAt: doc.publishedAt ?? null,
     updatedAt: doc.updatedAt ?? null,
   }
-}
+})
 
 export type YearOption = { slug: string; label: string }
 

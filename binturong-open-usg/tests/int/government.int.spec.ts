@@ -105,6 +105,40 @@ describe('resolveHolders', () => {
     })
   })
 
+  it('ends_a_start_only_term_at_its_academic_year_end_when_set', () => {
+    const year = { label: 'SY', endDate: '2026-05-31T12:00:00.000Z' }
+    const openEnded = { name: 'N', startDate: '2026-01-01T12:00:00.000Z' }
+    expect(resolveHolders([{ ...openEnded, academicYear: year }], NOW)[0]).toMatchObject({
+      current: false,
+      end: '2026-05-31T12:00:00.000Z',
+    })
+    expect(resolveHolders([{ ...openEnded, academicYear: { label: 'SY' } }], NOW)[0]).toMatchObject(
+      {
+        current: true,
+        end: null,
+      },
+    )
+    const later = { label: 'SY', endDate: '2027-05-31T12:00:00.000Z' }
+    expect(resolveHolders([{ ...openEnded, academicYear: later }], NOW)[0]!.current).toBe(true)
+  })
+
+  it('uses_the_manila_calendar_day_for_term_boundaries', () => {
+    // 17:00 UTC on 9 November is already 10 November in Manila.
+    const lateUtc = new Date('2026-11-09T17:00:00.000Z')
+    expect(
+      resolveHolders([{ name: 'N', endDate: '2026-11-09T12:00:00.000Z' }], lateUtc)[0]!.current,
+    ).toBe(false)
+    expect(
+      resolveHolders([{ name: 'N', endDate: '2026-11-10T12:00:00.000Z' }], lateUtc)[0]!.current,
+    ).toBe(true)
+    expect(
+      resolveHolders([{ name: 'N', startDate: '2026-11-10T12:00:00.000Z' }], lateUtc)[0]!.current,
+    ).toBe(true)
+    const earlyUtc = new Date('2026-11-09T15:00:00.000Z')
+    expect(
+      resolveHolders([{ name: 'N', startDate: '2026-11-10T12:00:00.000Z' }], earlyUtc)[0]!.current,
+    ).toBe(false)
+  })
   it('keeps_past_terms_and_lists_current_first', () => {
     const list = resolveHolders(
       [
