@@ -64,8 +64,14 @@ export async function loadDrafts(
 ): Promise<DashboardResult<DraftItem>> {
   const result = await readAll<DraftItem>(req, async (slug, title, accountID) => {
     const where: Where = options.mine
-      ? { and: [{ _status: { equals: 'draft' } }, { lastEditedBy: { equals: accountID } }] }
-      : { _status: { equals: 'draft' } }
+      ? {
+          and: [
+            { id: { exists: true } },
+            { _status: { equals: 'draft' } },
+            { lastEditedBy: { equals: accountID } },
+          ],
+        }
+      : { and: [{ id: { exists: true } }, { _status: { equals: 'draft' } }] }
     const { docs } = await req.payload.find({
       collection: slug as CollectionSlug,
       draft: true,

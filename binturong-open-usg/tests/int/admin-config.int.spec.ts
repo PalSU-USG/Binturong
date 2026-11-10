@@ -109,7 +109,8 @@ function collectText(): Seen[] {
       if (hidden?.hidden === true || ('name' in field && field.name === '_status')) continue
       const name = 'name' in field ? field.name : field.type
       const path = `${where}.${name}`
-      if ('label' in field) add(`${path}.label`, field.label)
+      if ('label' in field && field.label) add(`${path}.label`, field.label)
+      else if ('name' in field) add(`${path}.name`, field.name)
       const admin = 'admin' in field ? field.admin : undefined
       if (admin && 'description' in admin) add(`${path}.description`, admin.description)
       if (field.type === 'select' || field.type === 'radio')
@@ -186,7 +187,7 @@ describe('plain language', () => {
         if ('fields' in field && Array.isArray(field.fields)) check(path, field.fields)
       }
     }
-    for (const slug of domainCollections) check(slug, find(slug).fields)
+    for (const slug of [...domainCollections, 'documents']) check(slug, find(slug).fields)
     for (const slug of ['pages', 'posts', 'header', 'footer'])
       for (const field of find(slug).fields) {
         // Page and post bodies are tabs of template blocks; their top-level fields are checked.
@@ -194,6 +195,22 @@ describe('plain language', () => {
         check(slug, [field], false)
       }
     expect(missing).toEqual([])
+  })
+
+  it('keeps the Save Draft button visible alongside autosave on pages and posts', () => {
+    for (const slug of ['pages', 'posts'] as const) {
+      const entity = find(slug) as Entity & {
+        versions?: { drafts?: { autosave?: { showSaveDraftButton?: boolean } } }
+      }
+      expect(entity.versions?.drafts?.autosave?.showSaveDraftButton, slug).toBe(true)
+    }
+  })
+
+  it('registers the how-to view as an exact route', () => {
+    const howTo = resolved.admin?.components?.views?.howTo as
+      | { path?: string; exact?: boolean }
+      | undefined
+    expect(howTo).toMatchObject({ path: '/how-to', exact: true })
   })
 })
 
@@ -249,4 +266,23 @@ describe('editors cannot publish through the server', () => {
       expect(row._status).toBe('draft')
       expect((await patch(fixtures.tokens.publisher)).status).toBe(200)
     })
+
+  it('refuses form-submissions reads and deletes from roles below super_admin', async () => {
+    for (const role of ['editor', 'publisher', 'admin'] as const) {
+      const res = await handleEndpoints({
+        config,
+        request: new Request('http://127.0.0.1:3003/api/form-submissions', {
+          headers: { Authorization: `JWT ${fixtures.tokens[role]}` },
+        }),
+      })
+      expect(res.status, `${role} GET`).toBe(403)
+    }
+    const allowed = await handleEndpoints({
+      config,
+      request: new Request('http://127.0.0.1:3003/api/form-submissions', {
+        headers: { Authorization: `JWT ${fixtures.tokens.super_admin}` },
+      }),
+    })
+    expect(allowed.status).toBe(200)
+  })
 })

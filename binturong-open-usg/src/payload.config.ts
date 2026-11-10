@@ -38,7 +38,7 @@ export default buildConfig({
       beforeLogin: ['@/components/BeforeLogin'],
       views: {
         dashboard: { Component: '@/admin/dashboard' },
-        howTo: { Component: '@/admin/howTo', path: '/how-to' },
+        howTo: { Component: '@/admin/howTo', path: '/how-to', exact: true },
       },
     },
     importMap: {

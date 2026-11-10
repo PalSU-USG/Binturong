@@ -62,10 +62,6 @@ export const Documents: CollectionConfig = {
       admin: { description: 'Ready means the file can be attached. Failed means upload it again.' },
     },
     { name: 'storageKey', type: 'text', ...internalOnlyField },
-    { name: 'originalFilename', type: 'text' },
-    { name: 'mimeType', type: 'text' },
-    { name: 'size', type: 'number' },
-    { name: 'sha256', type: 'text' },
     {
       name: 'previousVersion',
       type: 'relationship',
@@ -80,15 +76,60 @@ export const Documents: CollectionConfig = {
     { name: 'stagingKey', type: 'text', ...internalOnlyField },
     { name: 'uploadExpiresAt', type: 'date', ...internalOnlyField },
     {
-      name: 'verifiedAt',
-      type: 'date',
-      access: {
-        create: denyFieldAccess,
-        update: denyFieldAccess,
-      },
-      admin: {
-        readOnly: true,
-      },
+      type: 'collapsible',
+      label: 'File details',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          name: 'originalFilename',
+          type: 'text',
+          label: 'Original file name',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically from the uploaded PDF.',
+          },
+        },
+        {
+          name: 'mimeType',
+          type: 'text',
+          label: 'File format',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically when the PDF is checked.',
+          },
+        },
+        {
+          name: 'size',
+          type: 'number',
+          label: 'File size in bytes',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically when the PDF is checked.',
+          },
+        },
+        {
+          name: 'sha256',
+          type: 'text',
+          label: 'File fingerprint',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically so the PDF cannot be altered.',
+          },
+        },
+        {
+          name: 'verifiedAt',
+          type: 'date',
+          label: 'Checked on',
+          access: {
+            create: denyFieldAccess,
+            update: denyFieldAccess,
+          },
+          admin: {
+            readOnly: true,
+            description: 'Date and time the PDF passed its check.',
+          },
+        },
+      ],
     },
   ],
   hooks: {

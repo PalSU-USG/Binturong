@@ -91,8 +91,8 @@ test.describe('admin usability', () => {
       ).toBeVisible()
       await expect(page.getByRole('button', { name: /Publish/ })).toHaveCount(0)
       await expect(page.getByRole('button', { name: /Schedule/ })).toHaveCount(0)
+      await expect(page.getByRole('button', { name: 'Save draft' })).toBeVisible()
 
-      // Posts autosave drafts, so there is no separate save button to press for an editor.
       const autosaved = page.waitForResponse(
         (response) =>
           response.url().includes('/api/posts') &&
@@ -132,12 +132,21 @@ test.describe('admin usability', () => {
   })
 
   test('the how-to page is readable and keyboard reachable', async ({ browser }) => {
+    const anonContext = await browser.newContext()
+    try {
+      const anonPage = await anonContext.newPage()
+      await anonPage.goto('/admin/how-to')
+      await expect(anonPage).toHaveURL(/\/admin\/login/)
+    } finally {
+      await anonContext.close()
+    }
     const { page, context } = await as(browser, 'editor')
     try {
       await page.getByRole('link', { name: /How do I/ }).focus()
       await page.keyboard.press('Enter')
       await expect(page).toHaveURL(/\/admin\/how-to/)
       await expect(page.getByRole('heading', { name: 'Upload a PDF' })).toBeVisible()
+      await expect(nav(page).getByText('Publish', { exact: true }).first()).toBeVisible()
     } finally {
       await context.close()
     }
@@ -153,6 +162,8 @@ test.describe('admin usability', () => {
       expect(refused.status()).toBe(403)
       const form = await page.request.post('/api/forms', { data: { title: 'Synthetic form' } })
       expect(form.status()).toBe(403)
+      const submissions = await page.request.get('/api/form-submissions')
+      expect(submissions.status()).toBe(403)
     } finally {
       await context.close()
     }

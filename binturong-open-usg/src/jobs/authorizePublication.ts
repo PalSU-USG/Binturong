@@ -162,15 +162,23 @@ export const scheduledPublication: TaskHandler<'schedulePublish'> = async ({
           _status: input.type === 'publish' ? ('published' as const) : ('draft' as const),
         }
         if ('populatedAuthors' in data) delete data.populatedAuthors
-        await req.payload.update({
-          collection: input.collection,
-          id: input.documentID,
-          data,
-          depth: 0,
-          draft: false,
-          overrideAccess: false,
-          req,
-        })
+        const { clearPreservedLastEditedBy, preserveLastEditedBy } = await import(
+          '@/fields/lastEditedBy'
+        )
+        preserveLastEditedBy(req, (reviewed.version as { lastEditedBy?: unknown }).lastEditedBy)
+        try {
+          await req.payload.update({
+            collection: input.collection,
+            id: input.documentID,
+            data,
+            depth: 0,
+            draft: false,
+            overrideAccess: false,
+            req,
+          })
+        } finally {
+          clearPreservedLastEditedBy(req)
+        }
       }
       await requireTransaction()
       const applied = await latestPublicationVersion(req, input.collection, input.documentID)

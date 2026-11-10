@@ -13,7 +13,7 @@ const context = { disableRevalidate: true }
 describe('lastEditedBy is server-owned', () => {
   let payload: Payload
   let fixtures: Awaited<ReturnType<typeof createAccessFixtures>>
-  const created: { collection: 'posts' | 'pages' | 'people'; id: number }[] = []
+  const created: { collection: 'posts' | 'pages' | 'people' | 'organizations'; id: number }[] = []
 
   beforeAll(async () => {
     payload = await getPayload({ config })
@@ -22,12 +22,15 @@ describe('lastEditedBy is server-owned', () => {
   afterAll(async () => {
     for (const record of created) {
       // Domain records are only deletable through the guarded draft path; remove below it.
-      if (record.collection === 'people') {
+      if (record.collection === 'people' || record.collection === 'organizations') {
         await payload.db.deleteVersions({
-          collection: 'people',
+          collection: record.collection,
           where: { parent: { equals: record.id } },
         })
-        await payload.db.deleteOne({ collection: 'people', where: { id: { equals: record.id } } })
+        await payload.db.deleteOne({
+          collection: record.collection,
+          where: { id: { equals: record.id } },
+        })
       } else if (await payload.findByID({ ...record, disableErrors: true }))
         await payload.delete({ ...record, context })
     }
@@ -40,7 +43,10 @@ describe('lastEditedBy is server-owned', () => {
     ...fixtures.users[role],
     collection: 'users' as const,
   })
-  const stored = async (collection: 'posts' | 'pages' | 'people', id: number) =>
+  const stored = async (
+    collection: 'posts' | 'pages' | 'people' | 'organizations',
+    id: number,
+  ) =>
     (
       (await payload.findByID({
         collection,
@@ -158,5 +164,60 @@ describe('lastEditedBy is server-owned', () => {
     expect(((await staff.json()) as { lastEditedBy?: number }).lastEditedBy).toBe(
       fixtures.users.publisher.id,
     )
+  })
+
+  it('keeps the original saver when a publisher transitions a domain record to published and back to draft', async () => {
+    const org = await payload.create({
+      collection: 'organizations',
+      user: actor('editor'),
+      overrideAccess: false,
+      draft: true,
+      data: {
+        name: `Synthetic transition ${randomUUID()}`,
+        kind: 'usg',
+      },
+    })
+    created.push({ collection: 'organizations', id: org.id })
+    expect(await stored('organizations', org.id)).toBe(fixtures.users.editor.id)
+
+    const review = async () => {
+      const res = await handleEndpoints({
+        config,
+        request: new Request(`http://127.0.0.1:3003/api/organizations/${org.id}/review`, {
+          headers: { Authorization: `JWT ${fixtures.tokens.publisher}` },
+        }),
+      })
+      expect(res.status).toBe(200)
+      return (await res.json()) as { expected: { versionID: number; versionHash: string } }
+    }
+    const pubExpected = (await review()).expected
+    const pubRes = await handleEndpoints({
+      config,
+      request: new Request(`http://127.0.0.1:3003/api/organizations/${org.id}/transition`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `JWT ${fixtures.tokens.publisher}`,
+        },
+        body: JSON.stringify({ action: 'publish', expected: pubExpected }),
+      }),
+    })
+    expect(pubRes.status).toBe(200)
+    expect(await stored('organizations', org.id)).toBe(fixtures.users.editor.id)
+
+    const witExpected = (await review()).expected
+    const witRes = await handleEndpoints({
+      config,
+      request: new Request(`http://127.0.0.1:3003/api/organizations/${org.id}/transition`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `JWT ${fixtures.tokens.publisher}`,
+        },
+        body: JSON.stringify({ action: 'withdraw', expected: witExpected }),
+      }),
+    })
+    expect(witRes.status).toBe(200)
+    expect(await stored('organizations', org.id)).toBe(fixtures.users.editor.id)
   })
 })

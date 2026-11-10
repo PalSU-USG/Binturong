@@ -121,4 +121,35 @@ describe('dashboard queries', () => {
     expect(item).toMatchObject({ collection: 'posts', action: 'Published' })
     expect(item && 'actor' in item).toBe(false)
   })
+
+  it('ignores orphan draft versions in the database query before applying the limit', async () => {
+    const mine = await post('editor', 'Survived orphans')
+    const orphanIDs: (number | string)[] = []
+    try {
+      for (let i = 0; i < 6; i++) {
+        const orphan = await payload.db.createVersion({
+          collectionSlug: 'posts',
+          parent: null as never,
+          autosave: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date(Date.now() + (i + 1) * 1000).toISOString(),
+          versionData: {
+            title: `Orphan ${i}`,
+            _status: 'draft',
+            lastEditedBy: fixtures.users.editor.id,
+          } as never,
+        })
+        orphanIDs.push(orphan.id)
+      }
+      const result = await loadDrafts(await reqFor('editor'), { mine: true })
+      if (!result.ok) throw new Error(result.error)
+      expect(result.items.map((item) => item.id)).toContain(mine.id)
+    } finally {
+      if (orphanIDs.length)
+        await payload.db.deleteVersions({
+          collection: 'posts',
+          where: { id: { in: orphanIDs } },
+        })
+    }
+  })
 })
