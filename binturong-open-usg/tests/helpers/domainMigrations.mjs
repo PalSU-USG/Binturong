@@ -40,7 +40,7 @@ if (!process.argv[3]) {
 } else {
   assert(['postgres:', 'postgresql:'].includes(target.protocol))
   assert(['127.0.0.1', 'localhost'].includes(target.hostname))
-  assert(['55322', '56322'].includes(target.port))
+  assert(['55322', '56322', '56323'].includes(target.port))
   assert.equal(target.search, '')
   assert.equal(target.hash, '')
   assert(new RegExp(`^binturong_domain_proof_${mode}_[a-f0-9]{24}$`).test(process.argv[3]))
@@ -50,6 +50,7 @@ if (!process.argv[3]) {
   const { migrations } = await import('../../src/migrations/index.ts')
   const { generatePasswordSaltHash } =
     await import('../../node_modules/payload/dist/auth/strategies/local/generatePasswordSaltHash.js')
+  const { resolveNavigation } = await import('../../src/Header/resolveNavigation.ts')
   const { authenticateLocalStrategy } =
     await import('../../node_modules/payload/dist/auth/strategies/local/authenticate.js')
   const payload = await getPayload({ config })
@@ -76,10 +77,18 @@ if (!process.argv[3]) {
     }
     return { columns: tables, rows }
   }
-  async function preserved(before) {
+  const navigationTables = [
+    'header',
+    'header_nav_items',
+    'header_rels',
+    'footer',
+    'footer_nav_items',
+    'footer_rels',
+  ]
+  async function preserved(before, ignored = []) {
     const after = await capture(before.columns)
     for (const table of Object.keys(before.rows).filter(
-      (table) => table !== 'payload_migrations',
+      (table) => table !== 'payload_migrations' && !ignored.includes(table),
     )) {
       assert.deepEqual(after.rows[table], before.rows[table], `Preserved ${table}`)
     }
@@ -90,8 +99,8 @@ if (!process.argv[3]) {
       (await pool.query('select current_database() as name')).rows[0].name,
       process.argv[3],
     )
-    assert.equal(migrations.length, 10)
-    let baseline, predecessor, userID
+    assert.equal(migrations.length, 13)
+    let baseline, predecessor, beforeDocumentSessions, beforeNavigation, userID, searchID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
       const credentials = await generatePasswordSaltHash({
@@ -114,6 +123,15 @@ if (!process.argv[3]) {
         "insert into posts_rels (parent_id,path,users_id) values ($1,'authors',$2)",
         [postID, userID],
       )
+      searchID = (
+        await pool.query(
+          "insert into search (title,slug) values ('Synthetic indexed Post','synthetic-existing-post') returning id",
+        )
+      ).rows[0].id
+      await pool.query("insert into search_rels (parent_id,path,posts_id) values ($1,'doc',$2)", [
+        searchID,
+        postID,
+      ])
       baseline = await capture()
       await payload.db.migrate({ migrations: migrations.slice(0, 8) })
       await preserved(baseline)
@@ -171,21 +189,82 @@ if (!process.argv[3]) {
         /Synthetic failure after additive DDL/,
       )
       assert.deepEqual(await capture(), predecessor)
+      await payload.db.migrate({ migrations: migrations.slice(0, 10) })
+      await preserved(predecessor)
+      beforeDocumentSessions = await capture()
+      await assert.rejects(
+        payload.db.drizzle.transaction(async (db) => {
+          await migrations[10].up({ db, payload, req })
+          throw new Error('Synthetic failure after document session DDL')
+        }),
+        /Synthetic failure after document session DDL/,
+      )
+      assert.deepEqual(await capture(), beforeDocumentSessions)
+      await payload.db.drizzle.transaction(async (db) => {
+        await migrations[10].up({ db, payload, req })
+        await migrations[10].down({ db, payload, req })
+      })
+      assert.deepEqual(await capture(), beforeDocumentSessions)
       console.info('PASS atomic additive migration rollback')
+      await payload.db.migrate({ migrations: migrations.slice(0, 12) })
+      await preserved(beforeDocumentSessions)
+      const headerID = (await pool.query('insert into header default values returning id')).rows[0]
+        .id
+      const footerID = (await pool.query('insert into footer default values returning id')).rows[0]
+        .id
+      await pool.query(
+        "insert into header_nav_items (_order,_parent_id,id,link_type,link_url,link_label,link_new_tab) values (1,$1,'legacy-leaf','custom','/legacy-leaf','Legacy leaf',false),(2,$1,'legacy-ref','reference','/stale-stored-url','Legacy ref',true),(3,$1,'legacy-unsafe','custom','javascript:alert(1)','Legacy unsafe',false)",
+        [headerID],
+      )
+      const navPostID = (
+        await pool.query("select id from posts where slug='synthetic-existing-post'")
+      ).rows[0].id
+      await pool.query(
+        'insert into header_rels (parent_id,path,posts_id,"order") values ($1,\'navItems.1.link.reference\',$2,1)',
+        [headerID, navPostID],
+      )
+      await pool.query(
+        "insert into footer_nav_items (_order,_parent_id,id,link_type,link_url,link_label) values (1,$1,'footer-leaf','custom','/footer-leaf','Footer leaf')",
+        [footerID],
+      )
+      beforeNavigation = await capture()
+      await assert.rejects(
+        payload.db.drizzle.transaction(async (db) => {
+          await migrations[12].up({ db, payload, req })
+          throw new Error('Synthetic failure after navigation DDL')
+        }),
+        /Synthetic failure after navigation DDL/,
+      )
+      assert.deepEqual(await capture(), beforeNavigation)
+      console.info('PASS atomic navigation migration rollback with populated Header rows')
     }
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 10)
+    assert.equal(history.length, 13)
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
       history,
     )
-    console.info('PASS ten migrations and repeat no-op')
+    console.info('PASS thirteen migrations and repeat no-op')
     if (predecessor) {
-      await preserved(baseline)
-      await preserved(predecessor)
+      await preserved(baseline, navigationTables)
+      await preserved(predecessor, navigationTables)
+      await preserved(beforeDocumentSessions, navigationTables)
+      await preserved(beforeNavigation)
       assert.deepEqual(history.slice(0, 9), predecessor.rows.payload_migrations)
+      assert.deepEqual(history.slice(0, 10), beforeDocumentSessions.rows.payload_migrations)
+      assert.deepEqual(history.slice(0, 12), beforeNavigation.rows.payload_migrations)
+      const sealedDoc = (
+        await pool.query(
+          "select state, verified_at, upload_request_id from documents where title='Synthetic sealed file'",
+        )
+      ).rows[0]
+      assert.deepEqual(sealedDoc, {
+        state: 'pending',
+        verified_at: null,
+        upload_request_id: null,
+      })
       const user = (await pool.query('select * from users where id=$1', [userID])).rows[0]
       assert.equal(user.role, 'editor')
       assert(
@@ -199,8 +278,85 @@ if (!process.argv[3]) {
         (await pool.query('select version_title from _issuances_v')).rows[0].version_title,
         'Synthetic retained history',
       )
+      const indexed = (
+        await pool.query(
+          'select identifier,identifier_key,summary,published_at,sort_at=created_at as ordered from search where id=$1',
+          [searchID],
+        )
+      ).rows[0]
+      assert.deepEqual(indexed, {
+        identifier: null,
+        identifier_key: null,
+        summary: null,
+        published_at: null,
+        ordered: true,
+      })
+      console.info('PASS search rows survive additive index fields')
       console.info('PASS credentials, IDs, relationships, URLs and retained history')
+      const stored = (
+        await pool.query(
+          'select id,_order,link_type,link_url,link_label,link_new_tab,section from header_nav_items order by _order',
+        )
+      ).rows
+      assert.deepEqual(
+        stored.map(({ id, section }) => [id, section]),
+        [
+          ['legacy-leaf', null],
+          ['legacy-ref', null],
+          ['legacy-unsafe', null],
+        ],
+      )
+      assert.equal(stored[2].link_url, 'javascript:alert(1)')
+      assert.equal(
+        (await pool.query('select count(*)::int as n from header_nav_items_children')).rows[0].n,
+        0,
+      )
+      const global = await payload.findGlobal({ slug: 'header', depth: 1, overrideAccess: false })
+      assert.deepEqual(
+        resolveNavigation(global).map(({ id, href, newTab }) => [id, href, newTab]),
+        [
+          ['legacy-leaf', '/legacy-leaf', false],
+          ['legacy-ref', '/posts/synthetic-existing-post', true],
+        ],
+      )
+      console.info('PASS legacy Header rows keep IDs, order, stored strings and resolved URLs')
     }
+    const authored = await payload.updateGlobal({
+      slug: 'header',
+      overrideAccess: true,
+      context: { disableRevalidate: true },
+      data: {
+        navItems: [
+          {
+            section: 'government',
+            link: { type: 'custom', label: 'Government', url: '/government' },
+            children: [{ link: { type: 'custom', label: 'Offices', url: '/offices' } }],
+          },
+        ],
+      },
+    })
+    assert.equal(authored.navItems[0].children[0].link.url, '/offices')
+    await assert.rejects(
+      pool.query(
+        "insert into header_nav_items (_order,_parent_id,id,section) values (9,$1,'bad','nonsense')",
+        [authored.id],
+      ),
+      { code: '22P02' },
+    )
+    const rollback = () =>
+      payload.db.drizzle.transaction(async (db) => {
+        await migrations[12].down({ db, payload, req: await createLocalReq({}, payload) })
+      })
+    await assert.rejects(rollback(), /Refusing to drop authored Header section data/)
+    await pool.query('delete from header_nav_items_children')
+    await assert.rejects(rollback(), /Refusing to drop authored Header section data/)
+    console.info('PASS rollback refuses authored section data')
+    await pool.query('delete from header_nav_items')
+    assert.equal(
+      (await pool.query('select count(*)::int as n from header_nav_items_children')).rows[0].n,
+      0,
+    )
+    console.info('PASS authored section links, enum constraint and cascade')
     const orgID = (
       await pool.query(
         "insert into organizations (name,slug,kind) values ('Synthetic constraint source','synthetic-constraint-source','usg') returning id",
@@ -228,6 +384,17 @@ if (!process.argv[3]) {
         "insert into offices (name,organization_id) values ('Synthetic missing source',2147483647)",
       ),
       { code: '23503' },
+    )
+    await pool.query(
+      "insert into documents (title,organization_id,state,upload_request_id) values ('Synthetic session 1',$1,'pending','1:00000000-0000-4000-8000-000000000001')",
+      [orgID],
+    )
+    await assert.rejects(
+      pool.query(
+        "insert into documents (title,organization_id,state,upload_request_id) values ('Synthetic duplicate session',$1,'pending','1:00000000-0000-4000-8000-000000000001')",
+        [orgID],
+      ),
+      { code: '23505' },
     )
     const tables = (
       await pool.query(

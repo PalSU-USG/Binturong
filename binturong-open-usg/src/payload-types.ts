@@ -973,6 +973,12 @@ export interface Document {
   size?: number | null;
   sha256?: string | null;
   previousVersion?: (number | null) | Document;
+  uploadActor?: number | null;
+  uploadRequestId?: string | null;
+  uploadRequestHash?: string | null;
+  stagingKey?: string | null;
+  uploadExpiresAt?: string | null;
+  verifiedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1172,10 +1178,24 @@ export interface Search {
   id: number;
   title?: string | null;
   priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: number | Post;
-  };
+  doc:
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      }
+    | {
+        relationTo: 'issuances';
+        value: number | Issuance;
+      }
+    | {
+        relationTo: 'reports';
+        value: number | Report;
+      };
+  identifier?: string | null;
+  identifierKey?: string | null;
+  summary?: string | null;
+  publishedAt?: string | null;
+  sortAt?: string | null;
   slug?: string | null;
   meta?: {
     title?: string | null;
@@ -1886,6 +1906,12 @@ export interface DocumentsSelect<T extends boolean = true> {
   size?: T;
   sha256?: T;
   previousVersion?: T;
+  uploadActor?: T;
+  uploadRequestId?: T;
+  uploadRequestHash?: T;
+  stagingKey?: T;
+  uploadExpiresAt?: T;
+  verifiedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2135,6 +2161,11 @@ export interface SearchSelect<T extends boolean = true> {
   title?: T;
   priority?: T;
   doc?: T;
+  identifier?: T;
+  identifierKey?: T;
+  summary?: T;
+  publishedAt?: T;
+  sortAt?: T;
   slug?: T;
   meta?:
     | T
@@ -2260,6 +2291,33 @@ export interface Header {
           url?: string | null;
           label: string;
         };
+        /**
+         * Optional section identity used for orientation. Each section may be used once; it does not depend on the label.
+         */
+        section?: ('home' | 'updates' | 'services' | 'government' | 'transparency' | 'archives' | 'contact') | null;
+        /**
+         * One level of links shown under this destination.
+         */
+        children?:
+          | {
+              link: {
+                type?: ('reference' | 'custom') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null);
+                url?: string | null;
+                label: string;
+              };
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -2311,6 +2369,21 @@ export interface HeaderSelect<T extends boolean = true> {
               reference?: T;
               url?: T;
               label?: T;
+            };
+        section?: T;
+        children?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
             };
         id?: T;
       };

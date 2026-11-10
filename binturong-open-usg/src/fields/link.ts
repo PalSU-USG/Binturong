@@ -1,6 +1,7 @@
 import type { Field, GroupField } from 'payload'
 
 import deepMerge from '@/utilities/deepMerge'
+import { safeUrl } from '@/utilities/safeUrl'
 
 export type LinkAppearances = 'default' | 'outline'
 
@@ -86,6 +87,10 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       },
       label: 'Custom URL',
       required: true,
+      validate: (value: string | null | undefined) =>
+        safeUrl(value)
+          ? true
+          : 'Enter a site-relative path (starting with /) or an https, http, mailto or tel URL.',
     },
   ]
 
@@ -110,6 +115,7 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
           },
           label: 'Label',
           required: true,
+          validate: (value: string | null | undefined) => (value?.trim() ? true : 'Enter a label.'),
         },
       ],
     })
