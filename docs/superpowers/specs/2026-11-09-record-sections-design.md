@@ -242,6 +242,10 @@ Deviations from the text above, all within the owner decisions:
   the row is still listed without the shortcut and the failure is logged.
 - Search: Issuances and Reports are now `live` in `searchTargets.ts`.
 
+- **Rich text links.** Summaries, abstracts and descriptions are read at depth 0, so internal links are resolved through a published-only read (posts, pages, issuances, reports, activities) into plain canonical links; any other target, and unsafe custom URLs, render as plain text.
+- **Holders.** A term with a start date and no end date ends at its academic year's end date when that is set; otherwise it stays open-ended. "Today" is the Asia/Manila calendar day.
+- Browsing depth stops at page 50: the Next link is hidden there and an over-range page shows the last page.
+
 Publishers must link the new sections in the Header global (Archives, Transparency, Government
 and their children, using these paths). No Header data was changed by this slice, and a
 section only gains orientation (breadcrumbs, section index) once its Header row carries the
