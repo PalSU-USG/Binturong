@@ -22,7 +22,8 @@ const day = (value: string | null | undefined): number | null => {
 
 /**
  * "Current" comes only from supplied dates: the term's own, else its academic year's. A start
- * date alone means "since", running to the academic year's end date when it has one; an end date\n * alone means "until" (inclusive of that day). With no usable
+ * date alone means "since", running to the academic year's end date when it has one; an end date
+ * alone means "until" (inclusive of that day). With no usable
  * date a holder is never current. Past terms are kept.
  */
 export function resolveHolders(terms: TermInput[], now: Date): Holder[] {

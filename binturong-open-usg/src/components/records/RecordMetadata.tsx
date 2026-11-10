@@ -2,7 +2,7 @@ import React from 'react'
 
 import { formatLongDate } from './format'
 
-/** A  ime element, or null when the date is missing or unreadable so the row is omitted. */
+/** A <time> element, or null when the date is missing or unreadable so the row is omitted. */
 export const dateNode = (value: string | null | undefined) =>
   formatLongDate(value) ? <DateValue value={value} /> : null
 

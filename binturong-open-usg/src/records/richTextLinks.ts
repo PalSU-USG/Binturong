@@ -28,6 +28,10 @@ type Node = {
 }
 
 const isLink = (node: Node) => node.type === 'link' || node.type === 'autolink'
+const kids = (node: Node): Node[] | undefined =>
+  Array.isArray(node.children)
+    ? node.children.filter((child): child is Node => !!child && typeof child === 'object')
+    : undefined
 const idOf = (value: unknown): number | null => {
   const id = value && typeof value === 'object' ? (value as { id?: unknown }).id : value
   return typeof id === 'number' && Number.isSafeInteger(id) && id > 0 ? id : null
@@ -40,11 +44,11 @@ function collect(node: Node, refs: Map<string, Set<number>>) {
     if (relationTo && id && Object.hasOwn(targets, relationTo))
       (refs.get(relationTo) ?? refs.set(relationTo, new Set()).get(relationTo)!).add(id)
   }
-  node.children?.forEach((child) => collect(child, refs))
+  kids(node)?.forEach((child) => collect(child, refs))
 }
 
 function rewrite(node: Node, paths: Map<string, string>): Node[] {
-  const children = node.children?.flatMap((child) => rewrite(child, paths))
+  const children = kids(node)?.flatMap((child) => rewrite(child, paths))
   const next = children ? { ...node, children } : node
   if (!isLink(node)) return [next]
   const fields = node.fields ?? {}
