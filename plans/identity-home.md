@@ -28,3 +28,16 @@ Next action: coordinator's independent review, then integration through the inte
 - Full browser suite: 55 passed. Production-cache suite: 3 passed. `npm run build`: succeeded.
 - `tsc --noEmit --incremental false`: clean. Changed-file eslint: clean. Full lint: 5 errors / 12 warnings (baseline 5 / 14).
 - Browser tests written after the implementation (int tests were RED first); `frontend.e2e` title/h1 expectation updated.
+
+## Review fixes (P2/P3), commits `53f9006` and `0fd4287`
+
+Header reference links resolve (Header read at depth 1; published Page shown, draft Page hidden), `--color-link` and
+`--color-status-*` mapped in `@theme` with a guard test, publish instants shown in Asia/Manila (date-only values as
+stored, `instant` flag on entries), posts titles and `generateTitle` use `siteName` with no double suffix (stored
+`meta.title` values written earlier keep their old suffix until re-saved), root error boundary neutral with
+`router.refresh()` + `reset()` in `startTransition`, `/` always in the pages sitemap (stored `home` Page no longer
+listed), future-dated posts excluded from Latest updates, noon-UTC date-only comment and fixture, layout newline.
+`/home` and `homeStatic` untouched. Left: P3 #6, #10, #11.
+
+Re-run results: full int suite 42 files / 526 passed; full browser suite 55 passed; production-cache 3 passed;
+`npm run build` succeeded; tsc clean; changed-file eslint clean; full lint 5 errors / 12 warnings (baseline 5 / 14).
