@@ -25,8 +25,8 @@ export async function Footer() {
     <footer className="site-footer mt-auto border-t-4 border-accent-gold bg-brand-deep text-on-brand">
       <div className="container flex flex-col gap-8 py-8 md:flex-row md:justify-between">
         <Wordmark />
-        {navItems.length > 0 && (
-          <nav aria-label="Footer">
+        <nav aria-label="Footer">
+          {navItems.length > 0 && (
             <ul className="m-0 flex list-none flex-col gap-x-8 p-0 md:flex-row md:flex-wrap md:justify-end">
               {navItems.map(({ link }, i) => (
                 <li key={i}>
@@ -37,8 +37,8 @@ export async function Footer() {
                 </li>
               ))}
             </ul>
-          </nav>
-        )}
+          )}
+        </nav>
       </div>
       <div className="border-t border-on-brand/30">
         <div className="container flex flex-col gap-2 py-3 text-[length:var(--text-meta)] sm:flex-row sm:items-center sm:justify-between">

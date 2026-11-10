@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import { League_Spartan } from 'next/font/google'
+import localFont from 'next/font/local'
 import React from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
@@ -17,10 +17,11 @@ import { draftMode } from 'next/headers'
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
-// Project Akademya's display face (SIL OFL), self-hosted at build time by next/font.
-const leagueSpartan = League_Spartan({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
+// Project Akademya's display face, League Spartan (SIL OFL), vendored as the latin variable-weight
+// subset (@fontsource-variable/league-spartan) so builds do not depend on the network.
+const leagueSpartan = localFont({
+  src: './fonts/LeagueSpartan-latin-variable.woff2',
+  weight: '100 900',
   variable: '--font-league-spartan',
   display: 'swap',
 })
