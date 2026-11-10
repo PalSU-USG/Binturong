@@ -13,6 +13,7 @@ type Slug =
   | 'activities'
   | 'people'
   | 'posts'
+  | 'categories'
 type Status = 'published' | 'draft'
 type Data = Record<string, unknown>
 
@@ -203,17 +204,35 @@ export function createRecordSectionFixtures(payload: Payload) {
     return { id, title, slug: await slugOf('activities', id) }
   }
 
-  const post = async (o: { title?: string; status?: Status } = {}) => {
+  const post = async (
+    o: { title?: string; status?: Status; publishedAt?: string | null; categories?: number[] } = {},
+  ) => {
     const title = o.title ?? `Synthetic post ${randomUUID().slice(0, 6)}`
     const id = await make('posts', {
       title,
       slug: slug('post'),
       _status: o.status ?? 'published',
-      publishedAt: new Date().toISOString(),
+      publishedAt: o.publishedAt === undefined ? new Date().toISOString() : o.publishedAt,
     })
+    // Relationship rows need the real join table.
+    if (o.categories?.length)
+      await payload.db.updateOne({
+        collection: 'posts',
+        where: { id: { equals: id } },
+        data: { categories: o.categories },
+      })
     return { id, title, slug: await slugOf('posts', id) }
   }
 
+  /** The category with this slug, created only when absent; only a created one is removed. */
+  const category = async (title: string, categorySlug: string) => {
+    const existing = await payload.db.findOne({
+      collection: 'categories',
+      where: { slug: { equals: categorySlug } },
+    })
+    if (existing) return Number((existing as { id: number }).id)
+    return make('categories', { title, slug: categorySlug })
+  }
   const person = async (o: {
     name?: string
     status?: Status
@@ -245,6 +264,7 @@ export function createRecordSectionFixtures(payload: Payload) {
   return {
     tag,
     post,
+    category,
     org,
     office,
     year,
