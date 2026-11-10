@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { getServerSideURL } from './getURL'
 
 export const siteName = 'Palawan State University / University Student Government'
 export const siteDescription = 'Official information, student services and institutional records.'
