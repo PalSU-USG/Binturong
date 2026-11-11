@@ -363,6 +363,11 @@ html[data-theme='light'] {
   .site-nav-group > summary {
     grid-column: 2;
   }
+  /* Submenu arrows read as part of their label, not as boxed buttons; the focus ring still shows. */
+  .site-nav-group-toggle {
+    border-color: transparent;
+    padding-inline: 0.25rem;
+  }
   .site-nav-children {
     grid-column: 1 / -1;
     padding-left: 1rem;
