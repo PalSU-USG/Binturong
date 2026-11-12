@@ -1,18 +1,25 @@
 import { draftMode } from 'next/headers'
 import React from 'react'
 
-import { Breadcrumbs, type Crumb } from '@/components/Breadcrumbs'
+import type { Crumb } from '@/components/Breadcrumbs'
+import { PageHeader } from '@/components/PageHeader'
 import { SectionIndex } from '@/components/SectionIndex'
 import { findSection, resolveNavigation, type NavItem } from '@/Header/resolveNavigation'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 
-/** Adds orientation around content. A failed or empty navigation read never blocks the content. */
+/**
+ * Adds orientation around content: the identity band (breadcrumb and the page's one h1) and the
+ * section side nav. A failed or empty navigation read never blocks the content.
+ */
 export async function SectionLayout({
   section,
   fallback,
   trail,
   currentPath,
   currentLabel,
+  title,
+  eyebrow,
+  intro,
   children,
 }: {
   section: NavItem['section']
@@ -22,6 +29,10 @@ export async function SectionLayout({
   trail: Crumb[]
   currentPath: string
   currentLabel?: string
+  /** The page's only h1, shown in the identity band. */
+  title: string
+  eyebrow?: React.ReactNode
+  intro?: React.ReactNode
   children: React.ReactNode
 }) {
   const { isEnabled: review } = await draftMode()
@@ -47,16 +58,17 @@ export async function SectionLayout({
   )
   return (
     <>
-      <div className="container">
-        <Breadcrumbs
-          items={[
-            { label: 'Home', href: '/' },
-            found ? { label: found.label, href: found.href ?? undefined } : fallback,
-            ...trail,
-          ]}
-        />
-      </div>
-      <div className={index ? 'container site-section-layout' : undefined}>
+      <PageHeader
+        crumbs={[
+          { label: 'Home', href: '/' },
+          found ? { label: found.label, href: found.href ?? undefined } : fallback,
+          ...trail,
+        ]}
+        eyebrow={eyebrow}
+        intro={intro}
+        title={title}
+      />
+      <div className="container site-section-layout">
         {index}
         <div className="site-section-content">{children}</div>
       </div>

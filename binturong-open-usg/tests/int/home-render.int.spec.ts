@@ -148,7 +148,7 @@ describe('front page', () => {
     const updates = out.slice(out.indexOf('id="home-updates"'), out.indexOf('id="home-services"'))
     expect(updates).toContain('Announcement')
     expect(updates).toContain('Memorandum')
-    expect(updates).toMatch(/Read<span class="sr-only">: Consultation schedule<\/span>/)
+    expect(updates).toMatch(/Read update<span class="sr-only">: Consultation schedule<\/span>/)
     expect(updates).toMatch(/Record<span class="sr-only">: Memo No\. 17<\/span>/)
     expect(updates).toMatch(/href="\/api\/documents\/9\/file"[^>]*>PDF/)
     // A post has no PDF action.

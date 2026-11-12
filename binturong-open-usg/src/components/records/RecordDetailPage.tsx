@@ -61,7 +61,10 @@ export async function RecordDetailPage({
           ? { label: 'Archives', href: '/archives' }
           : { label: 'Transparency', href: '/transparency' }
       }
+      eyebrow={record.typeLabel}
+      intro={record.identifier || undefined}
       section={isIssuance ? 'archives' : 'transparency'}
+      title={record.title}
       trail={[...(isIssuance ? [] : [reportsPage]), { label: record.title }]}
     >
       <RecordDetail facts={facts} record={record} />

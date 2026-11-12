@@ -157,6 +157,7 @@
   }
   body {
     @apply bg-background text-foreground min-h-[100vh] flex flex-col;
+    line-height: 1.65;
   }
   /* One visible keyboard focus indicator, at least 3:1 against the page (see tokens.css). */
   a:focus-visible,
@@ -227,6 +228,7 @@ html[data-theme='light'] {
     padding-block: 0.75rem;
   }
   .site-navband {
+    padding-block: var(--space-1);
     background: var(--brand-deep);
     border-top: 1px solid var(--accent-gold);
   }
@@ -313,15 +315,48 @@ html[data-theme='light'] {
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
-    padding-inline: 0.5rem;
+    padding-inline: var(--space-3);
     overflow-wrap: anywhere;
     font-family: var(--font-heading);
     font-weight: 500;
     color: var(--nav-fg, var(--foreground));
     text-underline-offset: 0.25em;
   }
-  a.site-nav-link:hover {
+  .site-nav-link,
+  .site-nav-toggle {
+    transition:
+      background-color 200ms ease-out,
+      color 200ms ease-out;
+  }
+  a.site-nav-link:hover,
+  .site-nav-toggle:hover {
+    background-color: color-mix(in srgb, var(--on-brand) 14%, transparent);
     text-decoration: underline;
+  }
+  .site-nav-link {
+    border-radius: 0.25rem;
+  }
+  /* Panels ease in with opacity and a small slide; no motion when the user asks for none. */
+  @media (prefers-reduced-motion: no-preference) {
+    .site-nav-group[open] > .site-nav-children {
+      animation: site-nav-in 200ms ease-out;
+    }
+    @supports selector(::details-content) {
+      @media (min-width: 64rem) {
+        .site-nav-group::details-content {
+          opacity: 0;
+          transition:
+            opacity 200ms ease-out,
+            content-visibility 200ms allow-discrete;
+        }
+        .site-nav-group[open]::details-content {
+          opacity: 1;
+        }
+      }
+    }
+    .site-page-header-body {
+      animation: site-rise 320ms ease-out;
+    }
   }
   a.site-nav-link[aria-current='page'] {
     font-weight: 700;
@@ -399,7 +434,7 @@ html[data-theme='light'] {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 0.25rem;
+        gap: var(--space-2);
       }
       .site-nav-item {
         position: relative;
@@ -410,14 +445,22 @@ html[data-theme='light'] {
         top: 100%;
         left: 0;
         z-index: 30;
-        min-width: 14rem;
-        padding: 0.5rem;
-        background: var(--background);
-        border: 1px solid var(--muted-foreground);
-        border-radius: 0.375rem;
-        /* The floating panel is a light surface: restore dark text and ring on it. */
-        --nav-fg: var(--foreground);
-        --nav-ring: var(--focus-ring);
+        min-width: 15rem;
+        margin-top: var(--space-2);
+        padding: var(--space-2);
+        /* A PalSU surface: rust with a gold top accent, on-brand text, soft shadow. */
+        background: var(--brand);
+        border-top: 3px solid var(--accent-gold);
+        border-radius: 0 0 0.5rem 0.5rem;
+        box-shadow: var(--shadow-overlay);
+      }
+      .site-nav-children .site-nav-link {
+        width: 100%;
+        padding-inline: var(--space-3);
+        border-radius: 0.25rem;
+      }
+      .site-nav-children li + li {
+        margin-top: var(--space-1);
       }
       /* Set by the navigation script when a menu would leave the viewport. */
       .site-nav-group[data-align='end'] > .site-nav-children {
@@ -425,6 +468,19 @@ html[data-theme='light'] {
         right: 0;
       }
     }
+  }
+}
+
+@keyframes site-nav-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+@keyframes site-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
   }
 }
 
@@ -467,33 +523,147 @@ html[data-theme='light'] {
     min-width: 0;
     flex: 1 1 auto;
   }
+  /* The Akademya list panel: a rust column with on-brand text, gold rule under its title. */
   .site-section-index {
     flex: 0 0 auto;
-    padding-top: 1rem;
+    margin-top: var(--space-6);
+    padding: var(--space-4);
+    background: var(--brand-deep);
+    color: var(--on-brand);
+    border-radius: 0.25rem;
   }
   .site-section-index-title {
     margin: 0 0 0.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent-gold);
+    font-family: var(--font-heading);
+    font-size: var(--text-label);
     font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
   .site-section-index ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
+  .site-section-index li + li {
+    border-top: 1px solid color-mix(in srgb, var(--on-brand) 22%, transparent);
+  }
   .site-section-index a,
   .site-section-index span[aria-current] {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     min-height: 2.75rem;
+    padding-inline: 0.75rem;
+    border-left: 4px solid transparent;
     overflow-wrap: anywhere;
   }
+  .site-section-index a {
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 200ms ease-out;
+  }
+  .site-section-index a:hover {
+    background: color-mix(in srgb, var(--on-brand) 14%, transparent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  /* Current page: gold bar, weight and tint together, never colour alone. */
   .site-section-index a[aria-current='page'],
   .site-section-index span[aria-current='page'] {
+    border-left-color: var(--notice);
+    background: color-mix(in srgb, var(--on-brand) 14%, transparent);
     font-weight: 700;
-    text-decoration: underline;
   }
   .site-section-index a:focus-visible {
-    outline: 3px solid var(--foreground);
+    outline: 3px solid var(--on-brand);
+    outline-offset: -3px;
+  }
+  /* Identity band on the PalSU rust. */
+  .site-page-header {
+    background: var(--brand-deep);
+    color: var(--on-brand);
+    border-bottom: 4px solid var(--accent-gold);
+  }
+  .site-page-header .site-breadcrumbs li + li::before {
+    color: var(--on-brand);
+  }
+  .site-page-header a:focus-visible {
+    outline: 3px solid var(--on-brand);
+    outline-offset: 2px;
+  }
+  .site-page-header-body {
+    padding-block: 0.5rem 1.75rem;
+    max-width: 52rem;
+  }
+  .site-page-header-eyebrow {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-heading);
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+  .site-page-header-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-page-title);
+    font-weight: 600;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .site-page-header-intro {
+    margin: 0.75rem 0 0;
+    font-size: 1.125rem;
+    overflow-wrap: anywhere;
+  }
+  /* Destination rows: editorial, thin dividers, one link per row. */
+  .site-destinations {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 2px solid var(--brand);
+  }
+  .site-destinations li + li {
+    border-top: 1px solid var(--border);
+  }
+  .site-destination {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    min-height: 2.75rem;
+    padding-block: 1rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  .site-destination-title {
+    color: var(--link);
+    font-family: var(--font-heading);
+    font-size: var(--text-record-title);
+    font-weight: 600;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .site-destination-text {
+    grid-column: 1;
+    color: var(--muted-foreground);
+    font-size: var(--text-meta);
+  }
+  .site-destination-arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    color: var(--link);
+    font-size: 1.5rem;
+  }
+  .site-destination:hover .site-destination-title {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .site-destination:focus-visible {
+    outline: 3px solid var(--focus-ring);
     outline-offset: 2px;
   }
   @media (min-width: 64rem) {

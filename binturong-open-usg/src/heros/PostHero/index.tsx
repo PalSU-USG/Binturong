@@ -6,68 +6,52 @@ import type { Post } from '@/payload-types'
 import { Media } from '@/components/Media'
 import { formatAuthors } from '@/utilities/formatAuthors'
 
+/** Category titles for the identity band's eyebrow; null when the post has none. */
+export function postCategoryLabel(post: Post): string | null {
+  const titles = (post.categories ?? []).flatMap((category) =>
+    typeof category === 'object' && category !== null
+      ? [category.title || 'Untitled category']
+      : [],
+  )
+  return titles.length ? titles.join(', ') : null
+}
+
+/** Byline and hero image under the page band; the title itself lives in the band's h1. */
 export const PostHero: React.FC<{
   post: Post
 }> = ({ post }) => {
-  const { categories, heroImage, populatedAuthors, publishedAt, title } = post
+  const { heroImage, populatedAuthors, publishedAt } = post
 
   const hasAuthors =
     populatedAuthors && populatedAuthors.length > 0 && formatAuthors(populatedAuthors) !== ''
 
   return (
-    <div className="relative -mt-[10.4rem] flex items-end">
-      <div className="container z-10 relative lg:grid lg:grid-cols-[1fr_48rem_1fr] text-white pb-8">
-        <div className="col-start-1 col-span-1 md:col-start-2 md:col-span-2">
-          <div className="uppercase text-sm mb-6">
-            {categories?.map((category, index) => {
-              if (typeof category === 'object' && category !== null) {
-                const { title: categoryTitle } = category
-
-                const titleToUse = categoryTitle || 'Untitled category'
-
-                const isLast = index === categories.length - 1
-
-                return (
-                  <React.Fragment key={index}>
-                    {titleToUse}
-                    {!isLast && <React.Fragment>, &nbsp;</React.Fragment>}
-                  </React.Fragment>
-                )
-              }
-              return null
-            })}
-          </div>
-
-          <div className="">
-            <h1 className="mb-6 text-3xl md:text-5xl lg:text-6xl">{title}</h1>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4 md:gap-16">
-            {hasAuthors && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm">Author</p>
-
-                  <p>{formatAuthors(populatedAuthors)}</p>
-                </div>
-              </div>
-            )}
-            {publishedAt && (
-              <div className="flex flex-col gap-1">
-                <p className="text-sm">Date Published</p>
-
+    <div className="mx-auto max-w-[48rem]">
+      {(hasAuthors || publishedAt) && (
+        <dl className="m-0 flex flex-col gap-4 border-b border-border pb-4 md:flex-row md:gap-12">
+          {hasAuthors && (
+            <div>
+              <dt className="text-[length:var(--text-meta)] text-muted-foreground">Author</dt>
+              <dd className="m-0">{formatAuthors(populatedAuthors)}</dd>
+            </div>
+          )}
+          {publishedAt && (
+            <div>
+              <dt className="text-[length:var(--text-meta)] text-muted-foreground">
+                Date published
+              </dt>
+              <dd className="m-0">
                 <time dateTime={publishedAt}>{formatDateTime(publishedAt)}</time>
-              </div>
-            )}
-          </div>
+              </dd>
+            </div>
+          )}
+        </dl>
+      )}
+      {heroImage && typeof heroImage !== 'string' && (
+        <div className="relative mt-6 aspect-[16/9] overflow-hidden">
+          <Media fill priority imgClassName="object-cover" resource={heroImage} />
         </div>
-      </div>
-      <div className="min-h-[80vh] select-none">
-        {heroImage && typeof heroImage !== 'string' && (
-          <Media fill priority imgClassName="-z-10 object-cover" resource={heroImage} />
-        )}
-        <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-linear-to-t from-black to-transparent" />
-      </div>
+      )}
     </div>
   )
 }

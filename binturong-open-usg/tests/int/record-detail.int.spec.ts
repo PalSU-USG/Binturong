@@ -23,8 +23,27 @@ vi.mock('@/components/RichText', () => ({
   default: () => React.createElement('div', null, 'RICH-SUMMARY'),
 }))
 vi.mock('@/components/SectionLayout', () => ({
-  SectionLayout: ({ children, trail }: { children: React.ReactNode; trail: { label: string }[] }) =>
-    React.createElement('div', { 'data-trail': trail.map((t) => t.label).join('>') }, children),
+  SectionLayout: ({
+    children,
+    eyebrow,
+    intro,
+    title,
+    trail,
+  }: {
+    children: React.ReactNode
+    eyebrow?: string
+    intro?: string
+    title: string
+    trail: { label: string }[]
+  }) =>
+    React.createElement(
+      'div',
+      { 'data-trail': trail.map((t) => t.label).join('>') },
+      React.createElement('p', null, eyebrow),
+      React.createElement('p', null, intro),
+      React.createElement('h1', null, title),
+      children,
+    ),
 }))
 vi.mock('@/components/PayloadRedirects', () => ({
   PayloadRedirects: ({ url }: { url: string }) => {
@@ -78,7 +97,6 @@ describe('record detail', () => {
       facts(),
     )
     const order = [
-      '<h1',
       'Published',
       'Download PDF (1.8 MB)',
       'Summary',
@@ -90,11 +108,12 @@ describe('record detail', () => {
     expect(positions.every((p) => p >= 0)).toBe(true)
     expect([...positions].sort((a, b) => a - b)).toEqual(positions)
     expect(out.match(/Download PDF/g)).toHaveLength(1)
+    // The page's one h1 lives in the identity band (SectionLayout), not in the record body.
+    expect(out).not.toContain('<h1')
     expect(out).toContain('href="/api/documents/7/file"')
     expect(out).toContain('href="/api/documents/8/file"')
     expect(out).toContain('Version 2 (current)')
     expect(out).not.toMatch(/storageKey|ready\//)
-    expect(out).toContain('&lt;b&gt;x&lt;/b&gt;')
   })
 
   it('omits_unset_fields_instead_of_showing_placeholders', () => {
@@ -173,6 +192,7 @@ describe('record detail route', () => {
     const out = renderToStaticMarkup(
       await RecordDetailPage({ collection: 'reports', params: Promise.resolve({ slug: 'r' }) }),
     )
+    expect(out).toContain('<h1>Title &lt;b&gt;x&lt;/b&gt;</h1>')
     expect(out).toContain('data-trail="Financial reports&gt;Title')
   })
 })

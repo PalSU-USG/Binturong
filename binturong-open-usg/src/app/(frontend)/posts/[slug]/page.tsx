@@ -10,7 +10,7 @@ import RichText from '@/components/RichText'
 
 import type { Post } from '@/payload-types'
 
-import { PostHero } from '@/heros/PostHero'
+import { PostHero, postCategoryLabel } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { SectionLayout } from '@/components/SectionLayout'
@@ -59,9 +59,11 @@ export default async function Post({ params: paramsPromise }: Args) {
       trail={[{ label: post.title }]}
       currentLabel={post.title}
       currentPath={url}
+      eyebrow={postCategoryLabel(post)}
       section="updates"
+      title={post.title}
     >
-      <article className="pt-16 pb-16">
+      <article className="pt-6 pb-16">
         <PageClient />
 
         {/* Allows redirects for valid pages too */}
@@ -71,16 +73,14 @@ export default async function Post({ params: paramsPromise }: Args) {
 
         <PostHero post={post} />
 
-        <div className="flex flex-col items-center gap-4 pt-8">
-          <div className="container">
-            <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-            {post.relatedPosts && post.relatedPosts.length > 0 && (
-              <RelatedPosts
-                className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-                docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-              />
-            )}
-          </div>
+        <div className="pt-8">
+          <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
+          {post.relatedPosts && post.relatedPosts.length > 0 && (
+            <RelatedPosts
+              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
+              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+            />
+          )}
         </div>
       </article>
     </SectionLayout>
