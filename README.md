@@ -1,6 +1,6 @@
 # Binturong
 
-Binturong is the public website and content management system for the PalSU University Student Government (USG). One application serves both the public site and the staff admin.
+Binturong is the public website and content management system for the University Student Government (USG) of Palawan State University (PalSU). One application serves both the public site and the staff admin.
 
 **Status: in development. Nothing is deployed.** There is no production or staging site, and the hosted Supabase project is paused. The repository runs locally only.
 
