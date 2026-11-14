@@ -98,6 +98,10 @@ const pairs: [string, string, number][] = [
   ['--focus-ring', '--background', 3],
   ['--focus-ring', '--card', 3],
   ['--input', '--background', 3],
+  // Inner-page identity band: yellow current-item bar on the rust side-nav panel.
+  ['--notice', '--brand-deep', 3],
+  ['--foreground', '--muted', 4.5],
+  ['--primary', '--muted', 3],
   ...statuses.flatMap((s): [string, string, number][] => [
     [`--status-${s}-fg`, `--status-${s}-bg`, 4.5],
     [`--status-${s}-border`, '--background', 3],

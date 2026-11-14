@@ -9,7 +9,7 @@ const sectionTitle =
 const linkClass = 'inline-flex min-h-11 items-center text-link underline underline-offset-4'
 export const actionClass = `${linkClass} font-heading font-semibold`
 const metaClass = 'text-[length:var(--text-meta)] text-muted-foreground'
-const rowClass = 'grid gap-x-6 gap-y-1 border-t border-border py-3 first:border-t-0'
+const rowClass = 'grid gap-x-6 gap-y-1 border-t border-border py-4 first:border-t-0'
 
 const rowDate = (entry: HomeEntry) =>
   (entry.instant ? formatInstantDate : formatLongDate)(entry.date)
@@ -56,7 +56,7 @@ export function HomeSection({
   children: React.ReactNode
 }) {
   return (
-    <section aria-labelledby={id} className="pt-10">
+    <section aria-labelledby={id} className="pt-14">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 border-b-2 border-brand pb-2">
         <h2 className={sectionTitle} id={id}>
           {title}
@@ -67,7 +67,7 @@ export function HomeSection({
           </SmartLink>
         )}
       </div>
-      <div className="mt-3">{children}</div>
+      <div className="mt-4">{children}</div>
     </section>
   )
 }
@@ -139,7 +139,7 @@ export function UpdateList({ entries }: { entries: HomeEntry[] }) {
             </div>
             <p className="m-0 flex flex-wrap items-center gap-x-5">
               <SmartLink className={actionClass} href={entry.href}>
-                {entry.kind === 'record' ? 'Record' : 'Read'}
+                {entry.kind === 'record' ? 'Record' : 'Read update'}
                 <span className="sr-only">: {entry.title}</span>
                 <span aria-hidden="true">&nbsp;→</span>
               </SmartLink>

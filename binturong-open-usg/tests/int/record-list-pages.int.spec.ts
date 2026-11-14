@@ -20,8 +20,21 @@ vi.mock('next/link', () => ({
     React.createElement('a', { href, ...rest }, children),
 }))
 vi.mock('@/components/SectionLayout', () => ({
-  SectionLayout: ({ children, trail }: { children: React.ReactNode; trail: { label: string }[] }) =>
-    React.createElement('div', { 'data-trail': trail.map((t) => t.label).join('>') }, children),
+  SectionLayout: ({
+    children,
+    title,
+    trail,
+  }: {
+    children: React.ReactNode
+    title: string
+    trail: { label: string }[]
+  }) =>
+    React.createElement(
+      'div',
+      { 'data-trail': trail.map((t) => t.label).join('>') },
+      React.createElement('h1', null, title),
+      children,
+    ),
 }))
 
 import { RecordListPage } from '@/components/records/RecordListPage'

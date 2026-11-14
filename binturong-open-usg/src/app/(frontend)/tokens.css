@@ -35,12 +35,12 @@
   --brand-grey-100: oklch(92.2% 0 0deg);
   --brand-grey-500: oklch(50% 0 0deg);
   --brand-grey-600: oklch(62% 0 0deg);
-  --brand-ink-on-dark: oklch(98.5% 0 0deg);
-  --brand-paper-dark: oklch(14.5% 0 0deg);
-  --brand-grey-900: oklch(17% 0 0deg);
-  --brand-grey-800: oklch(26.9% 0 0deg);
-  --brand-grey-300: oklch(70.8% 0 0deg);
-  --brand-grey-550: oklch(55% 0 0deg);
+  --brand-ink-on-dark: oklch(97% 0.012 70deg);
+  --brand-paper-dark: oklch(19% 0.022 45deg);
+  --brand-grey-900: oklch(23% 0.026 45deg);
+  --brand-grey-800: oklch(30% 0.03 45deg);
+  --brand-grey-300: oklch(76% 0.025 60deg);
+  --brand-grey-550: oklch(58% 0.03 55deg);
 
   /* Layer 2: semantic, light */
   --background: var(--brand-paper);

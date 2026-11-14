@@ -215,3 +215,26 @@ Decisions:
    records exist). The 14-day notice rule is unchanged.
 7. `/home` redirects to `/` outside draft mode; draft mode still renders a stored `home` Page for
    live preview; the `homeStatic` template fallback is dropped for public visitors.
+
+## Design references applied (13 November 2026, inner pages)
+
+Sources checked for this pass. Patterns were adapted, not copied; no outside branding is used.
+Limits: the Figma `figma-design-to-code` guidance was not installed in this environment, so only
+`get_screenshot` was used on the Figma nodes (no generated code); BetterGov.PH returned no page
+content to the fetch tool and MYDS pages gave only the motion foundation.
+
+| Source | Pattern taken | Why |
+| --- | --- | --- |
+| Project Akademya, list/detail frames 1202:140 and 1118:11144 | Rust left list panel with white League Spartan items and a title; dark-rust content heading bar; gold/yellow notice band; seal in the rust header | Gives section side nav its look (`.site-section-index` is a brand-deep panel with a gold title rule and a notice-yellow current bar (plain gold is only 2.8:1 on brand-deep)) and the page-identity band its colour |
+| FigJam design language (32:78, 60:34) | "A proper transparency portal instead of fancy landing pages"; modern university publication x service portal x archive | Keeps motion and decoration restrained: 200ms fades, one gold accent, flat editorial rows, no card walls |
+| USWDS header | Dropdowns open on click/keyboard, not hover; Escape or focus-out closes; current section highlighted; nonessential motion off for reduced motion | Matches the existing `PrimaryNavigation` behaviour; `name="site-nav-group"` on the `<details>` makes one-open-at-a-time native, so it also holds without JavaScript |
+| USWDS side navigation | Current item marked by a border plus weight, one to three levels, tested against WCAG | Current side-nav item has a yellow bar, bold and tint with `aria-current="page"` |
+| GOV.UK service navigation | Active item uses `aria-current` and a non-colour fallback; Menu toggle on small screens | Same `aria-current` plus bold/bar; the Menu disclosure is kept |
+| MYDS motion foundation (kd-portal) | Short token 200ms for buttons and dropdowns; ease-out for functional UI; motion must serve a purpose | Dropdown panel enters with opacity plus a 0.5rem slide in 200ms ease-out; hover colour changes 200ms |
+| Provincial Government of Palawan | Top nav with Government/Transparency submenus; "Latest Updates" block with "Read more"; accessibility toolbar | Confirms section naming; Latest updates is a rows list with "Read update" |
+| arXiv abstract page | Title, then labelled metadata, abstract, access actions, then history | Record detail keeps the title in the band and metadata/actions in the body (unchanged order) |
+| Refactoring UI / antislop-ui | Spacing scale, tinted neutrals, no stacked effects, left bar only when it marks real state | Warm dark theme (tinted greys), spacing on `--space-*`, one shadow level |
+
+Dark theme: neutral greys were replaced by warm brown-tinted neutrals (hue 45 to 70) so dark mode
+reads as PalSU rather than plain black; every semantic pair is still checked by
+`tests/int/design-tokens.int.spec.ts`.

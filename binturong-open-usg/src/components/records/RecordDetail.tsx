@@ -31,14 +31,7 @@ export function RecordDetail({
   const main = facts?.main
   const versions = facts?.versions ?? []
   return (
-    <article className="container pt-8 pb-16">
-      <header className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-wide">{record.typeLabel}</p>
-        {record.identifier && (
-          <p className="text-lg [overflow-wrap:anywhere]">{record.identifier}</p>
-        )}
-        <h1 className="mt-2 text-3xl font-semibold [overflow-wrap:anywhere]">{record.title}</h1>
-      </header>
+    <article className="pt-6 pb-16">
 
       <RecordMetadata
         items={[

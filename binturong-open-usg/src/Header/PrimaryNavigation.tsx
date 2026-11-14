@@ -150,7 +150,7 @@ export function PrimaryNavigation({ items }: { items: NavItem[] }) {
               <li className="site-nav-item" data-section={item.section ?? undefined} key={item.id}>
                 <Entry link={item} pathname={pathname} sectionOf={item.children} />
                 {item.children.length > 0 && (
-                  <details className="site-nav-group">
+                  <details className="site-nav-group" name="site-nav-group">
                     <summary className="site-nav-toggle site-nav-group-toggle">
                       <span className="sr-only">Show {item.label} links</span>
                       <ChevronDownIcon aria-hidden="true" className="size-4" />

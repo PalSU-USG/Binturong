@@ -30,8 +30,8 @@ vi.mock('next/link', () => ({
 }))
 vi.mock('@/components/RichText', () => ({ default: () => React.createElement('p', null, 'RICH') }))
 vi.mock('@/components/SectionLayout', () => ({
-  SectionLayout: ({ children }: { children: React.ReactNode }) =>
-    React.createElement('div', null, children),
+  SectionLayout: ({ children, title }: { children: React.ReactNode; title: string }) =>
+    React.createElement('div', null, React.createElement('h1', null, title), children),
 }))
 vi.mock('@/components/PayloadRedirects', () => ({
   PayloadRedirects: ({ url }: { url: string }) => {

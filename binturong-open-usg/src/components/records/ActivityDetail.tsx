@@ -26,14 +26,12 @@ export async function ActivityDetailPage({ params }: { params: Promise<{ slug?: 
       currentLabel={activity.title}
       currentPath={`/activities/${activity.slug}`}
       fallback={{ label: 'Activities', href: '/activities' }}
+      eyebrow="Activity"
       section={null}
+      title={activity.title}
       trail={[{ label: activity.title }]}
     >
-      <article className="container pt-8 pb-16">
-        <p className="text-sm font-semibold uppercase tracking-wide">Activity</p>
-        <h1 className="mt-2 mb-6 text-3xl font-semibold [overflow-wrap:anywhere]">
-          {activity.title}
-        </h1>
+      <article className="pt-6 pb-16">
         <RecordMetadata
           items={[
             { label: 'Date', value: dateNode(activity.eventDate) },

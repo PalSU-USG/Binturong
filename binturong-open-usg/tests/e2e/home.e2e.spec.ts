@@ -167,7 +167,7 @@ test.describe('Front page', () => {
       updates.getByRole('link', { name: new RegExp(`^PDF\\s*:\\s*${t('Executive order')}`) }),
     ).toBeVisible()
     await expect(
-      updates.getByRole('link', { name: new RegExp(`^Read\\s*:\\s*${t('Published update')}`) }),
+      updates.getByRole('link', { name: new RegExp(`^Read update\\s*:\\s*${t('Published update')}`) }),
     ).toBeVisible()
   })
 
