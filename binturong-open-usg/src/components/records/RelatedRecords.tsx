@@ -13,7 +13,7 @@ export function RelatedRecords({ items }: { items: RelatedRecord[] }) {
       <ul className="mt-3 flex flex-col">
         {items.map((item) => (
           <li key={item.href}>
-            <Link className="inline-flex min-h-11 items-center underline" href={item.href}>
+            <Link className="inline-flex min-h-[var(--target-hit)] items-center underline" href={item.href}>
               {item.title}
             </Link>{' '}
             <span className="text-sm text-muted-foreground">({item.typeLabel})</span>

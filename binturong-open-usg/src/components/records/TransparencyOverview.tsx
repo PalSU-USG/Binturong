@@ -61,7 +61,7 @@ export async function TransparencyOverview() {
                       <RecordRow key={row.key} row={row} headingLevel={3} />
                     ))}
                   </ol>
-                  <Link className="inline-flex min-h-11 items-center underline" href={s.href}>
+                  <Link className="inline-flex min-h-[var(--target-hit)] items-center underline" href={s.href}>
                     View all {s.title.toLowerCase()} ({list.total})
                   </Link>
                 </>

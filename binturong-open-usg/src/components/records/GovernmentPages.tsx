@@ -10,7 +10,7 @@ import { listOffices, listParticipatingCsgs, readOffice } from '@/records/govern
 import { buildOfficeTree, type OfficeNode } from '@/records/officeTree'
 import { formatLongDate } from './format'
 
-const linkClass = 'inline-flex min-h-11 items-center underline'
+const linkClass = 'inline-flex min-h-[var(--target-hit)] items-center underline'
 const officeHref = (slug: string) => `/government/offices/${encodeURIComponent(slug)}`
 const getPayloadClient = () => getPayload({ config: configPromise })
 

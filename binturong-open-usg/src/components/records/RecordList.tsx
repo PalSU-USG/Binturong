@@ -33,7 +33,7 @@ export function RecordList({
         <p>{emptyText}</p>
         {filtered && (
           <p>
-            <Link className="inline-flex min-h-11 items-center underline" href={basePath}>
+            <Link className="inline-flex min-h-[var(--target-hit)] items-center underline" href={basePath}>
               Clear filters
             </Link>
           </p>
@@ -56,7 +56,7 @@ export function RecordList({
         <nav aria-label="Pages" className="mt-6 flex items-center justify-between gap-4">
           {page > 1 ? (
             <Link
-              className="inline-flex min-h-11 items-center underline"
+              className="inline-flex min-h-[var(--target-hit)] items-center underline"
               href={listHref(basePath, filters, page - 1)}
               rel="prev"
             >
@@ -67,7 +67,7 @@ export function RecordList({
           )}
           {page < pageCount && page < MAX_PAGE ? (
             <Link
-              className="inline-flex min-h-11 items-center underline"
+              className="inline-flex min-h-[var(--target-hit)] items-center underline"
               href={listHref(basePath, filters, page + 1)}
               rel="next"
             >

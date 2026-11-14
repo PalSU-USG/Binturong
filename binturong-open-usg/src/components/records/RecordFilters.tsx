@@ -3,7 +3,7 @@ import React from 'react'
 import { issuanceTypes, type RecordFilters as Filters } from '@/records/recordFilters'
 import type { YearOption } from '@/records/recordQueries'
 
-const selectClass = 'min-h-11 rounded border border-foreground bg-background px-3'
+const selectClass = 'min-h-[var(--target-hit)] rounded border border-foreground bg-background px-3'
 
 /** Plain GET form: it works without scripts and never filters on the client. */
 export function RecordFilters({
@@ -59,7 +59,7 @@ export function RecordFilters({
       )}
       {filters.csg && <input name="csg" type="hidden" value={filters.csg} />}
       <button
-        className="min-h-11 rounded border border-foreground px-4 font-semibold"
+        className="min-h-[var(--target-hit)] rounded border border-foreground px-4 font-semibold"
         type="submit"
       >
         Apply filters
