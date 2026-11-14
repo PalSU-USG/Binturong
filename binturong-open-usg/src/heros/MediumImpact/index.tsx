@@ -8,12 +8,12 @@ import RichText from '@/components/RichText'
 
 export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
   return (
-    <div className="">
+    <div className="py-8">
       <div className="container mb-8">
         {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
 
         {Array.isArray(links) && links.length > 0 && (
-          <ul className="flex gap-4">
+          <ul className="flex flex-wrap gap-4">
             {links.map(({ link }, i) => {
               return (
                 <li key={i}>
@@ -28,8 +28,7 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richTex
         {media && typeof media === 'object' && (
           <div>
             <Media
-              className="-mx-4 md:-mx-8 2xl:-mx-16"
-              imgClassName=""
+              imgClassName="h-auto w-full"
               priority
               resource={media}
             />

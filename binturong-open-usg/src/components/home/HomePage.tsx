@@ -34,14 +34,15 @@ export function HomePage({ data }: { data: HomeData }) {
       >
         <Image
           alt=""
-          className="-z-10 object-cover object-[50%_40%]"
-          fill
+          className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_40%]"
+          height={768}
           priority
           sizes="100vw"
           src="/brand/campus-gate.png"
+          width={1024}
         />
         {/* Akademya proportions: a slim band across the photo, not a panel that hides it. */}
-        <div className="w-full bg-brand-deep/90 py-4 text-center text-on-brand md:py-5">
+        <div className="w-full bg-brand-deep/90 py-4 text-center text-on-brand md:py-6">
           <div className="container">
             <p className="m-0 text-[length:var(--text-label)] font-semibold uppercase tracking-[0.2em]">
               University Student Government
@@ -111,7 +112,7 @@ export function HomePage({ data }: { data: HomeData }) {
                 <IssuanceList entries={data.records} />
                 <p className="m-0 mt-2 text-right">
                   <SmartLink className={actionClass} href="/archives">
-                    Browse all records <span aria-hidden="true">&nbsp;→</span>
+                    Browse all records<span aria-hidden="true">&nbsp;→</span>
                   </SmartLink>
                 </p>
               </>

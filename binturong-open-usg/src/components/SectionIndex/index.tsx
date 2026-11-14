@@ -19,6 +19,8 @@ export function SectionIndex({
   const children = section.children.filter((child) => child.available || review)
   if (!children.length) return null
   const exact = children.some((child) => matchPath(child.href, currentPath) === 'page')
+  // A menu whose only entry is the page you are on gives no way to go anywhere.
+  if (children.length === 1 && exact && !currentLabel) return null
   return (
     <nav aria-label={`${section.label} section`} className="site-section-index">
       <p className="site-section-index-title">On this section</p>
