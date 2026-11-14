@@ -56,6 +56,21 @@ light and dark, and the console on a post detail page.
 Only the Argon items named above were checked; the rest of that audit is unreviewed.
 Wait until the demo is over before running heavy commands.
 
+**Update (15 Nov):** tsc passes; eslint shows only the 3 errors that also exist on
+`dev` (Card refs x2, ThemeSelector setState-in-effect). `check_ui` at 375/1280 on
+`/`, `/posts`, a post, `/search?q=budget`, `/contact` and a 404: no overflow, no axe
+violations, post detail now has 0 console errors. Still owed: prettier, `test:int`,
+`test:e2e`, `build`, dark-mode `check_ui`, review. Open observations:
+- 404 logs "Encountered a script tag while rendering React component": template
+  `InitTheme` (`next/script` beforeInteractive in the root layout), not from this branch.
+- `/search` marks "Student Services" as current; `PrimaryNavigation` marks a group
+  when a child link matches, so a Student Services child probably links to `/search`
+  (owner Header data; confirm in the DB).
+- Post page screenshot showed a white bar beside "Latest Updates"; probably the
+  checker's Tab-walk focus ring. Re-check without keyboard focus.
+Docker Desktop was not running on 15 Nov; starting it also starts Bintanong's
+Supabase containers, so ask the owner first.
+
 ## Queue after that
 
 1. Admin-usability (`C:/Users/Hawksprey/orca/workspaces/Binturong/admin-usability`,
