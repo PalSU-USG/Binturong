@@ -5,18 +5,18 @@ import React from 'react'
 import { cn } from '@/utilities/ui'
 
 /**
- * PalSU seal and two-line identity. The seal is the owner's Project Akademya file, pending an
- * approved original (see tokens.css). It is decorative (`alt=""`): the adjacent text names it.
+ * USG logo and two-line identity. The logo is a placeholder the owner supplied, pending an
+ * approved original file. It is decorative (`alt=""`): the adjacent text names it.
  */
 export const Wordmark: React.FC<{ className?: string }> = ({ className }) => (
   <Link className={cn('site-wordmark', className)} href="/">
     <Image
       alt=""
-      className="site-wordmark-seal"
+      className="site-wordmark-seal rounded-full"
       height={72}
       priority
       sizes="(min-width: 48rem) 72px, 48px"
-      src="/brand/palsu-seal.png"
+      src="/brand/usg-logo.png"
       width={72}
     />
     <span>
