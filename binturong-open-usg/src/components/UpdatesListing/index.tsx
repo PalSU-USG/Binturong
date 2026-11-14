@@ -1,17 +1,15 @@
 import configPromise from '@payload-config'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import React from 'react'
 
+import { Pager } from '@/components/Pager'
 import { UpdateList } from '@/components/home/HomeSections'
 import { SectionLayout } from '@/components/SectionLayout'
 import { DEFAULT_POST_TAG, type HomeEntry } from '@/home/getHomeData'
 
 export const UPDATES_PAGE_SIZE = 12
 const pageHref = (page: number) => (page <= 1 ? '/posts' : `/posts/page/${page}`)
-const pagerClass =
-  'inline-flex min-h-11 items-center px-4 font-heading font-semibold text-link underline underline-offset-4'
 
 /** Latest updates as editorial rows. Reads as an anonymous visitor: published posts only. */
 export async function UpdatesListing({ page }: { page: number }) {
@@ -64,21 +62,13 @@ export async function UpdatesListing({ page }: { page: number }) {
           <>
             <UpdateList entries={entries} />
             {posts.totalPages > 1 && (
-              <nav aria-label="Updates pages" className="mt-8 flex flex-wrap items-center gap-2">
-                {posts.hasPrevPage && (
-                  <Link className={pagerClass} href={pageHref(page - 1)} rel="prev">
-                    <span aria-hidden="true">←&nbsp;</span>Newer updates
-                  </Link>
-                )}
-                <span className="px-2 text-muted-foreground">
-                  Page {page} of {posts.totalPages}
-                </span>
-                {posts.hasNextPage && (
-                  <Link className={pagerClass} href={pageHref(page + 1)} rel="next">
-                    Older updates<span aria-hidden="true">&nbsp;→</span>
-                  </Link>
-                )}
-              </nav>
+              <Pager
+                label="Updates pages"
+                next={posts.hasNextPage ? { href: pageHref(page + 1), text: 'Older updates' } : undefined}
+                page={page}
+                prev={posts.hasPrevPage ? { href: pageHref(page - 1), text: 'Newer updates' } : undefined}
+                totalPages={posts.totalPages}
+              />
             )}
           </>
         )}
