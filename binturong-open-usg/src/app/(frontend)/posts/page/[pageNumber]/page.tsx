@@ -4,7 +4,6 @@ import { UPDATES_PAGE_SIZE, UpdatesListing } from '@/components/UpdatesListing'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
-import PageClient from './page.client'
 import { notFound } from 'next/navigation'
 import { siteName } from '@/utilities/mergeOpenGraph'
 
@@ -23,12 +22,7 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   if (!Number.isInteger(sanitizedPageNumber) || sanitizedPageNumber < 1) notFound()
 
-  return (
-    <>
-      <PageClient />
-      <UpdatesListing page={sanitizedPageNumber} />
-    </>
-  )
+  return <UpdatesListing page={sanitizedPageNumber} />
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {

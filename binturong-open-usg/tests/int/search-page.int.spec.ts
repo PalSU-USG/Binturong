@@ -16,7 +16,6 @@ vi.mock('next/link', () => ({
 vi.mock('@/search/Component', () => ({
   Search: ({ q }: { q?: string | null }) => React.createElement('form', null, q ?? ''),
 }))
-vi.mock('@/app/(frontend)/search/page.client', () => ({ default: () => null }))
 
 import Page from '@/app/(frontend)/search/page'
 import { SearchResults } from '@/search/SearchResults'
