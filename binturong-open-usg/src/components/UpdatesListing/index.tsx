@@ -70,7 +70,7 @@ export async function UpdatesListing({ page }: { page: number }) {
                     <span aria-hidden="true">←&nbsp;</span>Newer updates
                   </Link>
                 )}
-                <span aria-current="page" className="px-2 text-muted-foreground">
+                <span className="px-2 text-muted-foreground">
                   Page {page} of {posts.totalPages}
                 </span>
                 {posts.hasNextPage && (

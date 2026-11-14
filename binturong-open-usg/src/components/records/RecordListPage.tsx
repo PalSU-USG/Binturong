@@ -61,9 +61,7 @@ export async function RecordListPage({
       trail={title === fallback.label ? [] : [...trail, { label: title }]}
     >
       <div className="pt-6 pb-16">
-        <div>
-          <RecordFilters action={basePath} filters={filters} withType={withType} years={years} />
-        </div>
+        <RecordFilters action={basePath} filters={filters} withType={withType} years={years} />
         {list.notices.length > 0 && (
           <ul className="mt-4" role="status">
             {list.notices.map((notice) => (
