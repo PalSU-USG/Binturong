@@ -45,6 +45,17 @@ Known items:
   ("Digital Horizons", disclaimer text) and footer "Payload"/"Source Code" links are an
   owner decision.
 
+**Update (later on 14 Nov):** the dirty work was reviewed and committed, from code
+reading only, as `ecbbec7`, `7008641`, `ffd26d4` and `73deeba`. NOTHING on that
+branch has been run yet: no tsc, eslint, int, e2e, build or browser check. That was
+because the Bintanong HCI demo (CUDA container + ngrok) left about 1 GB of RAM free.
+Owed, in order: tsc, eslint (and prettier on `search/SearchResults.tsx`),
+`test:int`, `test:e2e` (run the "targets are at least 44" test several times),
+`build`, `check_ui` on `/`, `/posts`, a post, `/search`, a 404 and `/contact` in
+light and dark, and the console on a post detail page.
+Only the Argon items named above were checked; the rest of that audit is unreviewed.
+Wait until the demo is over before running heavy commands.
+
 ## Queue after that
 
 1. Admin-usability (`C:/Users/Hawksprey/orca/workspaces/Binturong/admin-usability`,
