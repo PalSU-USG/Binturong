@@ -36,12 +36,12 @@ export function RecordRow({ row, headingLevel = 2 }: { row: RecordRowData; headi
         </p>
       )}
       <p className="mt-2 flex flex-wrap gap-x-6">
-        <Link className="inline-flex min-h-11 items-center underline" href={row.href}>
+        <Link className="inline-flex min-h-[var(--target-hit)] items-center underline" href={row.href}>
           View record
           <span className="sr-only">: {row.title}</span>
         </Link>
         {row.fileHref && (
-          <a className="inline-flex min-h-11 items-center underline" download href={row.fileHref}>
+          <a className="inline-flex min-h-[var(--target-hit)] items-center underline" download href={row.fileHref}>
             Download PDF
             <span className="sr-only">: {row.title}</span>
           </a>

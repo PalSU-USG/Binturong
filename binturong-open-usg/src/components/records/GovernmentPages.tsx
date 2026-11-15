@@ -4,12 +4,13 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import React from 'react'
 
+import { DestinationList } from '@/components/DestinationList'
 import { SectionLayout } from '@/components/SectionLayout'
 import { listOffices, listParticipatingCsgs, readOffice } from '@/records/governmentQueries'
 import { buildOfficeTree, type OfficeNode } from '@/records/officeTree'
 import { formatLongDate } from './format'
 
-const linkClass = 'inline-flex min-h-11 items-center underline'
+const linkClass = 'inline-flex min-h-[var(--target-hit)] items-center underline'
 const officeHref = (slug: string) => `/government/offices/${encodeURIComponent(slug)}`
 const getPayloadClient = () => getPayload({ config: configPromise })
 
@@ -30,12 +31,10 @@ function Shell({
       currentPath={path}
       fallback={{ label: 'Government', href: '/government' }}
       section="government"
+      title={title}
       trail={path === '/government' ? [] : [...trail, { label: title }]}
     >
-      <div className="container pt-8 pb-16">
-        <h1 className="text-3xl font-semibold [overflow-wrap:anywhere]">{title}</h1>
-        <div className="mt-6">{children}</div>
-      </div>
+      <div className="pt-6 pb-16">{children}</div>
     </SectionLayout>
   )
 }
@@ -43,19 +42,25 @@ function Shell({
 export function GovernmentHome() {
   return (
     <Shell path="/government" title="Government">
-      <ul>
-        {[
-          ['/government/organizational-chart', 'Organizational chart'],
-          ['/government/offices', 'Offices'],
-          ['/government/participating-csgs', 'Participating CSGs'],
-        ].map(([href, label]) => (
-          <li key={href}>
-            <Link className={linkClass} href={href!}>
-              {label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <DestinationList
+        items={[
+          {
+            href: '/government/organizational-chart',
+            title: 'Organizational chart',
+            description: 'Published offices grouped by branch, with the offices under each.',
+          },
+          {
+            href: '/government/offices',
+            title: 'Offices',
+            description: 'Each published office, its branch and the people who have held it.',
+          },
+          {
+            href: '/government/participating-csgs',
+            title: 'Participating CSGs',
+            description: 'The participating student governments and their published records.',
+          },
+        ]}
+      />
     </Shell>
   )
 }
@@ -102,15 +107,12 @@ export async function OfficesDirectoryPage() {
       {offices.length === 0 ? (
         <p role="status">No offices have been published yet.</p>
       ) : (
-        <ul>
-          {offices.map((office) => (
-            <li key={office.id}>
-              <Link className={linkClass} href={officeHref(office.slug)}>
-                {office.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <DestinationList
+          items={offices.map((office) => ({
+            href: officeHref(office.slug),
+            title: office.name,
+          }))}
+        />
       )}
     </Shell>
   )

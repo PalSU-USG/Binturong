@@ -142,6 +142,18 @@ test.describe('Primary navigation', () => {
       ).toBeNull()
     })
 
+    test('keeps exactly one named group open and Escape closes it', async ({ page }) => {
+      await page.goto('/')
+      const open = nav(page).locator('details[name="site-nav-group"][open]')
+      await groupToggle(page, 'Government').click()
+      await expect(open).toHaveCount(1)
+      await groupToggle(page, 'Archives').click()
+      await expect(nav(page).getByRole('link', { name: 'Executive' })).toBeVisible()
+      await expect(open).toHaveCount(1)
+      await expect(open.locator('summary')).toContainText('Archives')
+      await page.keyboard.press('Escape')
+      await expect(open).toHaveCount(0)
+    })
     test('activating a child link completes navigation, closes the group and focuses the heading', async ({
       page,
     }) => {
@@ -469,6 +481,49 @@ test.describe('Primary navigation', () => {
       await expect(breadcrumb(page)).toBeVisible()
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
       await setHeader(request, synthetic)
+    })
+  })
+  test.describe('updates listing', () => {
+    const ids: number[] = []
+    const draftTitle = `Synthetic draft only ${Date.now()}`
+    test.beforeAll(async () => {
+      const make = async (title: string, status: 'draft' | 'published') =>
+        ids.push(
+          (
+            await payload.create({
+              collection: 'posts',
+              context: { disableRevalidate: true },
+              data: {
+                title,
+                slug: `synthetic-list-${ids.length}-${Date.now()}`,
+                content: syntheticContent,
+                _status: status,
+              },
+            })
+          ).id,
+        )
+      await make(draftTitle, 'draft')
+      for (let i = 0; i < 13; i++) await make(`Synthetic listed ${i}`, 'published')
+    })
+    test.afterAll(async () => {
+      for (const id of ids)
+        await payload.delete({ collection: 'posts', id, context: { disableRevalidate: true } })
+    })
+
+    test('never lists a draft, pages correctly and returns 404 past the last page', async ({
+      page,
+      request,
+    }) => {
+      const total = (await (await request.get('/api/posts?limit=12')).json()).totalPages as number
+      expect(total).toBeGreaterThan(1)
+      await page.goto('/posts')
+      await expect(page.getByText(draftTitle)).toHaveCount(0)
+      await expect(page.getByText(`Page 1 of ${total}`)).toBeVisible()
+      await page.goto('/posts/page/2')
+      await expect(page.getByText(draftTitle)).toHaveCount(0)
+      await expect(page.getByText(`Page 2 of ${total}`)).toBeVisible()
+      const missing = await page.goto('/posts/page/999')
+      expect(missing?.status()).toBe(404)
     })
   })
   test.describe('without JavaScript', () => {

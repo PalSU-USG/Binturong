@@ -30,23 +30,25 @@ export function HomePage({ data }: { data: HomeData }) {
           readable on any part of the picture (checked in design-tokens.int.spec.ts). */}
       <section
         aria-labelledby="home-statement"
-        className="relative isolate flex min-h-[clamp(16rem,44vh,30rem)] items-center"
+        className="relative isolate flex min-h-[clamp(18rem,50vh,32rem)] items-center"
       >
         <Image
           alt=""
-          className="-z-10 object-cover object-[50%_40%]"
-          fill
+          className="absolute inset-0 -z-10 h-full w-full object-cover object-[50%_40%]"
+          height={768}
           priority
           sizes="100vw"
           src="/brand/campus-gate.png"
+          width={1024}
         />
-        <div className="w-full bg-brand-deep/90 py-8 text-center text-on-brand">
+        {/* Akademya proportions: a slim band across the photo, not a panel that hides it. */}
+        <div className="w-full bg-brand-deep/90 py-4 text-center text-on-brand md:py-6">
           <div className="container">
             <p className="m-0 text-[length:var(--text-label)] font-semibold uppercase tracking-[0.2em]">
               University Student Government
             </p>
             <h1
-              className="mx-auto mt-2 max-w-[var(--measure)] text-[length:var(--text-statement)] font-semibold leading-tight [overflow-wrap:anywhere]"
+              className="mx-auto mt-1 max-w-[64rem] text-[clamp(1.75rem,1.2rem+2.2vw,3rem)] font-semibold leading-tight [overflow-wrap:anywhere]"
               id="home-statement"
             >
               {HOME_STATEMENT}
@@ -110,7 +112,7 @@ export function HomePage({ data }: { data: HomeData }) {
                 <IssuanceList entries={data.records} />
                 <p className="m-0 mt-2 text-right">
                   <SmartLink className={actionClass} href="/archives">
-                    Browse all records <span aria-hidden="true">&nbsp;→</span>
+                    Browse all records<span aria-hidden="true">&nbsp;→</span>
                   </SmartLink>
                 </p>
               </>

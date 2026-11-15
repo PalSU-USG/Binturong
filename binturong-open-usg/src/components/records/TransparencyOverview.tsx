@@ -36,15 +36,18 @@ export async function TransparencyOverview() {
       currentPath="/transparency"
       fallback={{ label: 'Transparency' }}
       section="transparency"
+      title="Transparency"
       trail={[]}
     >
-      <div className="container pt-8 pb-16">
-        <h1 className="text-3xl font-semibold">Transparency</h1>
+      <div className="pt-2 pb-16">
         {sections.map((s, i) => {
           const list = lists[i]!
           return (
-            <section aria-labelledby={`${s.scope}-heading`} className="mt-10" key={s.scope}>
-              <h2 className="text-2xl font-semibold" id={`${s.scope}-heading`}>
+            <section aria-labelledby={`${s.scope}-heading`} className="mt-8" key={s.scope}>
+              <h2
+                className="border-b-2 border-brand pb-2 font-heading text-[length:var(--text-section)] font-semibold leading-tight"
+                id={`${s.scope}-heading`}
+              >
                 {s.title}
               </h2>
               {list.rows.length === 0 ? (
@@ -58,7 +61,7 @@ export async function TransparencyOverview() {
                       <RecordRow key={row.key} row={row} headingLevel={3} />
                     ))}
                   </ol>
-                  <Link className="inline-flex min-h-11 items-center underline" href={s.href}>
+                  <Link className="inline-flex min-h-[var(--target-hit)] items-center underline" href={s.href}>
                     View all {s.title.toLowerCase()} ({list.total})
                   </Link>
                 </>

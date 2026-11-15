@@ -3,11 +3,11 @@ import type { Metadata } from 'next/types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
+import { PlainPage } from '@/components/PlainPage'
 import { Search } from '@/search/Component'
 import { SearchResults } from '@/search/SearchResults'
 import { parseSearchParams } from '@/search/params'
 import { runSearch } from '@/search/query'
-import PageClient from './page.client'
 
 type Args = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -21,26 +21,20 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       : await runSearch(await getPayload({ config: configPromise }), { q, type, page })
 
   return (
-    <div className="pt-24 pb-24">
-      <PageClient />
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none text-center">
-          <h1 className="mb-8 lg:mb-16">Search</h1>
-
-          <div className="max-w-[50rem] mx-auto">
-            <Search q={q} type={type} />
-          </div>
-        </div>
+    <PlainPage
+      crumbs={[{ label: 'Search' }]}
+      intro="Search updates, issuances and reports by title, number or summary."
+      title="Search"
+    >      <div className="mb-8 max-w-[var(--measure)]">
+        <Search q={q} type={type} />
       </div>
 
       {q === null || results === null ? (
-        <div className="container" role="status">
-          <p>Enter at least two characters to search updates, issuances and reports by title, number or summary.</p>
-        </div>
+        <p role="status">Enter at least two characters to search.</p>
       ) : (
         <SearchResults q={q} type={type} results={results} />
       )}
-    </div>
+    </PlainPage>
   )
 }
 

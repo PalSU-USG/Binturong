@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 
+import { Pager } from '@/components/Pager'
 import type { SearchType } from './params'
 import type { SearchPage } from './query'
 
@@ -13,6 +14,8 @@ function pageHref(q: string, type: SearchType, page: number): string {
   return `/search?${params.toString()}`
 }
 
+const linkClass = 'text-link underline underline-offset-4'
+
 export const SearchResults: React.FC<{ q: string; type: SearchType; results: SearchPage }> = ({
   q,
   type,
@@ -23,11 +26,11 @@ export const SearchResults: React.FC<{ q: string; type: SearchType; results: Sea
   if (hits.length === 0) {
     const pastEnd = totalDocs > 0 && page > totalPages
     return (
-      <div className="container" role="status">
+      <div role="status">
         {pastEnd ? (
           <p>
             That page has no results.{' '}
-            <Link className="underline" href={pageHref(q, type, 1)}>
+            <Link className={linkClass} href={pageHref(q, type, 1)}>
               Back to page 1
             </Link>
           </p>
@@ -36,7 +39,7 @@ export const SearchResults: React.FC<{ q: string; type: SearchType; results: Sea
             <p>No results for “{q}”.</p>
             <p>
               Try fewer words, or browse{' '}
-              <Link className="underline" href="/posts">
+              <Link className={linkClass} href="/posts">
                 all updates
               </Link>
               .
@@ -48,44 +51,39 @@ export const SearchResults: React.FC<{ q: string; type: SearchType; results: Sea
   }
 
   return (
-    <div className="container">
+    <div>
       <p className="mb-6" role="status">
         {totalDocs} {totalDocs === 1 ? 'result' : 'results'} for “{q}”
       </p>
-      <ol className="flex flex-col gap-6">
+      <ol className="site-destinations">
         {hits.map((hit) => (
-          <li key={hit.href} className="border-b border-border pb-6">
-            <p className="text-sm text-muted-foreground">
+          <li className="py-4" key={hit.href}>
+            <p className="m-0 text-[length:var(--text-meta)] text-muted-foreground">
               {hit.label}
               {hit.identifier ? ` · ${hit.identifier}` : ''}
               {hit.publishedAt ? ` · ${date.format(new Date(hit.publishedAt))}` : ''}
               {hit.recent ? ' · Recent' : ''}
             </p>
-            <h2 className="text-xl font-semibold">
-              <Link className="underline" href={hit.href}>
+            <h2 className="m-0 font-heading text-[length:var(--text-record-title)] font-semibold leading-snug">
+              <Link
+                className={`${linkClass} inline-flex min-h-[var(--target-hit)] items-center py-1 [overflow-wrap:anywhere]`}
+                href={hit.href}
+              >
                 {hit.title}
               </Link>
             </h2>
-            {hit.summary && <p className="mt-2">{hit.summary}</p>}
+            {hit.summary && <p className="mt-1 mb-0">{hit.summary}</p>}
           </li>
         ))}
       </ol>
       {totalPages > 1 && (
-        <nav aria-label="Search pages" className="mt-8 flex items-center gap-6">
-          {page > 1 ? (
-            <Link className="underline" rel="prev" href={pageHref(q, type, page - 1)}>
-              Previous
-            </Link>
-          ) : null}
-          <span>
-            Page {page} of {totalPages}
-          </span>
-          {page < totalPages ? (
-            <Link className="underline" rel="next" href={pageHref(q, type, page + 1)}>
-              Next
-            </Link>
-          ) : null}
-        </nav>
+        <Pager
+          label="Search pages"
+          next={page < totalPages ? { href: pageHref(q, type, page + 1), text: 'Next' } : undefined}
+          page={page}
+          prev={page > 1 ? { href: pageHref(q, type, page - 1), text: 'Previous' } : undefined}
+          totalPages={totalPages}
+        />
       )}
     </div>
   )

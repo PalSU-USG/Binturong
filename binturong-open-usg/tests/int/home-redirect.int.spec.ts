@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderToStaticMarkup } from 'react-dom/server'
 
 const state = vi.hoisted(() => ({ draft: false, page: null as unknown, find: vi.fn() }))
 
@@ -27,7 +28,6 @@ vi.mock('@/components/LivePreviewListener', () => ({ LivePreviewListener: () => 
 vi.mock('@/blocks/RenderBlocks', () => ({ RenderBlocks: () => null }))
 vi.mock('@/heros/RenderHero', () => ({ RenderHero: () => null }))
 vi.mock('@/utilities/generateMeta', () => ({ generateMeta: async () => ({}) }))
-vi.mock('@/app/(frontend)/[slug]/page.client', () => ({ default: () => null }))
 
 import Page from '@/app/(frontend)/[slug]/page'
 
@@ -66,5 +66,13 @@ describe('/home', () => {
   it('does_not_redirect_other_slugs', async () => {
     state.find.mockResolvedValue({ docs: [{ slug: 'about', hero: { type: 'none' }, layout: [] }] })
     await expect(render('about')).resolves.toBeTruthy()
+  })
+
+  it('gives_a_CMS_page_the_identity_band_even_without_a_hero', async () => {
+    state.find.mockResolvedValue({ docs: [{ title: 'Contact', slug: 'contact', hero: { type: 'none' }, layout: [] }] })
+    const html = renderToStaticMarkup(await render('contact'))
+    expect(html).toContain('site-page-header')
+    expect(html).toMatch(/<h1[^>]*>Contact<\/h1>/)
+    expect(html).toContain('aria-label="Breadcrumb"')
   })
 })

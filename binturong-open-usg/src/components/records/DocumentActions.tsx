@@ -5,7 +5,7 @@ import { formatSize } from './format'
 
 const fileHref = (file: PublicFile) => `/api/documents/${file.id}/file`
 const linkClass =
-  'inline-flex min-h-11 items-center rounded border border-foreground px-4 py-2 font-semibold underline'
+  'inline-flex min-h-[var(--target-hit)] items-center rounded border border-foreground px-4 py-2 font-semibold underline'
 
 /** `facts` is null when the file facts could not be read; the page then says so instead of linking. */
 export function DocumentActions({ facts }: { facts: PublicFileFacts | null }) {
@@ -30,7 +30,7 @@ export function DocumentActions({ facts }: { facts: PublicFileFacts | null }) {
             {facts.attachments.map((file) => (
               <li key={file.id}>
                 <a
-                  className="inline-flex min-h-11 items-center underline"
+                  className="inline-flex min-h-[var(--target-hit)] items-center underline"
                   download
                   href={fileHref(file)}
                 >

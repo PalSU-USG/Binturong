@@ -31,7 +31,7 @@ export async function Footer() {
               {navItems.map(({ link }, i) => (
                 <li key={i}>
                   <CMSLink
-                    className="inline-flex min-h-11 items-center text-on-brand underline underline-offset-4"
+                    className="inline-flex min-h-[var(--target-hit)] items-center text-on-brand underline underline-offset-4"
                     {...link}
                   />
                 </li>

@@ -21,5 +21,18 @@ export const RenderHero: React.FC<Page['hero']> = (props) => {
 
   if (!HeroToRender) return null
 
-  return <HeroToRender {...props} />
+  // The page band owns h1; preserve authored hero content beneath it without mutating CMS data.
+  const richText = props.richText && {
+    ...props.richText,
+    root: {
+      ...props.richText.root,
+      children: props.richText.root.children.map((node) =>
+        (node as { type?: string; tag?: string }).type === 'heading' &&
+        (node as { tag?: string }).tag === 'h1'
+          ? { ...node, tag: 'h2' }
+          : node,
+      ),
+    },
+  }
+  return <HeroToRender {...props} richText={richText} />
 }

@@ -55,15 +55,13 @@ export async function RecordListPage({
       currentLabel={title}
       currentPath={basePath}
       fallback={{ label: fallback.label }}
+      intro={intro}
       section={section}
+      title={title}
       trail={title === fallback.label ? [] : [...trail, { label: title }]}
     >
-      <div className="container pt-8 pb-16">
-        <h1 className="text-3xl font-semibold">{title}</h1>
-        {intro && <p className="mt-2 max-w-[48rem]">{intro}</p>}
-        <div className="mt-6">
-          <RecordFilters action={basePath} filters={filters} withType={withType} years={years} />
-        </div>
+      <div className="pt-6 pb-16">
+        <RecordFilters action={basePath} filters={filters} withType={withType} years={years} />
         {list.notices.length > 0 && (
           <ul className="mt-4" role="status">
             {list.notices.map((notice) => (

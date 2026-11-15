@@ -15,6 +15,17 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Owner decision (15 Nov 2026):** USG will publish Senate resolutions (then memoranda
+and orders) on the site, and resolutions get their own public section. Sample: a USG
+Senate resolution PDF the owner holds (real names and amounts; not tracked). It maps
+to `Issuances` (`type: resolution`) on the admin-usability branch, with one gap:
+the sample's series is an academic-year range ("s. of 2026-2027") while
+`seriesYear` is a single integer; decide between storing the start year plus
+`academicYear` or a series text field before that branch's migration is regenerated.
+The letterhead also gives the official unit name "University Student Government —
+Tiniguiban", `usg.psu.edu.ph`, `usg@psu.palawan.edu.ph` and the office address;
+use them only after the owner confirms.
+
 Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
 
 - **Integrated:** Phase01 access (`00f3b1f`), Phase02 domain foundations (`6ec0427`),

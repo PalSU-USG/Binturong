@@ -35,17 +35,17 @@
   --brand-grey-100: oklch(92.2% 0 0deg);
   --brand-grey-500: oklch(50% 0 0deg);
   --brand-grey-600: oklch(62% 0 0deg);
-  --brand-ink-on-dark: oklch(98.5% 0 0deg);
-  --brand-paper-dark: oklch(14.5% 0 0deg);
-  --brand-grey-900: oklch(17% 0 0deg);
-  --brand-grey-800: oklch(26.9% 0 0deg);
-  --brand-grey-300: oklch(70.8% 0 0deg);
-  --brand-grey-550: oklch(55% 0 0deg);
+  --brand-ink-on-dark: oklch(97% 0.012 70deg);
+  --brand-paper-dark: oklch(19% 0.022 45deg);
+  --brand-grey-900: oklch(23% 0.026 45deg);
+  --brand-grey-800: oklch(30% 0.03 45deg);
+  --brand-grey-300: oklch(76% 0.025 60deg);
+  --brand-grey-550: oklch(58% 0.03 55deg);
 
   /* Layer 2: semantic, light */
   --background: var(--brand-paper);
   --foreground: oklch(14.5% 0 0deg);
-  --card: oklch(96.5% 0.005 265deg);
+  --card: var(--brand-grey-50);
   --card-foreground: var(--foreground);
   --popover: var(--brand-paper);
   --popover-foreground: var(--foreground);
@@ -99,6 +99,9 @@
   --radius: 0.25rem;
   --measure: 48rem;
   --target-min: 2.75rem;
+  /* Rendered targets use this: 1px over the 44px minimum so fractional layout or sub-pixel zoom
+     cannot measure 43.99998. */
+  --target-hit: calc(var(--target-min) + 1px);
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
