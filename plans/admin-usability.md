@@ -38,7 +38,18 @@ schema at `ad5eb8e`. If another slice adds a migration first, regenerate it with
 `tests/int/domain-migrations.int.spec.ts`, and rerun `generate:types` / `generate:importmap`.
 Collection order in `src/payload.config.ts` sets the menu group order; keep it.
 
+## Final verification (15 Nov 2026, after merging `dev` at `4bcf88c`)
+
+- No schema drift (`migrate:create` found no changes), so `last_edited_by` stays the last
+  migration. Types regenerated; tsc clean.
+- Int: 588 passed; the merged `design-tokens` test failed on Payload admin variables
+  (`--theme-*`, `--base`) and now allows them, then passes.
+- Browser: 65 of 67 on the full run; the 2 home failures came from 6 leftover synthetic
+  posts (10 Nov) in the 56322 test DB, deleted; home rerun 9 of 9. Build: exit 0.
+- Sonnet review: no P0/P1. Follow-ups: move the `preserveLastEditedBy` WeakMap to
+  `req.context`; the how-to guard sends disabled accounts to login without a message.
+
 ## Next action
 
 Owner runs the hallway test (script above) with a real staff member and records answers
-in this note. Independent reviewer: see "Review focus" in the plan.
+in this note.
