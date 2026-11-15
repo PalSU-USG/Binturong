@@ -503,6 +503,11 @@ html[data-theme='light'] {
     font-size: 0.875rem;
     overflow-wrap: anywhere;
   }
+  /* The link's tap padding makes its item taller; centre plain crumbs and separators on it. */
+  .site-breadcrumbs li {
+    display: flex;
+    align-items: center;
+  }
   .site-breadcrumbs li + li::before {
     content: '/';
     margin-right: 0.5rem;
