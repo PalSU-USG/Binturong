@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import pg from 'pg'
+import { sql } from '@payloadcms/db-postgres'
 import 'dotenv/config'
 import { assertTestDatabase } from './assertTestDatabase.ts'
 
@@ -99,7 +100,7 @@ if (!process.argv[3]) {
       (await pool.query('select current_database() as name')).rows[0].name,
       process.argv[3],
     )
-    assert.equal(migrations.length, 13)
+    assert.equal(migrations.length, 14)
     let baseline, predecessor, beforeDocumentSessions, beforeNavigation, userID, searchID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
@@ -240,13 +241,45 @@ if (!process.argv[3]) {
     }
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 13)
+    assert.equal(history.length, 14)
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
       history,
     )
-    console.info('PASS thirteen migrations and repeat no-op')
+    console.info('PASS fourteen migrations and repeat no-op')
+    // The last-saved-by migration is additive: existing rows keep their data and the new
+    // column starts empty (they show under Drafts, not My drafts). Its down() removes it.
+    const editedTables = [
+      'pages',
+      'posts',
+      'organizations',
+      'academic_years',
+      'offices',
+      'people',
+      'activities',
+      'issuances',
+      'reports',
+    ]
+    for (const table of editedTables) {
+      const filled = await pool.query(
+        `select count(*)::int as n from "${table}" where last_edited_by_id is not null`,
+      )
+      assert.equal(filled.rows[0].n, 0, `last_edited_by_id starts empty on ${table}`)
+    }
+    const columnCount = `select count(*)::int as n from information_schema.columns where column_name in ('last_edited_by_id','version_last_edited_by_id')`
+    assert.equal((await pool.query(columnCount)).rows[0].n, 18)
+    await assert.rejects(
+      payload.db.drizzle.transaction(async (db) => {
+        await migrations[13].down({ db })
+        const left = await db.execute(sql.raw(columnCount))
+        assert.equal(left.rows[0].n, 0, 'down() removes every added column')
+        throw new Error('Synthetic rollback after down review')
+      }),
+      /Synthetic rollback after down review/,
+    )
+    assert.equal((await pool.query(columnCount)).rows[0].n, 18)
+    console.info('PASS last-saved-by additive upgrade and reviewed down()')
     if (predecessor) {
       await preserved(baseline, navigationTables)
       await preserved(predecessor, navigationTables)

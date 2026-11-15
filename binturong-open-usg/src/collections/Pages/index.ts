@@ -11,6 +11,9 @@ import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
+import { lastEditedByField, setLastEditedBy } from '@/fields/lastEditedBy'
+import { plainSlug } from '@/fields/plainSlug'
+import { statusPanelComponents } from '@/components/StatusPanel/components'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
@@ -39,8 +42,12 @@ export const Pages: CollectionConfig<'pages'> = {
     title: true,
     slug: true,
   },
+  labels: { singular: 'Page', plural: 'Pages' },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    group: 'Publish',
+    description: 'Standalone pages such as About or Contact.',
+    components: statusPanelComponents,
+    defaultColumns: ['title', '_status', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -62,13 +69,15 @@ export const Pages: CollectionConfig<'pages'> = {
       name: 'title',
       type: 'text',
       required: true,
+      label: 'Page title',
+      admin: { description: 'The heading readers see, for example "About the USG".' },
     },
     {
       type: 'tabs',
       tabs: [
         {
           fields: [hero],
-          label: 'Hero',
+          label: 'Top banner',
         },
         {
           fields: [
@@ -86,7 +95,7 @@ export const Pages: CollectionConfig<'pages'> = {
         },
         {
           name: 'meta',
-          label: 'SEO',
+          label: 'Search and sharing',
           fields: [
             OverviewField({
               titlePath: 'meta.title',
@@ -114,24 +123,36 @@ export const Pages: CollectionConfig<'pages'> = {
       ],
     },
     {
-      name: 'publishedAt',
-      type: 'date',
-      admin: {
-        position: 'sidebar',
-      },
+      type: 'collapsible',
+      label: 'History and advanced',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          name: 'publishedAt',
+          type: 'date',
+          label: 'Date shown to readers',
+          admin: {
+            date: { pickerAppearance: 'dayAndTime' },
+            description:
+              'The date readers see on the page. Leave empty to use the day it goes live.',
+          },
+        },
+        slugField({ overrides: plainSlug }),
+        lastEditedByField,
+      ],
     },
-    slugField(),
   ],
   hooks: {
     beforeOperation: [enforceEditorialWrites],
     afterChange: [revalidatePage],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, setLastEditedBy],
     afterDelete: [revalidateDelete],
   },
   versions: {
     drafts: {
       autosave: {
         interval: 100, // We set this interval for optimal live preview
+        showSaveDraftButton: true,
       },
       schedulePublish: true,
     },

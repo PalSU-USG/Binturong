@@ -1,5 +1,6 @@
 import { slugField, ValidationError, type FieldHook, type RowField } from 'payload'
 import { hasDomainKey } from '@/collections/shared/hasDomainKey'
+import { plainSlug } from './plainSlug'
 
 const uniqueDomainSlug: FieldHook = async ({ collection, originalDoc, req, value }) => {
   if (!collection) return value
@@ -38,38 +39,40 @@ const uniqueDomainSlug: FieldHook = async ({ collection, originalDoc, req, value
 }
 
 export function domainSlug(useAsSlug: 'name' | 'label' | 'title'): RowField {
-  return slugField({
-    useAsSlug,
-    overrides: (row) => ({
-      ...row,
-      fields: row.fields.map((field) =>
-        field.type === 'text' && field.name === 'slug'
-          ? {
-              ...field,
-              hooks: {
-                ...field.hooks,
-                beforeChange: [...(field.hooks?.beforeChange ?? []), uniqueDomainSlug],
-              },
-            }
-          : field.type === 'checkbox' && field.name === 'generateSlug'
+  return plainSlug(
+    slugField({
+      useAsSlug,
+      overrides: (row) => ({
+        ...row,
+        fields: row.fields.map((field) =>
+          field.type === 'text' && field.name === 'slug'
             ? {
                 ...field,
                 hooks: {
                   ...field.hooks,
-                  beforeChange: [
-                    async (args) => {
-                      const generate = args.value === true
-                      let value = args.value
-                      for (const hook of field.hooks?.beforeChange ?? [])
-                        value = await hook({ ...args, value })
-                      if (generate) await uniqueDomainSlug({ ...args, value: args.data?.slug })
-                      return value
-                    },
-                  ],
+                  beforeChange: [...(field.hooks?.beforeChange ?? []), uniqueDomainSlug],
                 },
               }
-            : field,
-      ),
+            : field.type === 'checkbox' && field.name === 'generateSlug'
+              ? {
+                  ...field,
+                  hooks: {
+                    ...field.hooks,
+                    beforeChange: [
+                      async (args) => {
+                        const generate = args.value === true
+                        let value = args.value
+                        for (const hook of field.hooks?.beforeChange ?? [])
+                          value = await hook({ ...args, value })
+                        if (generate) await uniqueDomainSlug({ ...args, value: args.data?.slug })
+                        return value
+                      },
+                    ],
+                  },
+                }
+              : field,
+        ),
+      }),
     }),
-  })
+  )
 }

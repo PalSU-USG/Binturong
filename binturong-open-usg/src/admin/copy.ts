@@ -1,0 +1,55 @@
+/**
+ * Every sentence the admin home, status panel and how-to page show to editors. Kept in one
+ * place so it can be reviewed for plain language (see the jargon test) and translated later.
+ */
+export const adminCopy = {
+  homeTitle: 'What do you want to do?',
+  homeIntro: 'Pick a task. Nothing goes live until a publisher approves it.',
+  taskPost: 'Post a notice',
+  taskPostHelp: 'Write a news item or announcement.',
+  taskIssuance: 'Add an issuance',
+  taskIssuanceHelp: 'Record an order, resolution or memorandum.',
+  taskReport: 'Upload a report',
+  taskReportHelp: 'Add a financial or accomplishment report.',
+  taskPerson: 'Add a person or office',
+  taskPersonHelp: 'Keep the list of officials up to date.',
+  taskMenu: 'Edit the menu',
+  taskMenuHelp: 'Change the links at the top and bottom of the site.',
+  taskWaiting: 'Check what is waiting for me',
+  taskWaitingHelp: 'Open the drafts that need a decision.',
+  taskHowTo: 'How do I...?',
+  taskHowToHelp: 'Short step-by-step help.',
+  yourDrafts: 'Your drafts',
+  yourDraftsEmpty: 'You have no drafts. Start with one of the tasks above.',
+  waitingTitle: 'Waiting for a publisher',
+  waitingEmpty: 'Nothing is waiting right now.',
+  recentTitle: 'Recently published or withdrawn',
+  recentEmpty: 'Nothing has been published yet.',
+  loadError: 'This list could not be loaded. Refresh the page, or ask an administrator.',
+  open: 'Open',
+  openAndReview: 'Open and review',
+  statusDraft: 'Not live yet: only staff can see it.',
+  statusPublished: 'Live on the site',
+  statusWithdrawn: 'Taken down: it was live and is now hidden.',
+  statusChanged: 'Saved changes are not live yet.',
+  stepsTitle: 'How this goes live',
+  step1: 'Save a draft (anyone on staff can do this).',
+  step2: 'A publisher reads the saved copy.',
+  step3: 'The publisher makes it live or sets a date.',
+  roleEditor: 'You can save drafts. A publisher will review and publish this.',
+  rolePublisher: 'You can save drafts and make them live.',
+  saveDraftOnly: 'A publisher will review and publish this.',
+  howToTitle: 'How to',
+  howToPostTitle: 'Post a notice',
+  howToPost:
+    'Choose Post a notice on the home page, write a headline and the text, then press Save draft. A publisher will review and publish it.',
+  howToUploadTitle: 'Upload a PDF',
+  howToUpload:
+    'Open Official documents, press Upload, choose the file and give it a title. When it says Ready, pick it when you add an issuance or report.',
+  howToFixTitle: 'Fix a mistake',
+  howToFix:
+    'Open the item, change the text and press Save draft. If it is already live, a publisher makes the correction live.',
+  howToAskTitle: 'Who to ask',
+  howToAsk:
+    'Ask a publisher about anything that should go live or come down. Ask an administrator about accounts and access.',
+} as const

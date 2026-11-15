@@ -69,17 +69,17 @@ export interface Config {
   collections: {
     pages: Page;
     posts: Post;
-    media: Media;
-    categories: Category;
-    users: User;
-    organizations: Organization;
-    'academic-years': AcademicYear;
-    offices: Office;
-    people: Person;
     activities: Activity;
     documents: Document;
     issuances: Issuance;
     reports: Report;
+    'academic-years': AcademicYear;
+    people: Person;
+    offices: Office;
+    organizations: Organization;
+    media: Media;
+    categories: Category;
+    users: User;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -99,17 +99,17 @@ export interface Config {
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    users: UsersSelect<false> | UsersSelect<true>;
-    organizations: OrganizationsSelect<false> | OrganizationsSelect<true>;
-    'academic-years': AcademicYearsSelect<false> | AcademicYearsSelect<true>;
-    offices: OfficesSelect<false> | OfficesSelect<true>;
-    people: PeopleSelect<false> | PeopleSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     issuances: IssuancesSelect<false> | IssuancesSelect<true>;
     reports: ReportsSelect<false> | ReportsSelect<true>;
+    'academic-years': AcademicYearsSelect<false> | AcademicYearsSelect<true>;
+    people: PeopleSelect<false> | PeopleSelect<true>;
+    offices: OfficesSelect<false> | OfficesSelect<true>;
+    organizations: OrganizationsSelect<false> | OrganizationsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -168,11 +168,16 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Standalone pages such as About or Contact.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
   id: number;
+  /**
+   * The heading readers see, for example "About the USG".
+   */
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
@@ -226,22 +231,37 @@ export interface Page {
     image?: (number | null) | Media;
     description?: string | null;
   };
+  /**
+   * The date readers see on the page. Leave empty to use the day it goes live.
+   */
   publishedAt?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
   slug: string;
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * News, notices and announcements.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
   id: number;
+  /**
+   * The headline readers see, for example "Orientation week schedule".
+   */
   title: string;
   heroImage?: (number | null) | Media;
   content: {
@@ -269,7 +289,13 @@ export interface Post {
     image?: (number | null) | Media;
     description?: string | null;
   };
+  /**
+   * The date readers see on the post. Leave empty to use the day it goes live.
+   */
   publishedAt?: string | null;
+  /**
+   * Staff members credited on the post.
+   */
   authors?: (number | User)[] | null;
   populatedAuthors?:
     | {
@@ -281,12 +307,21 @@ export interface Post {
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
   slug: string;
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Pictures used on pages and posts.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
@@ -406,6 +441,8 @@ export interface FolderInterface {
   createdAt: string;
 }
 /**
+ * Topics used to group posts.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
@@ -416,6 +453,9 @@ export interface Category {
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
   slug: string;
   parent?: (number | null) | Category;
   breadcrumbs?:
@@ -430,6 +470,8 @@ export interface Category {
   createdAt: string;
 }
 /**
+ * Staff accounts and what each person is allowed to do.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -793,147 +835,40 @@ export interface Form {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "organizations".
- */
-export interface Organization {
-  id: number;
-  publishedAt?: string | null;
-  lastTransition?: {
-    action?: ('publish' | 'withdraw' | 'restore') | null;
-    actorID?: number | null;
-    at?: string | null;
-    reviewedVersionID?: number | null;
-    reviewedVersionHash?: string | null;
-    expectedVersionID?: number | null;
-    expectedVersionHash?: string | null;
-  };
-  name: string;
-  kind: 'usg' | 'csg' | 'university_unit';
-  participating?: boolean | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "academic-years".
- */
-export interface AcademicYear {
-  id: number;
-  publishedAt?: string | null;
-  lastTransition?: {
-    action?: ('publish' | 'withdraw' | 'restore') | null;
-    actorID?: number | null;
-    at?: string | null;
-    reviewedVersionID?: number | null;
-    reviewedVersionHash?: string | null;
-    expectedVersionID?: number | null;
-    expectedVersionHash?: string | null;
-  };
-  label: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "offices".
- */
-export interface Office {
-  id: number;
-  publishedAt?: string | null;
-  lastTransition?: {
-    action?: ('publish' | 'withdraw' | 'restore') | null;
-    actorID?: number | null;
-    at?: string | null;
-    reviewedVersionID?: number | null;
-    reviewedVersionHash?: string | null;
-    expectedVersionID?: number | null;
-    expectedVersionHash?: string | null;
-  };
-  name: string;
-  organization: number | Organization;
-  parent?: (number | null) | Office;
-  branch?: ('executive' | 'legislative' | 'judicial') | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "people".
- */
-export interface Person {
-  id: number;
-  publishedAt?: string | null;
-  lastTransition?: {
-    action?: ('publish' | 'withdraw' | 'restore') | null;
-    actorID?: number | null;
-    at?: string | null;
-    reviewedVersionID?: number | null;
-    reviewedVersionHash?: string | null;
-    expectedVersionID?: number | null;
-    expectedVersionHash?: string | null;
-  };
-  name: string;
-  terms?:
-    | {
-        office: number | Office;
-        startDate?: string | null;
-        endDate?: string | null;
-        academicYear?: (number | null) | AcademicYear;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
+ * Events and programs shown on the site.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "activities".
  */
 export interface Activity {
   id: number;
-  publishedAt?: string | null;
-  lastTransition?: {
-    action?: ('publish' | 'withdraw' | 'restore') | null;
-    actorID?: number | null;
-    at?: string | null;
-    reviewedVersionID?: number | null;
-    reviewedVersionHash?: string | null;
-    expectedVersionID?: number | null;
-    expectedVersionHash?: string | null;
-  };
+  /**
+   * What the activity is called, for example "General Assembly".
+   */
   title: string;
+  /**
+   * The organization holding the activity.
+   */
   organization: number | Organization;
+  /**
+   * Optional. The school year the activity belongs to.
+   */
   academicYear?: (number | null) | AcademicYear;
+  /**
+   * The day it happens or happened.
+   */
   eventDate: string;
+  /**
+   * Optional. For example "2:00 PM to 4:00 PM".
+   */
   time?: string | null;
+  /**
+   * Optional. For example "Main Auditorium".
+   */
   location?: string | null;
+  /**
+   * Optional. A short description readers will see.
+   */
   description?: {
     root: {
       type: string;
@@ -950,45 +885,12 @@ export interface Activity {
     [k: string]: unknown;
   } | null;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Set by the site when a publisher first makes this live. It cannot be edited.
    */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: number;
-  organization: number | Organization;
-  title: string;
-  state: 'pending' | 'ready' | 'failed';
-  storageKey?: string | null;
-  originalFilename?: string | null;
-  mimeType?: string | null;
-  size?: number | null;
-  sha256?: string | null;
-  previousVersion?: (number | null) | Document;
-  uploadActor?: number | null;
-  uploadRequestId?: string | null;
-  uploadRequestHash?: string | null;
-  stagingKey?: string | null;
-  uploadExpiresAt?: string | null;
-  verifiedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "issuances".
- */
-export interface Issuance {
-  id: number;
   publishedAt?: string | null;
+  /**
+   * Records the latest publication, withdrawal or restore. It cannot be edited.
+   */
   lastTransition?: {
     action?: ('publish' | 'withdraw' | 'restore') | null;
     actorID?: number | null;
@@ -998,16 +900,227 @@ export interface Issuance {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
-  title: string;
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Student governments and other organizations that publish records.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organizations".
+ */
+export interface Organization {
+  id: number;
+  /**
+   * The full name of the organization, for example "University Student Government".
+   */
+  name: string;
+  /**
+   * Choose the closest match.
+   */
+  kind: 'usg' | 'csg' | 'university_unit';
+  /**
+   * Tick this if the organization takes part in the student government system.
+   */
+  participating?: boolean | null;
+  /**
+   * Set by the site when a publisher first makes this live. It cannot be edited.
+   */
+  publishedAt?: string | null;
+  /**
+   * Records the latest publication, withdrawal or restore. It cannot be edited.
+   */
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * School years used to group records.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "academic-years".
+ */
+export interface AcademicYear {
+  id: number;
+  /**
+   * How the year is written, for example "2026-2027".
+   */
+  label: string;
+  /**
+   * The first day of the academic year.
+   */
+  startDate?: string | null;
+  /**
+   * The last day of the academic year.
+   */
+  endDate?: string | null;
+  /**
+   * Set by the site when a publisher first makes this live. It cannot be edited.
+   */
+  publishedAt?: string | null;
+  /**
+   * Records the latest publication, withdrawal or restore. It cannot be edited.
+   */
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Uploaded PDF files that issuances and reports point to.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  /**
+   * The organization that owns the file.
+   */
   organization: number | Organization;
+  /**
+   * A clear name for the file, for example Resolution No. 12.
+   */
+  title: string;
+  /**
+   * Ready means the file can be attached. Failed means upload it again.
+   */
+  state: 'pending' | 'ready' | 'failed';
+  storageKey?: string | null;
+  /**
+   * Set automatically when this file replaces an earlier upload.
+   */
+  previousVersion?: (number | null) | Document;
+  uploadActor?: number | null;
+  uploadRequestId?: string | null;
+  uploadRequestHash?: string | null;
+  stagingKey?: string | null;
+  uploadExpiresAt?: string | null;
+  /**
+   * Filled in automatically from the uploaded PDF.
+   */
+  originalFilename?: string | null;
+  /**
+   * Filled in automatically when the PDF is checked.
+   */
+  mimeType?: string | null;
+  /**
+   * Filled in automatically when the PDF is checked.
+   */
+  size?: number | null;
+  /**
+   * Filled in automatically so the PDF cannot be altered.
+   */
+  sha256?: string | null;
+  /**
+   * Date and time the PDF passed its check.
+   */
+  verifiedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Executive orders, resolutions, memoranda and other issuances.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "issuances".
+ */
+export interface Issuance {
+  id: number;
+  /**
+   * The full title as written on the document.
+   */
+  title: string;
+  /**
+   * The organization that issued it.
+   */
+  organization: number | Organization;
+  /**
+   * Optional. The office that issued it.
+   */
   issuingOffice?: (number | null) | Office;
+  /**
+   * Choose the closest match.
+   */
   type: 'executive_order' | 'memorandum' | 'act' | 'resolution' | 'advisory';
+  /**
+   * The number printed on the document, for example "12". Advisories may leave this empty.
+   */
   documentNumber?: string | null;
+  /**
+   * The year of the numbering series, for example 2026.
+   */
   seriesYear?: number | null;
   normalizedNumber?: string | null;
+  /**
+   * Optional. The date printed on the document.
+   */
   issuedDate?: string | null;
+  /**
+   * Optional. Leave empty if it takes effect when issued.
+   */
   effectiveDate?: string | null;
+  /**
+   * Optional. The school year of the issuance.
+   */
   academicYear?: (number | null) | AcademicYear;
+  /**
+   * Optional. A few sentences readers will see before opening the file.
+   */
   summary?: {
     root: {
       type: string;
@@ -1023,8 +1136,17 @@ export interface Issuance {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * The uploaded PDF. Upload it first under Official documents.
+   */
   mainDocument: number | Document;
+  /**
+   * Optional. Other uploaded files that belong with it.
+   */
   attachments?: (number | Document)[] | null;
+  /**
+   * Optional. Other issuances, reports, posts or activities readers may want next.
+   */
   relatedRecords?:
     | (
         | {
@@ -1046,21 +1168,12 @@ export interface Issuance {
       )[]
     | null;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Set by the site when a publisher first makes this live. It cannot be edited.
    */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "reports".
- */
-export interface Report {
-  id: number;
   publishedAt?: string | null;
+  /**
+   * Records the latest publication, withdrawal or restore. It cannot be edited.
+   */
   lastTransition?: {
     action?: ('publish' | 'withdraw' | 'restore') | null;
     actorID?: number | null;
@@ -1070,14 +1183,121 @@ export interface Report {
     expectedVersionID?: number | null;
     expectedVersionHash?: string | null;
   };
-  title: string;
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Offices and bodies of the student government.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offices".
+ */
+export interface Office {
+  id: number;
+  /**
+   * For example "Office of the President".
+   */
+  name: string;
+  /**
+   * The organization this office belongs to.
+   */
   organization: number | Organization;
+  /**
+   * Optional. Choose the larger office this one reports to.
+   */
+  parent?: (number | null) | Office;
+  /**
+   * Optional. The branch of government this office belongs to.
+   */
+  branch?: ('executive' | 'legislative' | 'judicial') | null;
+  /**
+   * Set by the site when a publisher first makes this live. It cannot be edited.
+   */
+  publishedAt?: string | null;
+  /**
+   * Records the latest publication, withdrawal or restore. It cannot be edited.
+   */
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Financial and accomplishment reports.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reports".
+ */
+export interface Report {
+  id: number;
+  /**
+   * For example "Financial Report, First Semester".
+   */
+  title: string;
+  /**
+   * The organization that produced the report.
+   */
+  organization: number | Organization;
+  /**
+   * Optional. Offices in charge of this report.
+   */
   responsibleOffices?: (number | Office)[] | null;
+  /**
+   * Choose the closest match.
+   */
   type: 'financial' | 'accomplishment';
+  /**
+   * In words, for example "First Semester 2026-2027".
+   */
   reportingPeriod: string;
+  /**
+   * Optional. The first day covered.
+   */
   periodStartDate?: string | null;
+  /**
+   * Optional. The last day covered.
+   */
   periodEndDate?: string | null;
+  /**
+   * Optional. The school year of the report.
+   */
   academicYear?: (number | null) | AcademicYear;
+  /**
+   * Optional. A few sentences readers will see before opening the report.
+   */
   abstract?: {
     root: {
       type: string;
@@ -1093,9 +1313,21 @@ export interface Report {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Optional. For example "Final" or "As amended".
+   */
   sourceVersionLabel?: string | null;
+  /**
+   * The uploaded PDF of the report. Upload it first under Official documents.
+   */
   mainDocument: number | Document;
+  /**
+   * Optional. Other uploaded files that belong with the report.
+   */
   attachments?: (number | Document)[] | null;
+  /**
+   * Optional. Other issuances, reports, posts or activities readers may want next.
+   */
   relatedRecords?:
     | (
         | {
@@ -1117,9 +1349,100 @@ export interface Report {
       )[]
     | null;
   /**
+   * Set by the site when a publisher first makes this live. It cannot be edited.
+   */
+  publishedAt?: string | null;
+  /**
+   * Records the latest publication, withdrawal or restore. It cannot be edited.
+   */
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
+  /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Officials and members shown on the site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "people".
+ */
+export interface Person {
+  id: number;
+  /**
+   * The name as it should appear on the site.
+   */
+  name: string;
+  /**
+   * Each time this person held an office. Add one row per position.
+   */
+  terms?:
+    | {
+        /**
+         * The office held.
+         */
+        office: number | Office;
+        /**
+         * Optional. The first day in this position.
+         */
+        startDate?: string | null;
+        /**
+         * Optional. Leave empty if the person still holds it.
+         */
+        endDate?: string | null;
+        /**
+         * Optional. The school year of this position.
+         */
+        academicYear?: (number | null) | AcademicYear;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Set by the site when a publisher first makes this live. It cannot be edited.
+   */
+  publishedAt?: string | null;
+  /**
+   * Records the latest publication, withdrawal or restore. It cannot be edited.
+   */
+  lastTransition?: {
+    action?: ('publish' | 'withdraw' | 'restore') | null;
+    actorID?: number | null;
+    at?: string | null;
+    reviewedVersionID?: number | null;
+    reviewedVersionHash?: string | null;
+    expectedVersionID?: number | null;
+    expectedVersionHash?: string | null;
+  };
+  /**
+   * Filled in automatically with the person who last saved this.
+   */
+  lastEditedBy?: (number | null) | User;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  /**
+   * The last part of the page address. It is filled in from the title; you rarely need to change it.
+   */
   slug: string;
   updatedAt: string;
   createdAt: string;
@@ -1338,34 +1661,6 @@ export interface PayloadLockedDocument {
         value: number | Post;
       } | null)
     | ({
-        relationTo: 'media';
-        value: number | Media;
-      } | null)
-    | ({
-        relationTo: 'categories';
-        value: number | Category;
-      } | null)
-    | ({
-        relationTo: 'users';
-        value: number | User;
-      } | null)
-    | ({
-        relationTo: 'organizations';
-        value: number | Organization;
-      } | null)
-    | ({
-        relationTo: 'academic-years';
-        value: number | AcademicYear;
-      } | null)
-    | ({
-        relationTo: 'offices';
-        value: number | Office;
-      } | null)
-    | ({
-        relationTo: 'people';
-        value: number | Person;
-      } | null)
-    | ({
         relationTo: 'activities';
         value: number | Activity;
       } | null)
@@ -1380,6 +1675,34 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'reports';
         value: number | Report;
+      } | null)
+    | ({
+        relationTo: 'academic-years';
+        value: number | AcademicYear;
+      } | null)
+    | ({
+        relationTo: 'people';
+        value: number | Person;
+      } | null)
+    | ({
+        relationTo: 'offices';
+        value: number | Office;
+      } | null)
+    | ({
+        relationTo: 'organizations';
+        value: number | Organization;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1490,6 +1813,7 @@ export interface PagesSelect<T extends boolean = true> {
   publishedAt?: T;
   generateSlug?: T;
   slug?: T;
+  lastEditedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1603,6 +1927,252 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
         name?: T;
       };
+  generateSlug?: T;
+  slug?: T;
+  lastEditedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities_select".
+ */
+export interface ActivitiesSelect<T extends boolean = true> {
+  title?: T;
+  organization?: T;
+  academicYear?: T;
+  eventDate?: T;
+  time?: T;
+  location?: T;
+  description?: T;
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
+  lastEditedBy?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  organization?: T;
+  title?: T;
+  state?: T;
+  storageKey?: T;
+  previousVersion?: T;
+  uploadActor?: T;
+  uploadRequestId?: T;
+  uploadRequestHash?: T;
+  stagingKey?: T;
+  uploadExpiresAt?: T;
+  originalFilename?: T;
+  mimeType?: T;
+  size?: T;
+  sha256?: T;
+  verifiedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "issuances_select".
+ */
+export interface IssuancesSelect<T extends boolean = true> {
+  title?: T;
+  organization?: T;
+  issuingOffice?: T;
+  type?: T;
+  documentNumber?: T;
+  seriesYear?: T;
+  normalizedNumber?: T;
+  issuedDate?: T;
+  effectiveDate?: T;
+  academicYear?: T;
+  summary?: T;
+  mainDocument?: T;
+  attachments?: T;
+  relatedRecords?: T;
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
+  lastEditedBy?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reports_select".
+ */
+export interface ReportsSelect<T extends boolean = true> {
+  title?: T;
+  organization?: T;
+  responsibleOffices?: T;
+  type?: T;
+  reportingPeriod?: T;
+  periodStartDate?: T;
+  periodEndDate?: T;
+  academicYear?: T;
+  abstract?: T;
+  sourceVersionLabel?: T;
+  mainDocument?: T;
+  attachments?: T;
+  relatedRecords?: T;
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
+  lastEditedBy?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "academic-years_select".
+ */
+export interface AcademicYearsSelect<T extends boolean = true> {
+  label?: T;
+  startDate?: T;
+  endDate?: T;
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
+  lastEditedBy?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "people_select".
+ */
+export interface PeopleSelect<T extends boolean = true> {
+  name?: T;
+  terms?:
+    | T
+    | {
+        office?: T;
+        startDate?: T;
+        endDate?: T;
+        academicYear?: T;
+        id?: T;
+      };
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
+  lastEditedBy?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offices_select".
+ */
+export interface OfficesSelect<T extends boolean = true> {
+  name?: T;
+  organization?: T;
+  parent?: T;
+  branch?: T;
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
+  lastEditedBy?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "organizations_select".
+ */
+export interface OrganizationsSelect<T extends boolean = true> {
+  name?: T;
+  kind?: T;
+  participating?: T;
+  publishedAt?: T;
+  lastTransition?:
+    | T
+    | {
+        action?: T;
+        actorID?: T;
+        at?: T;
+        reviewedVersionID?: T;
+        reviewedVersionHash?: T;
+        expectedVersionID?: T;
+        expectedVersionHash?: T;
+      };
+  lastEditedBy?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1749,244 +2319,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "organizations_select".
- */
-export interface OrganizationsSelect<T extends boolean = true> {
-  publishedAt?: T;
-  lastTransition?:
-    | T
-    | {
-        action?: T;
-        actorID?: T;
-        at?: T;
-        reviewedVersionID?: T;
-        reviewedVersionHash?: T;
-        expectedVersionID?: T;
-        expectedVersionHash?: T;
-      };
-  name?: T;
-  kind?: T;
-  participating?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "academic-years_select".
- */
-export interface AcademicYearsSelect<T extends boolean = true> {
-  publishedAt?: T;
-  lastTransition?:
-    | T
-    | {
-        action?: T;
-        actorID?: T;
-        at?: T;
-        reviewedVersionID?: T;
-        reviewedVersionHash?: T;
-        expectedVersionID?: T;
-        expectedVersionHash?: T;
-      };
-  label?: T;
-  startDate?: T;
-  endDate?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "offices_select".
- */
-export interface OfficesSelect<T extends boolean = true> {
-  publishedAt?: T;
-  lastTransition?:
-    | T
-    | {
-        action?: T;
-        actorID?: T;
-        at?: T;
-        reviewedVersionID?: T;
-        reviewedVersionHash?: T;
-        expectedVersionID?: T;
-        expectedVersionHash?: T;
-      };
-  name?: T;
-  organization?: T;
-  parent?: T;
-  branch?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "people_select".
- */
-export interface PeopleSelect<T extends boolean = true> {
-  publishedAt?: T;
-  lastTransition?:
-    | T
-    | {
-        action?: T;
-        actorID?: T;
-        at?: T;
-        reviewedVersionID?: T;
-        reviewedVersionHash?: T;
-        expectedVersionID?: T;
-        expectedVersionHash?: T;
-      };
-  name?: T;
-  terms?:
-    | T
-    | {
-        office?: T;
-        startDate?: T;
-        endDate?: T;
-        academicYear?: T;
-        id?: T;
-      };
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activities_select".
- */
-export interface ActivitiesSelect<T extends boolean = true> {
-  publishedAt?: T;
-  lastTransition?:
-    | T
-    | {
-        action?: T;
-        actorID?: T;
-        at?: T;
-        reviewedVersionID?: T;
-        reviewedVersionHash?: T;
-        expectedVersionID?: T;
-        expectedVersionHash?: T;
-      };
-  title?: T;
-  organization?: T;
-  academicYear?: T;
-  eventDate?: T;
-  time?: T;
-  location?: T;
-  description?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents_select".
- */
-export interface DocumentsSelect<T extends boolean = true> {
-  organization?: T;
-  title?: T;
-  state?: T;
-  storageKey?: T;
-  originalFilename?: T;
-  mimeType?: T;
-  size?: T;
-  sha256?: T;
-  previousVersion?: T;
-  uploadActor?: T;
-  uploadRequestId?: T;
-  uploadRequestHash?: T;
-  stagingKey?: T;
-  uploadExpiresAt?: T;
-  verifiedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "issuances_select".
- */
-export interface IssuancesSelect<T extends boolean = true> {
-  publishedAt?: T;
-  lastTransition?:
-    | T
-    | {
-        action?: T;
-        actorID?: T;
-        at?: T;
-        reviewedVersionID?: T;
-        reviewedVersionHash?: T;
-        expectedVersionID?: T;
-        expectedVersionHash?: T;
-      };
-  title?: T;
-  organization?: T;
-  issuingOffice?: T;
-  type?: T;
-  documentNumber?: T;
-  seriesYear?: T;
-  normalizedNumber?: T;
-  issuedDate?: T;
-  effectiveDate?: T;
-  academicYear?: T;
-  summary?: T;
-  mainDocument?: T;
-  attachments?: T;
-  relatedRecords?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "reports_select".
- */
-export interface ReportsSelect<T extends boolean = true> {
-  publishedAt?: T;
-  lastTransition?:
-    | T
-    | {
-        action?: T;
-        actorID?: T;
-        at?: T;
-        reviewedVersionID?: T;
-        reviewedVersionHash?: T;
-        expectedVersionID?: T;
-        expectedVersionHash?: T;
-      };
-  title?: T;
-  organization?: T;
-  responsibleOffices?: T;
-  type?: T;
-  reportingPeriod?: T;
-  periodStartDate?: T;
-  periodEndDate?: T;
-  academicYear?: T;
-  abstract?: T;
-  sourceVersionLabel?: T;
-  mainDocument?: T;
-  attachments?: T;
-  relatedRecords?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2269,11 +2601,16 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * The links at the top of every page.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
   id: number;
+  /**
+   * The main links readers use to move around the site. Up to 7.
+   */
   navItems?:
     | {
         link: {
@@ -2325,11 +2662,16 @@ export interface Header {
   createdAt?: string | null;
 }
 /**
+ * The links at the bottom of every page.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
 export interface Footer {
   id: number;
+  /**
+   * Links shown at the bottom of every page. Up to 6.
+   */
   navItems?:
     | {
         link: {

@@ -17,6 +17,7 @@ const dirname = path.dirname(filename)
 export const Media: CollectionConfig = {
   slug: 'media',
   folders: true,
+  admin: { group: 'Site', description: 'Pictures used on pages and posts.' },
   access: {
     create: authenticated,
     delete: authenticated,

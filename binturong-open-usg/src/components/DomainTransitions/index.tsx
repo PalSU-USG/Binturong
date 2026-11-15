@@ -49,7 +49,15 @@ function ReviewFields({ fields, data }: { fields: ClientField[]; data: Record<st
           return 'fields' in field ? (
             <ReviewFields key={index} fields={field.fields} data={data} />
           ) : null
-        if (['publishedAt', 'lastTransition', 'normalizedNumber', '_status'].includes(field.name))
+        if (
+          [
+            'publishedAt',
+            'lastTransition',
+            'lastEditedBy',
+            'normalizedNumber',
+            '_status',
+          ].includes(field.name)
+        )
           return null
         const value = data[field.name]
         let content: React.ReactNode =

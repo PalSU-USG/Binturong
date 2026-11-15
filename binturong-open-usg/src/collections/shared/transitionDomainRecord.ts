@@ -22,6 +22,7 @@ import {
   preflightOfficialPublication,
 } from '@/storage/officialPublication'
 import { isDomainCollection, type DomainCollection } from './domainCollections'
+import { clearPreservedLastEditedBy, preserveLastEditedBy } from '@/fields/lastEditedBy'
 import { validateDomainPublication } from './validateDomainPublication'
 import { validateDomainWithdrawal } from './protectDomainReferences'
 
@@ -206,6 +207,7 @@ export async function transitionDomainRecord(req: PayloadRequest, input: Transit
       },
     }
     grants.set(req, { collection, documentID, data, used: false })
+    preserveLastEditedBy(req, candidate.lastEditedBy)
     await req.payload.update({
       collection,
       id: documentID,
@@ -225,6 +227,7 @@ export async function transitionDomainRecord(req: PayloadRequest, input: Transit
     throw error
   } finally {
     grants.delete(req)
+    clearPreservedLastEditedBy(req)
     clearOfficialPreflight(req)
   }
 }

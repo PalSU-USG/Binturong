@@ -4,12 +4,15 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { Plugin } from 'payload'
+import { hiddenBelow } from '@/admin/navVisibility'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
+import { getActiveAccount } from '@/access/activeAccount'
 import { publishContent } from '@/access/contentAccess'
+import { hasRole } from '@/access/roles'
 import { protectSearchReindex, trustedSearchWrite } from '@/search/authorizeReindex'
 import { publishedSearchAccess } from '@/search/publishedSearchAccess'
 import { indexedCollections } from '@/search/searchTargets'
@@ -32,6 +35,7 @@ export const plugins: Plugin[] = [
   redirectsPlugin({
     collections: ['pages', 'posts'],
     overrides: {
+      admin: { group: 'Advanced', hidden: hiddenBelow('admin') },
       access: { create: publishContent, update: publishContent, delete: publishContent },
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
@@ -65,6 +69,7 @@ export const plugins: Plugin[] = [
       payment: false,
     },
     formOverrides: {
+      admin: { group: 'Advanced', hidden: hiddenBelow('admin') },
       access: { create: publishContent, update: publishContent, delete: publishContent },
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
@@ -86,11 +91,21 @@ export const plugins: Plugin[] = [
         })
       },
     },
+    formSubmissionOverrides: {
+      admin: { group: 'Advanced', hidden: hiddenBelow('super_admin') },
+      access: {
+        create: () => true,
+        read: async ({ req }) => hasRole((await getActiveAccount(req))?.role, 'super_admin'),
+        update: () => false,
+        delete: async ({ req }) => hasRole((await getActiveAccount(req))?.role, 'super_admin'),
+      },
+    },
   }),
   searchPlugin({
     collections: indexedCollections,
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
+      admin: { group: 'Advanced', hidden: hiddenBelow('super_admin') },
       access: {
         create: trustedSearchWrite,
         update: trustedSearchWrite,

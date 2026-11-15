@@ -19,9 +19,12 @@ const internalOnlyField = {
 
 export const Documents: CollectionConfig = {
   slug: 'documents',
+  labels: { singular: 'Official document', plural: 'Official documents' },
   admin: {
+    group: 'Publish',
+    description: 'Uploaded PDF files that issuances and reports point to.',
     useAsTitle: 'title',
-    defaultColumns: ['title', 'state', 'organization', 'verifiedAt'],
+    defaultColumns: ['title', 'state', 'updatedAt'],
     components: {
       beforeListTable: ['@/components/DocumentUpload'],
     },
@@ -35,36 +38,98 @@ export const Documents: CollectionConfig = {
       relationTo: 'organizations',
       required: true,
       index: true,
+      label: 'Organization',
+      admin: { description: 'The organization that owns the file.' },
     },
-    { name: 'title', type: 'text', required: true },
+    {
+      name: 'title',
+      type: 'text',
+      required: true,
+      label: 'Title',
+      admin: { description: 'A clear name for the file, for example Resolution No. 12.' },
+    },
     {
       name: 'state',
       type: 'select',
-      options: ['pending', 'ready', 'failed'],
+      label: 'Upload status',
+      options: [
+        { value: 'pending', label: 'Checking' },
+        { value: 'ready', label: 'Ready' },
+        { value: 'failed', label: 'Failed' },
+      ],
       defaultValue: 'pending',
       required: true,
+      admin: { description: 'Ready means the file can be attached. Failed means upload it again.' },
     },
     { name: 'storageKey', type: 'text', ...internalOnlyField },
-    { name: 'originalFilename', type: 'text' },
-    { name: 'mimeType', type: 'text' },
-    { name: 'size', type: 'number' },
-    { name: 'sha256', type: 'text' },
-    { name: 'previousVersion', type: 'relationship', relationTo: 'documents', index: true },
+    {
+      name: 'previousVersion',
+      type: 'relationship',
+      relationTo: 'documents',
+      index: true,
+      label: 'Replaces earlier file',
+      admin: { description: 'Set automatically when this file replaces an earlier upload.' },
+    },
     { name: 'uploadActor', type: 'number', index: true, ...internalOnlyField },
     { name: 'uploadRequestId', type: 'text', unique: true, index: true, ...internalOnlyField },
     { name: 'uploadRequestHash', type: 'text', ...internalOnlyField },
     { name: 'stagingKey', type: 'text', ...internalOnlyField },
     { name: 'uploadExpiresAt', type: 'date', ...internalOnlyField },
     {
-      name: 'verifiedAt',
-      type: 'date',
-      access: {
-        create: denyFieldAccess,
-        update: denyFieldAccess,
-      },
-      admin: {
-        readOnly: true,
-      },
+      type: 'collapsible',
+      label: 'File details',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          name: 'originalFilename',
+          type: 'text',
+          label: 'Original file name',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically from the uploaded PDF.',
+          },
+        },
+        {
+          name: 'mimeType',
+          type: 'text',
+          label: 'File format',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically when the PDF is checked.',
+          },
+        },
+        {
+          name: 'size',
+          type: 'number',
+          label: 'File size in bytes',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically when the PDF is checked.',
+          },
+        },
+        {
+          name: 'sha256',
+          type: 'text',
+          label: 'File fingerprint',
+          admin: {
+            readOnly: true,
+            description: 'Filled in automatically so the PDF cannot be altered.',
+          },
+        },
+        {
+          name: 'verifiedAt',
+          type: 'date',
+          label: 'Checked on',
+          access: {
+            create: denyFieldAccess,
+            update: denyFieldAccess,
+          },
+          admin: {
+            readOnly: true,
+            description: 'Date and time the PDF passed its check.',
+          },
+        },
+      ],
     },
   ],
   hooks: {

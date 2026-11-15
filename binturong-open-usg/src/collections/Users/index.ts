@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { hiddenBelow } from '../../admin/navVisibility'
 import { getActiveAccount } from '../../access/activeAccount'
 import { userRoles, type UserRole } from '../../access/roles'
 import {
@@ -29,8 +30,12 @@ export const Users: CollectionConfig = {
     update: readAccounts,
     unlock: deleteAccounts,
   },
+  labels: { singular: 'Account', plural: 'Accounts' },
   admin: {
-    defaultColumns: ['name', 'email'],
+    group: 'Accounts',
+    hidden: hiddenBelow('admin'),
+    description: 'Staff accounts and what each person is allowed to do.',
+    defaultColumns: ['name', 'email', 'role'],
     useAsTitle: 'name',
   },
   auth: { useSessions: true },
