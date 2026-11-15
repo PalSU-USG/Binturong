@@ -1041,10 +1041,6 @@ export interface Document {
    */
   state: 'pending' | 'ready' | 'failed';
   storageKey?: string | null;
-  originalFilename?: string | null;
-  mimeType?: string | null;
-  size?: number | null;
-  sha256?: string | null;
   /**
    * Set automatically when this file replaces an earlier upload.
    */
@@ -1054,6 +1050,25 @@ export interface Document {
   uploadRequestHash?: string | null;
   stagingKey?: string | null;
   uploadExpiresAt?: string | null;
+  /**
+   * Filled in automatically from the uploaded PDF.
+   */
+  originalFilename?: string | null;
+  /**
+   * Filled in automatically when the PDF is checked.
+   */
+  mimeType?: string | null;
+  /**
+   * Filled in automatically when the PDF is checked.
+   */
+  size?: number | null;
+  /**
+   * Filled in automatically so the PDF cannot be altered.
+   */
+  sha256?: string | null;
+  /**
+   * Date and time the PDF passed its check.
+   */
   verifiedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1959,16 +1974,16 @@ export interface DocumentsSelect<T extends boolean = true> {
   title?: T;
   state?: T;
   storageKey?: T;
-  originalFilename?: T;
-  mimeType?: T;
-  size?: T;
-  sha256?: T;
   previousVersion?: T;
   uploadActor?: T;
   uploadRequestId?: T;
   uploadRequestHash?: T;
   stagingKey?: T;
   uploadExpiresAt?: T;
+  originalFilename?: T;
+  mimeType?: T;
+  size?: T;
+  sha256?: T;
   verifiedAt?: T;
   updatedAt?: T;
   createdAt?: T;
