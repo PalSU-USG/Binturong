@@ -6,7 +6,7 @@ import { formatInstantDate, formatLongDate } from '@/components/records/format'
 
 const sectionTitle =
   'text-[length:var(--text-section)] font-semibold leading-tight [overflow-wrap:anywhere]'
-const linkClass = 'inline-flex min-h-11 items-center text-link underline underline-offset-4'
+const linkClass = 'inline-flex min-h-[var(--target-hit)] items-center text-link underline underline-offset-4'
 export const actionClass = `${linkClass} font-heading font-semibold`
 const metaClass = 'text-[length:var(--text-meta)] text-muted-foreground'
 const rowClass = 'grid gap-x-6 gap-y-1 border-t border-border py-4 first:border-t-0'
@@ -56,14 +56,15 @@ export function HomeSection({
   children: React.ReactNode
 }) {
   return (
-    <section aria-labelledby={id} className="pt-14">
+    <section aria-labelledby={id} className="pt-12">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 border-b-2 border-brand pb-2">
         <h2 className={sectionTitle} id={id}>
           {title}
         </h2>
         {all && (
           <SmartLink className={actionClass} href={all.href}>
-            {all.label} <span aria-hidden="true">→</span>
+            {all.label}
+            <span aria-hidden="true">&nbsp;→</span>
           </SmartLink>
         )}
       </div>
@@ -233,7 +234,8 @@ export function LinkList({ links }: { links: HomeLink[] }) {
       {links.map((link) => (
         <li key={`${link.label}-${link.href}`}>
           <SmartLink className={actionClass} href={link.href} newTab={link.newTab}>
-            {link.label} <span aria-hidden="true">→</span>
+            {link.label}
+            <span aria-hidden="true">&nbsp;→</span>
           </SmartLink>
         </li>
       ))}

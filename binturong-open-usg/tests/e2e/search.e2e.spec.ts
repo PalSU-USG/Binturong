@@ -34,7 +34,7 @@ test.describe('public search', () => {
     for (const url of ['/search', '/search?q=', '/search?q=a']) {
       await page.goto(url)
       await expect(page.getByText('Enter at least two characters')).toBeVisible()
-      await expect(page.locator('ol')).toHaveCount(0)
+      await expect(page.locator('ol.site-destinations')).toHaveCount(0)
     }
   })
 

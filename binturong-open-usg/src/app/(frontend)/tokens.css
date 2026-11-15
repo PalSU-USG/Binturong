@@ -45,7 +45,7 @@
   /* Layer 2: semantic, light */
   --background: var(--brand-paper);
   --foreground: oklch(14.5% 0 0deg);
-  --card: oklch(96.5% 0.005 265deg);
+  --card: var(--brand-grey-50);
   --card-foreground: var(--foreground);
   --popover: var(--brand-paper);
   --popover-foreground: var(--foreground);
@@ -99,6 +99,9 @@
   --radius: 0.25rem;
   --measure: 48rem;
   --target-min: 2.75rem;
+  /* Rendered targets use this: 1px over the 44px minimum so fractional layout or sub-pixel zoom
+     cannot measure 43.99998. */
+  --target-hit: calc(var(--target-min) + 1px);
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;

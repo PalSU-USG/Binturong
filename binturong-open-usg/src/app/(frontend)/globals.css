@@ -236,7 +236,7 @@ html[data-theme='light'] {
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
-    min-height: 2.75rem;
+    min-height: var(--target-hit);
     max-width: 100%;
     font-family: var(--font-heading);
     line-height: 1.15;
@@ -314,7 +314,7 @@ html[data-theme='light'] {
   .site-nav-link {
     display: inline-flex;
     align-items: center;
-    min-height: 2.75rem;
+    min-height: var(--target-hit);
     padding-inline: var(--space-3);
     overflow-wrap: anywhere;
     font-family: var(--font-heading);
@@ -381,8 +381,8 @@ html[data-theme='light'] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.75rem;
-    min-width: 2.75rem;
+    min-height: var(--target-hit);
+    min-width: var(--target-hit);
     padding-inline: 0.75rem;
     list-style: none;
     cursor: pointer;
@@ -503,6 +503,11 @@ html[data-theme='light'] {
     font-size: 0.875rem;
     overflow-wrap: anywhere;
   }
+  /* The link's tap padding makes its item taller; centre plain crumbs and separators on it. */
+  .site-breadcrumbs li {
+    display: flex;
+    align-items: center;
+  }
   .site-breadcrumbs li + li::before {
     content: '/';
     margin-right: 0.5rem;
@@ -554,7 +559,7 @@ html[data-theme='light'] {
   .site-section-index span[aria-current] {
     display: flex;
     align-items: center;
-    min-height: 2.75rem;
+    min-height: var(--target-hit);
     padding-inline: 0.75rem;
     border-left: 4px solid transparent;
     overflow-wrap: anywhere;
@@ -634,7 +639,7 @@ html[data-theme='light'] {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 0.25rem 1rem;
-    min-height: 2.75rem;
+    min-height: var(--target-hit);
     padding-block: 1rem;
     color: inherit;
     text-decoration: none;

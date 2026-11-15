@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { SearchType } from './params'
@@ -22,11 +23,6 @@ export const Search: React.FC<{ q?: string | null; type?: SearchType }> = ({ q, 
       />
     </div>
     {type !== 'all' && <input type="hidden" name="type" value={type} />}
-    <button
-      type="submit"
-      className="h-10 rounded border border-border bg-primary px-6 text-primary-foreground"
-    >
-      Search
-    </button>
+    <Button type="submit">Search</Button>
   </form>
 )

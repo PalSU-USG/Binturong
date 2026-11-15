@@ -12,7 +12,6 @@ import type { Post } from '@/payload-types'
 
 import { PostHero, postCategoryLabel } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
-import PageClient from './page.client'
 import { SectionLayout } from '@/components/SectionLayout'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { getPreviewAccess } from '@/utilities/getPreviewAccess'
@@ -64,8 +63,6 @@ export default async function Post({ params: paramsPromise }: Args) {
       title={post.title}
     >
       <article className="pt-6 pb-16">
-        <PageClient />
-
         {/* Allows redirects for valid pages too */}
         <PayloadRedirects disableNotFound url={url} />
 
@@ -77,7 +74,7 @@ export default async function Post({ params: paramsPromise }: Args) {
           <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
           {post.relatedPosts && post.relatedPosts.length > 0 && (
             <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
+              className="mx-auto mt-12 max-w-[48rem]"
               docs={post.relatedPosts.filter((post) => typeof post === 'object')}
             />
           )}

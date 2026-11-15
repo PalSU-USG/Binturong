@@ -44,8 +44,6 @@ vi.mock('@/heros/RenderHero', () => ({ RenderHero: () => null }))
 vi.mock('@/heros/PostHero', () => ({ PostHero: () => null }))
 vi.mock('@/components/RichText', () => ({ default: () => null }))
 vi.mock('@/components/LivePreviewListener', () => ({ LivePreviewListener: () => null }))
-vi.mock('@/app/(frontend)/[slug]/page.client', () => ({ default: () => null }))
-vi.mock('@/app/(frontend)/posts/[slug]/page.client', () => ({ default: () => null }))
 
 const context = { disableRevalidate: true }
 

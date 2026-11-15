@@ -9,8 +9,8 @@ import React, { cache } from 'react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
+import { PageHeader } from '@/components/PageHeader'
 import { generateMeta } from '@/utilities/generateMeta'
-import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { getPreviewAccess } from '@/utilities/getPreviewAccess'
 
@@ -66,13 +66,16 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { hero, layout } = page
 
   return (
-    <article className="pt-16 pb-24">
-      <PageClient />
+    <article className="pb-16">
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
+      <PageHeader
+        crumbs={[{ label: 'Home', href: '/' }, { label: page.title }]}
+        title={page.title}
+      />
       <RenderHero {...hero} />
       <RenderBlocks blocks={layout} />
     </article>
