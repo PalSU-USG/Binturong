@@ -65,7 +65,10 @@ export const SearchResults: React.FC<{ q: string; type: SearchType; results: Sea
               {hit.recent ? ' · Recent' : ''}
             </p>
             <h2 className="m-0 font-heading text-[length:var(--text-record-title)] font-semibold leading-snug">
-              <Link className={`${linkClass} inline-flex min-h-[var(--target-hit)] items-center py-1 [overflow-wrap:anywhere]`} href={hit.href}>
+              <Link
+                className={`${linkClass} inline-flex min-h-[var(--target-hit)] items-center py-1 [overflow-wrap:anywhere]`}
+                href={hit.href}
+              >
                 {hit.title}
               </Link>
             </h2>
