@@ -204,8 +204,9 @@ describe('semantic design tokens', () => {
     const defined = new Set<string>()
     for (const file of files.filter((f) => /\.s?css$/.test(f)))
       for (const m of read(file).matchAll(/(--[\w-]+)\s*:/g)) defined.add(m[1])
-    // Tailwind internals, next/font and the Radix select primitive define their own variables.
-    const external = /^--(tw-|font-geist-|font-league-|radix-)/
+    // Tailwind internals, next/font, the Radix select primitive and the Payload admin theme
+    // (--theme-*, --base, used by admin SCSS) define their own variables.
+    const external = /^--(tw-|font-geist-|font-league-|radix-|theme-|base$)/
     const missing: string[] = []
     for (const file of files)
       for (const m of read(file).matchAll(/var\((--[\w-]+)/g))
