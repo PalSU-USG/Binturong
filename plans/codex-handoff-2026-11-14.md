@@ -93,6 +93,8 @@ Supabase containers, so ask the owner first.
   `binturong-document-storage-56321` (storage needs 56322). Do not start Bintanong;
   its Supabase containers auto-start with Docker and should be stopped.
 - No AI attribution or co-author trailers. Never commit `.env*`.
-- Bash on this machine can fail with fork errors; PowerShell works.
+- Bash on this machine fails to fork (Mandatory ASLR is on system-wide and
+  `Git\usr\bin\bash.exe` has no exception; the owner keeps it that way). Use PowerShell;
+  for Bash-style one-liners call the already-exempt `C:\Program Files\Git\usr\bin\sh.exe -c '...'`.
 - Owner inputs still open: approved logo file, seal, colours, section copy, office
   branches, CSG list, PalSU portal link, hosting.
