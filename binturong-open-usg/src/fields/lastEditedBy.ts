@@ -2,18 +2,19 @@ import type { CollectionBeforeChangeHook, Field, PayloadRequest } from 'payload'
 
 import { getActiveAccount } from '@/access/activeAccount'
 
-const preserved = new WeakMap<PayloadRequest, number | null>()
+// Per-request: Payload copies req.context into nested Local API calls that receive this req.
+const preservedKey = 'preservedLastEditedBy'
 
 export function preserveLastEditedBy(req: PayloadRequest, value: unknown): void {
   const id =
     typeof value === 'object' && value !== null && 'id' in value
       ? (value as { id?: unknown }).id
       : value
-  preserved.set(req, typeof id === 'number' ? id : null)
+  req.context[preservedKey] = typeof id === 'number' ? id : null
 }
 
 export function clearPreservedLastEditedBy(req: PayloadRequest): void {
-  preserved.delete(req)
+  delete req.context[preservedKey]
 }
 
 /**
@@ -42,10 +43,10 @@ export const lastEditedByField: Field = {
 export const setLastEditedBy: CollectionBeforeChangeHook = async ({ data, originalDoc, req }) => {
   const previous = originalDoc?.lastEditedBy
   const previousID = typeof previous === 'object' ? previous?.id : previous
-  if (preserved.has(req)) {
+  if (req.context && preservedKey in req.context) {
     return {
       ...data,
-      lastEditedBy: preserved.get(req) ?? previousID ?? null,
+      lastEditedBy: (req.context[preservedKey] as number | null) ?? previousID ?? null,
     }
   }
   const actor = await getActiveAccount(req)

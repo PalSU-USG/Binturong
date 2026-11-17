@@ -3,6 +3,11 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { getPayload, handleEndpoints, type Payload } from 'payload'
 
 import config from '@/payload.config'
+import {
+  clearPreservedLastEditedBy,
+  preserveLastEditedBy,
+  setLastEditedBy,
+} from '@/fields/lastEditedBy'
 import { syntheticContent as content } from '../helpers/contentFixtures'
 import { createAccessFixtures, removeTestAccounts } from '../helpers/accessFixtures'
 
@@ -89,6 +94,57 @@ describe('lastEditedBy is server-owned', () => {
       } as never,
     })
     expect(await stored('posts', post.id)).toBe(fixtures.users.publisher.id)
+  })
+
+  it('records each saver when different accounts save at the same time', async () => {
+    const make = () =>
+      payload.create({
+        collection: 'posts',
+        draft: true,
+        context,
+        data: {
+          title: `Synthetic ${randomUUID()}`,
+          slug: `synthetic-${randomUUID()}`,
+          content,
+          _status: 'draft',
+        } as never,
+      })
+    const [a, b] = await Promise.all([make(), make()])
+    created.push({ collection: 'posts', id: a.id }, { collection: 'posts', id: b.id })
+    const save = (id: number, role: 'editor' | 'publisher', forged: number) =>
+      payload.update({
+        collection: 'posts',
+        id,
+        user: actor(role),
+        overrideAccess: false,
+        draft: true,
+        context,
+        data: { title: `Synthetic edit ${randomUUID()}`, lastEditedBy: forged } as never,
+      })
+    await Promise.all([
+      save(a.id, 'editor', fixtures.users.publisher.id),
+      save(b.id, 'publisher', fixtures.users.editor.id),
+    ])
+    expect(await stored('posts', a.id)).toBe(fixtures.users.editor.id)
+    expect(await stored('posts', b.id)).toBe(fixtures.users.publisher.id)
+  })
+
+  it('keeps a preserved saver in the request context, which nested saves copy', async () => {
+    const hook = (req: { context: Record<string, unknown> }) =>
+      setLastEditedBy({
+        data: {},
+        originalDoc: { lastEditedBy: 3 },
+        req: req as never,
+      } as never)
+    const outer = { context: {} as Record<string, unknown> }
+    preserveLastEditedBy(outer as never, { id: 7 })
+    // Payload's nested Local API calls replace req.context with a spread copy.
+    const nested = { context: { ...outer.context } }
+    expect(await hook(nested)).toMatchObject({ lastEditedBy: 7 })
+    clearPreservedLastEditedBy(nested as never)
+    expect(await hook(nested)).toMatchObject({ lastEditedBy: 3 })
+    preserveLastEditedBy(nested as never, null)
+    expect(await hook(nested)).toMatchObject({ lastEditedBy: 3 })
   })
 
   it('ignores a forged value sent through the REST API', async () => {
