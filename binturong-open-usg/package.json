@@ -8,6 +8,7 @@
     "documents:manifest": "node --import=tsx scripts/document-manifest.ts",
     "bootstrap:super-admin": "node --import=tsx scripts/bootstrap-super-admin.ts",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "vercel-build": "npm run payload -- migrate && npm run build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
