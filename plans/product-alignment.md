@@ -74,8 +74,27 @@ Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
 - **Workflow notes:** no AI attribution trailers (engineering workflow); Codex
   sandbox needs the oh-my-posh cache, the repo `.git` and loopback network allowed,
   and cannot write git metadata, so the coordinator commits its work.
+- **Dev DB port moved (17 Nov, owner: "Just move the ports"):** Windows reserved
+  56283–56382, so the volume `binturong-test-db-56323` now runs in container
+  `binturong-db-45323` on `127.0.0.1:45323` (below the 49152+ dynamic range); main `.env`
+  points there. Then (owner: "move all of them"): volume `supabase_db_binturong-open-usg`
+  runs as `binturong-db-45322` (network alias `binturong-domain-review-db-56322`, so the
+  storage env is unchanged) and storage as `binturong-storage-45321`. Old containers kept,
+  stopped, with an `-old` suffix. Test guards still hard-code 55322/56322/56323 and storage
+  56321 (`assertTestDatabase`, `assertTestStorage`, `domainMigrations.mjs`,
+  `accountProvisioning.ts`), so tests don't run until those change. Main `.env` has no
+  `OFFICIAL_STORAGE_*`, so the dev server cannot upload documents on any port.
+- **Hosted dev deployment (17 Nov):** Vercel project `pal-su-usg/binturong` (Root Directory
+  `binturong-open-usg`, Node 22) builds `dev` as Preview behind Vercel SSO. `vercel-build`
+  runs `payload migrate` before `next build`. The Supabase project `ntzwpcnsjpijfhrgvvin`
+  is the **dev** database, not production: it held a template-era dev-push schema (66
+  tables, no RLS, full `anon` grants, 2 users with hashes) while the Data API was on; the
+  owner turned the Data API off and wiped `public`, then all 15 migrations ran, ending with
+  `20261117_053700_data_api_lockdown`. Preview secrets were rotated. Open: no first admin
+  on hosted (bootstrap guard is local-only), no hosted storage bucket, production needs a
+  separate Supabase project.
 - **Local dev server (owner, 9 Nov):** main checkout `.env` points to
-  `127.0.0.1:56323/binturong_domain`, a migrated copy of the local dev content where
+  `127.0.0.1:56323/binturong_domain` (now 45323, above), a migrated copy of the local dev content where
   `usg@psu.palawan.edu.ph` was promoted to super_admin with the bootstrap script (dry
   run, then apply). The original `postgres` DB on 56322 is untouched (baseline only).
   Backups: `C:/Users/Hawksprey/binturong-backups/` (public-schema dump, old `.env`).
