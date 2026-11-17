@@ -13,7 +13,8 @@ export default async function HowTo({ initPageResult, params, searchParams }: Ad
     !initPageResult?.permissions?.canAccessAdmin ||
     !(await getActiveAccount(initPageResult.req))
   ) {
-    redirect('/admin/login')
+    // Signed in without access (a disabled account): Payload's no-access page explains why.
+    redirect(initPageResult?.req?.user ? '/admin/unauthorized' : '/admin/login')
   }
 
   return (
