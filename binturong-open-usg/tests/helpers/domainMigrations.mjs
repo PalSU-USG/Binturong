@@ -78,6 +78,20 @@ if (!process.argv[3]) {
     }
     return { columns: tables, rows }
   }
+  // What the Supabase Data API roles can reach in public. Function EXECUTE also comes from
+  // PUBLIC, so it is compared across down() but not required to be false.
+  const dataAPIExposure = `
+    select c.relkind::text as kind, c.relname as name, c.relrowsecurity as rls, r.rolname as role,
+      case c.relkind when 'S' then has_sequence_privilege(r.rolname, c.oid, 'USAGE,SELECT,UPDATE')
+        else has_table_privilege(r.rolname, c.oid, 'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') end as allowed
+    from pg_class c cross join pg_roles r
+    where c.relnamespace = 'public'::regnamespace and c.relkind in ('r', 'p', 'S')
+      and r.rolname in ('anon', 'authenticated')
+    union all
+    select 'f', p.proname, false, r.rolname, has_function_privilege(r.rolname, p.oid, 'EXECUTE')
+    from pg_proc p cross join pg_roles r
+    where p.pronamespace = 'public'::regnamespace and r.rolname in ('anon', 'authenticated')
+    order by 1, 2, 4`
   const navigationTables = [
     'header',
     'header_nav_items',
@@ -100,7 +114,16 @@ if (!process.argv[3]) {
       (await pool.query('select current_database() as name')).rows[0].name,
       process.argv[3],
     )
-    assert.equal(migrations.length, 14)
+    // A proof database made with CREATE DATABASE lacks the grants Supabase sets up in its
+    // own postgres database. Recreate the postgres-role defaults that hosted Supabase has so
+    // every migrated table starts exposed to the Data API roles, as it does there.
+    await pool.query(`
+      grant usage on schema public to anon, authenticated, service_role;
+      alter default privileges for role postgres in schema public grant all on tables to anon, authenticated, service_role;
+      alter default privileges for role postgres in schema public grant all on sequences to anon, authenticated, service_role;
+      alter default privileges for role postgres in schema public grant all on functions to anon, authenticated, service_role;
+    `)
+    assert.equal(migrations.length, 15)
     let baseline, predecessor, beforeDocumentSessions, beforeNavigation, userID, searchID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
@@ -239,15 +262,60 @@ if (!process.argv[3]) {
       assert.deepEqual(await capture(), beforeNavigation)
       console.info('PASS atomic navigation migration rollback with populated Header rows')
     }
+    await payload.db.migrate({ migrations: migrations.slice(0, 14) })
+    const beforeLockdown = (await pool.query(dataAPIExposure)).rows
+    assert(
+      beforeLockdown.some(
+        ({ name, role, allowed }) => name === 'users' && role === 'anon' && allowed,
+      ),
+      'Supabase defaults expose users before the lockdown',
+    )
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 14)
+    assert.equal(history.length, 15)
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
       history,
     )
-    console.info('PASS fourteen migrations and repeat no-op')
+    console.info('PASS fifteen migrations and repeat no-op')
+    const lockedDown = (await pool.query(dataAPIExposure)).rows
+    assert.deepEqual(
+      lockedDown
+        .filter(({ kind, rls }) => ['r', 'p'].includes(kind) && !rls)
+        .map(({ name }) => name),
+      [],
+    )
+    assert.deepEqual(
+      lockedDown.filter(({ kind, allowed }) => kind !== 'f' && allowed).map(({ name }) => name),
+      [],
+    )
+    const probe = async (db) => {
+      await db.execute(sql`create table public.lockdown_probe (id serial primary key)`)
+      const result = await db.execute(
+        sql`select has_table_privilege('anon','public.lockdown_probe','SELECT') as t, has_sequence_privilege('authenticated','public.lockdown_probe_id_seq','USAGE') as s`,
+      )
+      return result.rows[0]
+    }
+    await assert.rejects(
+      payload.db.drizzle.transaction(async (db) => {
+        assert.deepEqual(await probe(db), { t: false, s: false }, 'new tables start closed')
+        throw new Error('Synthetic rollback after lockdown probe')
+      }),
+      /Synthetic rollback after lockdown probe/,
+    )
+    await assert.rejects(
+      payload.db.drizzle.transaction(async (db) => {
+        await migrations[14].down({ db })
+        const restored = await db.execute(sql.raw(dataAPIExposure))
+        assert.deepEqual(restored.rows, beforeLockdown, 'down() restores the pre-lockdown access')
+        assert.deepEqual(await probe(db), { t: true, s: true }, 'down() restores defaults')
+        throw new Error('Synthetic rollback after lockdown down review')
+      }),
+      /Synthetic rollback after lockdown down review/,
+    )
+    assert.deepEqual((await pool.query(dataAPIExposure)).rows, lockedDown)
+    console.info('PASS Data API lockdown, closed defaults and reviewed down()')
     // The last-saved-by migration is additive: existing rows keep their data and the new
     // column starts empty (they show under Drafts, not My drafts). Its down() removes it.
     const editedTables = [

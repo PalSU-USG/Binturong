@@ -12,6 +12,7 @@ import * as migration_20261106_011114_document_upload_sessions from './20261106_
 import * as migration_20261109_043524_search_index_fields from './20261109_043524_search_index_fields'
 import * as migration_20261109_045910_navigation_hierarchy from './20261109_045910_navigation_hierarchy'
 import * as migration_20261110_152826_last_edited_by from './20261110_152826_last_edited_by'
+import * as migration_20261117_053700_data_api_lockdown from './20261117_053700_data_api_lockdown'
 
 export const migrations = [
   {
@@ -83,5 +84,10 @@ export const migrations = [
     up: migration_20261110_152826_last_edited_by.up,
     down: migration_20261110_152826_last_edited_by.down,
     name: '20261110_152826_last_edited_by',
+  },
+  {
+    up: migration_20261117_053700_data_api_lockdown.up,
+    down: migration_20261117_053700_data_api_lockdown.down,
+    name: '20261117_053700_data_api_lockdown',
   },
 ]
