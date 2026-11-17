@@ -52,4 +52,5 @@ export const adminCopy = {
   howToAskTitle: 'Who to ask',
   howToAsk:
     'Ask a publisher about anything that should go live or come down. Ask an administrator about accounts and access.',
+  accountDisabled: 'This account is disabled. Ask a USG administrator to re-enable it.',
 } as const

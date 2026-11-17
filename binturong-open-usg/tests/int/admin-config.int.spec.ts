@@ -212,6 +212,17 @@ describe('plain language', () => {
       | undefined
     expect(howTo).toMatchObject({ path: '/how-to', exact: true })
   })
+
+  it('explains a turned-off account in plain words on the no-access page', () => {
+    const translations = resolved.i18n?.translations as
+      | { en?: { error?: { unauthorizedAdmin?: string } } }
+      | undefined
+    expect(translations?.en?.error?.unauthorizedAdmin).toBe(adminCopy.accountDisabled)
+    expect(adminCopy.accountDisabled).toBe(
+      'This account is disabled. Ask a USG administrator to re-enable it.',
+    )
+    expect(findBannedTerms(adminCopy.accountDisabled)).toEqual([])
+  })
 })
 
 describe('editors cannot publish through the server', () => {

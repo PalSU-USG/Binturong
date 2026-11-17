@@ -19,6 +19,7 @@ import { Issuances } from './collections/Issuances'
 import { Reports } from './collections/Reports'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { adminCopy } from './admin/copy'
 import { hiddenBelow } from './admin/navVisibility'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
@@ -101,6 +102,8 @@ export default buildConfig({
     Users,
   ],
   cors: [getServerSideURL()].filter(Boolean),
+  // Heading of Payload's no-access page, shown only to a signed-in account that lost access.
+  i18n: { translations: { en: { error: { unauthorizedAdmin: adminCopy.accountDisabled } } } },
   globals: [Header, Footer],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
