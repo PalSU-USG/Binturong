@@ -32,8 +32,10 @@ and create `.env.test` with a `DATABASE_URL` targeting
 
 ## Temporary database port recovery
 
-If Windows reserves port 55322, the owner-approved fallback is loopback port 56322.
-The current `binturong-domain-review-db-56322` container reuses the exact original
+If Windows reserves port 55322, the owner-approved fallback is loopback port 45322.
+On 17 November 2026 Windows reserved ports 56283-56382, so the owner approved moving
+every local service to a new port ("Just move the ports"). The
+`binturong-db-45322` container reuses the exact original
 database image, environment, startup command, and named volume
 `supabase_db_binturong-open-usg`; the original container remains stopped.
 Never run both containers against that volume simultaneously. No volume was reset
@@ -41,13 +43,13 @@ or migrated to establish this alternate binding. Supabase CLI configuration stay
 at its normal port; this temporary container is managed directly with Docker:
 
 ```powershell
-docker start binturong-domain-review-db-56322
-docker stop binturong-domain-review-db-56322
+docker start binturong-db-45322
+docker stop binturong-db-45322
 ```
 
-For this checkout only, `.env.test` targets `127.0.0.1:56322/binturong_test` with
+For this checkout only, `.env.test` targets `127.0.0.1:45322/binturong_test` with
 its existing credentials. Test, migration-proof and account-provisioning guards
-accept exactly 55322 or 56322, retaining their hostname, database-name and URL-option
+accept exactly 55322, 45322 or 45323, retaining their hostname, database-name and URL-option
 checks. Other private environments and shared services remain unchanged.
 To return to the normal port once available, stop the temporary container first,
 start the original `supabase_db_binturong-open-usg`, and restore `.env.test` to 55322.
@@ -55,24 +57,25 @@ start the original `supabase_db_binturong-open-usg`, and restore `.env.test` to 
 ## Second isolated test database
 
 The owner approved a second test database so two implementation tasks can run
-database suites at the same time. `binturong-test-db-56323` uses the same image,
+database suites at the same time. `binturong-db-45323` uses the same image,
 environment and startup command as the fallback above, but its own new volume
-`binturong-test-db-56323`, bound only to `127.0.0.1:56323`. It shares no data with
+`binturong-test-db-56323`, bound only to `127.0.0.1:45323`. It shares no data with
 the other databases. Its `binturong_test` was created empty and migrated with
-Payload. Guards accept exactly 55322, 56322 or 56323. Give each concurrent task
+Payload. It also holds the owner's `binturong_domain` development database; tests never use it.
+Guards accept exactly 55322, 45322 or 45323. Give each concurrent task
 its own port in that checkout's ignored `.env.test`; never point two running tasks
 at the same database.
 
 ```powershell
-docker start binturong-test-db-56323
+docker start binturong-db-45323
 node --env-file=.env.test --no-deprecation node_modules/payload/bin.js migrate
 ```
 
 
 ## Private Storage development
 
-The active storage task uses `binturong-document-storage-56321`, an isolated
-instance of the existing Storage API image bound only to `127.0.0.1:56321`.
+Storage uses `binturong-storage-45321`, an isolated
+instance of the existing Storage API image bound only to `127.0.0.1:45321`.
 It reuses the original local Storage volume; the original Storage container stays
 stopped. Its database points to the existing database fallback inside Docker.
 Never run the original and fallback instances against the same volume together.
@@ -86,8 +89,8 @@ to exactly 50,000,000 bytes. Service credentials stay server-side. Signed TUS
 uploads use `/upload/resumable/sign` with an exact-path `x-signature` token.
 
 ```powershell
-docker start binturong-domain-review-db-56322
-docker start binturong-document-storage-56321
+docker start binturong-db-45322
+docker start binturong-storage-45321
 npm run test:int -- tests/int/document-storage.int.spec.ts tests/int/document-storage-live.int.spec.ts
 ```
 

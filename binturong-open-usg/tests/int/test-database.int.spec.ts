@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { assertTestDatabase } from '../helpers/assertTestDatabase'
 
 describe('test database isolation', () => {
-  it.each(['55322', '56322', '56323'])('accepts the dedicated Binturong test database on %s', (port) => {
+  it.each(['55322', '45322', '45323'])('accepts the dedicated Binturong test database on %s', (port) => {
     expect(() =>
       assertTestDatabase(`postgresql://tester:synthetic@127.0.0.1:${port}/binturong_test`),
     ).not.toThrow()
@@ -18,13 +18,16 @@ describe('test database isolation', () => {
     'postgresql://tester:synthetic@127.0.0.1:55322/postgres',
     'postgresql://tester:synthetic@127.0.0.1:54322/binturong_test',
     'postgresql://tester:synthetic@127.0.0.1:55322/binturong_test?host=db.example.invalid',
-    'postgresql://tester:synthetic@db.example.invalid:56322/binturong_test',
-    'postgresql://tester:synthetic@127.0.0.1:56322/postgres',
-    'postgresql://tester:synthetic@127.0.0.1:56322/binturong_test?host=db.example.invalid',
-    'postgresql://tester:synthetic@127.0.0.1:56322/binturong_test#override',
-    'postgresql://tester:synthetic@db.example.invalid:56323/binturong_test',
-    'postgresql://tester:synthetic@127.0.0.1:56323/postgres',
-    'postgresql://tester:synthetic@127.0.0.1:56324/binturong_test',
+    'postgresql://tester:synthetic@db.example.invalid:45322/binturong_test',
+    'postgresql://tester:synthetic@127.0.0.1:45322/postgres',
+    'postgresql://tester:synthetic@127.0.0.1:45322/binturong_test?host=db.example.invalid',
+    'postgresql://tester:synthetic@127.0.0.1:45322/binturong_test#override',
+    'postgresql://tester:synthetic@db.example.invalid:45323/binturong_test',
+    'postgresql://tester:synthetic@127.0.0.1:45323/postgres',
+    'postgresql://tester:synthetic@127.0.0.1:45324/binturong_test',
+    'postgresql://tester:synthetic@127.0.0.1:56321/binturong_test',
+    'postgresql://tester:synthetic@127.0.0.1:56322/binturong_test',
+    'postgresql://tester:synthetic@127.0.0.1:56323/binturong_test',
   ])('rejects an unsafe target: %s', (url) => {
     expect(() => assertTestDatabase(url)).toThrow('Tests require the local binturong_test database')
   })

@@ -44,7 +44,7 @@ const privateBucket = {
 
 describe('private official storage and PDF verification', () => {
   beforeEach(() => {
-    vi.stubEnv('OFFICIAL_STORAGE_URL', 'http://127.0.0.1:56321')
+    vi.stubEnv('OFFICIAL_STORAGE_URL', 'http://127.0.0.1:45321')
     vi.stubEnv('OFFICIAL_STORAGE_SERVICE_KEY', 'synthetic-storage-service-key')
     vi.stubEnv('OFFICIAL_STORAGE_BUCKET', 'synthetic-documents')
   })
@@ -58,13 +58,14 @@ describe('private official storage and PDF verification', () => {
 
   it('isolates live provider fixtures from hosted services and ordinary buckets', () => {
     expect(() =>
-      assertTestStorage('http://127.0.0.1:56321', 'binturong-documents-test'),
+      assertTestStorage('http://127.0.0.1:45321', 'binturong-documents-test'),
     ).not.toThrow()
     for (const [url, bucket] of [
       ['https://example.supabase.co/storage/v1', 'binturong-documents-test'],
-      ['http://127.0.0.1:56321', 'official-documents'],
+      ['http://127.0.0.1:45321', 'official-documents'],
       ['http://127.0.0.1:55321', 'binturong-documents-test'],
-      ['http://127.0.0.1:56321?host=example.invalid', 'binturong-documents-test'],
+      ['http://127.0.0.1:56321', 'binturong-documents-test'],
+      ['http://127.0.0.1:45321?host=example.invalid', 'binturong-documents-test'],
     ])
       expect(() => assertTestStorage(url, bucket)).toThrow()
   })
@@ -93,7 +94,7 @@ describe('private official storage and PDF verification', () => {
       else await expect(check).rejects.toMatchObject({ status: 503 })
     }
     expect(fetch).toHaveBeenLastCalledWith(
-      'http://127.0.0.1:56321/bucket/synthetic-documents',
+      'http://127.0.0.1:45321/bucket/synthetic-documents',
       expect.objectContaining({ redirect: 'error', cache: 'no-store' }),
     )
   })

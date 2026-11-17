@@ -97,7 +97,7 @@ Run application commands from `binturong-open-usg/`. You need Node.js, npm, Dock
 
    The dev server runs at `http://localhost:3000`.
 
-5. Optional: promote one existing account to `super_admin`. Public first-user registration is disabled. Run the dry run first, then `--apply`. It works only against a local `binturong_domain` or `binturong_test` database on port 55322, 56322 or 56323.
+5. Optional: promote one existing account to `super_admin`. Public first-user registration is disabled. Run the dry run first, then `--apply`. It works only against a local `binturong_domain` or `binturong_test` database on port 55322, 45322 or 45323.
 
    ```powershell
    npm run bootstrap:super-admin -- --user-id <id>
@@ -106,7 +106,7 @@ Run application commands from `binturong-open-usg/`. You need Node.js, npm, Dock
 
 ### Test database safety
 
-- Tests load `.env.test`. The runners refuse any target other than the local `binturong_test` database on port 55322, 56322 or 56323. They also reject hosted URLs, the development database and connection-string overrides.
+- Tests load `.env.test`. The runners refuse any target other than the local `binturong_test` database on port 55322, 45322 or 45323. They also reject hosted URLs, the development database and connection-string overrides.
 - First-time setup creates the empty test database, then migrates it. Unset `DATABASE_URL` in your shell first. A value already set there overrides `--env-file`, and this direct command skips the test-runner guard.
 
   ```powershell
