@@ -11,8 +11,9 @@
  * #70430C carries white text (--on-brand-deep, 8.4:1). #A37235 is under 4.5:1 on white, so it is
  * not a text colour. The branch colours mark Legislative and Judicial pages; their dark-theme
  * shades are lightened only to stay visible on the dark page.
- * Inputs still expected from the owner: original USG, Senate and Tribunal emblem files (the
- * header still uses public/brand/usg-logo.png), officer photograph, favicon and share image.
+ * public/brand/usg-emblem.png, senate-emblem.png and tribunal-emblem.png are cut from slide 1
+ * of the guide (background removed, about 512 px wide); replace them with original vector files
+ * when the owner has them. Still expected: officer photograph, favicon and share image.
  * public/brand/palsu-seal.png and campus-gate.png come from Project Akademya; replace with
  * approved originals.
  * After editing layer 1, run tests/int/design-tokens.int.spec.ts: it resolves every pair below

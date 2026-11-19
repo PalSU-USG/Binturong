@@ -5,19 +5,20 @@ import React from 'react'
 import { cn } from '@/utilities/ui'
 
 /**
- * USG logo and two-line identity. The logo is a placeholder the owner supplied, pending an
- * approved original file. It is decorative (`alt=""`): the adjacent text names it.
+ * USG emblem and two-line identity. The emblem is cut from slide 1 of the owner's Official USG
+ * Branding Guide (20 November 2026), pending an original vector file. It is decorative
+ * (`alt=""`): the adjacent text names it.
  */
 export const Wordmark: React.FC<{ className?: string }> = ({ className }) => (
   <Link className={cn('site-wordmark', className)} href="/">
     <Image
       alt=""
-      className="site-wordmark-seal rounded-full"
-      height={72}
+      className="site-wordmark-seal"
+      height={411}
       priority
-      sizes="(min-width: 48rem) 72px, 48px"
-      src="/brand/usg-logo.png"
-      width={72}
+      sizes="(min-width: 48rem) 90px, 60px"
+      src="/brand/usg-emblem.png"
+      width={512}
     />
     <span>
       <span className="site-wordmark-name">Palawan State University</span>
