@@ -93,14 +93,18 @@ test.describe('admin usability', () => {
       await expect(page.getByRole('button', { name: /Schedule/ })).toHaveCount(0)
       await expect(page.getByRole('button', { name: 'Save draft' })).toBeVisible()
 
-      const autosaved = page.waitForResponse(
+      // Opening the form must not create a record; autosave used to leave "Untitled" drafts.
+      await page.waitForTimeout(1500)
+      await expect(page).toHaveURL(/\/admin\/collections\/posts\/create/)
+      await page.locator('#field-title').fill(title)
+      const saved = page.waitForResponse(
         (response) =>
           response.url().includes('/api/posts') &&
           response.request().method() !== 'GET' &&
           response.ok(),
       )
-      await page.locator('#field-title').fill(title)
-      await autosaved
+      await page.getByRole('button', { name: 'Save draft' }).click()
+      await saved
       await expect(page).toHaveURL(/\/admin\/collections\/posts\/\d+/)
 
       await page.goto('/admin')

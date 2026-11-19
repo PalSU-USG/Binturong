@@ -58,14 +58,18 @@ if (!process.argv[3]) {
   const pool = payload.db.pool
   let exitCode = 0
 
+  // draft_autosave_off drops the autosave flag from the Page/Post version tables on purpose;
+  // every other captured column must survive.
+  const dropped = new Set(['_pages_v.autosave', '_posts_v.autosave'])
   async function capture(columns) {
-    const tables =
+    const tables = (
       columns ??
       (
         await pool.query(
           "select table_name,column_name from information_schema.columns where table_schema='public' order by table_name,ordinal_position",
         )
       ).rows
+    ).filter(({ table_name, column_name }) => !dropped.has(`${table_name}.${column_name}`))
     const grouped = Object.groupBy(tables, ({ table_name }) => table_name)
     const rows = {}
     for (const [table, fields] of Object.entries(grouped)) {
@@ -123,7 +127,7 @@ if (!process.argv[3]) {
       alter default privileges for role postgres in schema public grant all on sequences to anon, authenticated, service_role;
       alter default privileges for role postgres in schema public grant all on functions to anon, authenticated, service_role;
     `)
-    assert.equal(migrations.length, 15)
+    assert.equal(migrations.length, 16)
     let baseline, predecessor, beforeDocumentSessions, beforeNavigation, userID, searchID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
@@ -272,13 +276,17 @@ if (!process.argv[3]) {
     )
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 15)
+    assert.equal(history.length, 16)
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
       history,
     )
-    console.info('PASS fifteen migrations and repeat no-op')
+    const leftover = await pool.query(
+      "select count(*)::int as n from information_schema.columns where table_schema='public' and table_name in ('_pages_v','_posts_v') and column_name='autosave'",
+    )
+    assert.equal(leftover.rows[0].n, 0, 'draft_autosave_off drops the autosave flags')
+    console.info('PASS sixteen migrations and repeat no-op')
     const lockedDown = (await pool.query(dataAPIExposure)).rows
     assert.deepEqual(
       lockedDown
