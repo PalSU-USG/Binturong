@@ -17,12 +17,12 @@ import { draftMode } from 'next/headers'
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
-// Project Akademya's display face, League Spartan (SIL OFL), vendored as the latin variable-weight
-// subset (@fontsource-variable/league-spartan) so builds do not depend on the network.
-const leagueSpartan = localFont({
-  src: './fonts/LeagueSpartan-latin-variable.woff2',
+// The USG Branding Guide typeface, Montserrat (SIL OFL), vendored as the latin variable-weight
+// subset (@fontsource-variable/montserrat 5.3.0) so builds do not depend on the network.
+const montserrat = localFont({
+  src: './fonts/Montserrat-latin-variable.woff2',
   weight: '100 900',
-  variable: '--font-league-spartan',
+  variable: '--font-montserrat',
   display: 'swap',
 })
 
@@ -30,7 +30,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable, leagueSpartan.variable)} lang="en" suppressHydrationWarning>
+    <html
+      className={cn(GeistSans.variable, GeistMono.variable, montserrat.variable)}
+      lang="en"
+      suppressHydrationWarning
+    >
       <head>
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />

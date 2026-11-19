@@ -48,7 +48,7 @@
   --font-mono: var(--font-geist-mono);
   --font-sans: var(--font-geist-sans);
   /* Display face for headings, wordmark, navigation and tags; body stays on the sans face. */
-  --font-heading: var(--font-league-spartan), var(--font-geist-sans), system-ui, sans-serif;
+  --font-heading: var(--font-montserrat), var(--font-geist-sans), system-ui, sans-serif;
 }
 
 @layer utilities {
@@ -136,7 +136,10 @@
   --color-brand-deep: var(--brand-deep);
   --color-accent-gold: var(--accent-gold);
   --color-on-brand: var(--on-brand);
+  --color-on-brand-deep: var(--on-brand-deep);
   --color-notice: var(--notice);
+  --color-accent-legislative: var(--accent-legislative);
+  --color-accent-judicial: var(--accent-judicial);
   --color-status-info-bg: var(--status-info-bg);
   --color-status-info-fg: var(--status-info-fg);
   --color-status-info-border: var(--status-info-border);
@@ -214,8 +217,8 @@ html[data-theme='light'] {
     outline: none;
   }
 
-  /* Authority band (seal and identity) over a deeper navigation band; both full width. The
-     --nav-* variables put on-brand text and focus rings on the rust bands. */
+  /* Orange authority band (black text) over a deep-brown navigation band (white text); both full
+     width. The --nav-* variables put the band's text colour on links and focus rings. */
   .site-header {
     position: relative;
     z-index: 20;
@@ -230,6 +233,9 @@ html[data-theme='light'] {
   .site-navband {
     padding-block: var(--space-1);
     background: var(--brand-deep);
+    color: var(--on-brand-deep);
+    --nav-fg: var(--on-brand-deep);
+    --nav-ring: var(--on-brand-deep);
     border-top: 1px solid var(--accent-gold);
   }
   .site-wordmark {
@@ -281,7 +287,7 @@ html[data-theme='light'] {
   }
   .site-footer a:focus-visible,
   .site-footer select:focus-visible {
-    outline-color: var(--on-brand);
+    outline-color: var(--on-brand-deep);
   }
   .site-nav {
     min-width: 0;
@@ -330,7 +336,7 @@ html[data-theme='light'] {
   }
   a.site-nav-link:hover,
   .site-nav-toggle:hover {
-    background-color: color-mix(in srgb, var(--on-brand) 14%, transparent);
+    background-color: color-mix(in srgb, var(--nav-fg) 14%, transparent);
     text-decoration: underline;
   }
   .site-nav-link {
@@ -448,8 +454,8 @@ html[data-theme='light'] {
         min-width: 15rem;
         margin-top: var(--space-2);
         padding: var(--space-2);
-        /* A PalSU surface: rust with a gold top accent, on-brand text, soft shadow. */
-        background: var(--brand);
+        /* Continues the navigation band: deep brown with a gold top accent, white text. */
+        background: var(--brand-deep);
         border-top: 3px solid var(--accent-gold);
         border-radius: 0 0 0.5rem 0.5rem;
         box-shadow: var(--shadow-overlay);
@@ -534,7 +540,7 @@ html[data-theme='light'] {
     margin-top: var(--space-6);
     padding: var(--space-4);
     background: var(--brand-deep);
-    color: var(--on-brand);
+    color: var(--on-brand-deep);
     border-radius: 0.25rem;
   }
   .site-section-index-title {
@@ -553,7 +559,7 @@ html[data-theme='light'] {
     padding: 0;
   }
   .site-section-index li + li {
-    border-top: 1px solid color-mix(in srgb, var(--on-brand) 22%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--on-brand-deep) 22%, transparent);
   }
   .site-section-index a,
   .site-section-index span[aria-current] {
@@ -570,7 +576,7 @@ html[data-theme='light'] {
     transition: background-color 200ms ease-out;
   }
   .site-section-index a:hover {
-    background: color-mix(in srgb, var(--on-brand) 14%, transparent);
+    background: color-mix(in srgb, var(--on-brand-deep) 14%, transparent);
     text-decoration: underline;
     text-underline-offset: 0.2em;
   }
@@ -578,24 +584,31 @@ html[data-theme='light'] {
   .site-section-index a[aria-current='page'],
   .site-section-index span[aria-current='page'] {
     border-left-color: var(--notice);
-    background: color-mix(in srgb, var(--on-brand) 14%, transparent);
+    background: color-mix(in srgb, var(--on-brand-deep) 14%, transparent);
     font-weight: 700;
   }
   .site-section-index a:focus-visible {
-    outline: 3px solid var(--on-brand);
+    outline: 3px solid var(--on-brand-deep);
     outline-offset: -3px;
   }
-  /* Identity band on the PalSU rust. */
+  /* Identity band on the USG deep brown. Legislative and Judicial pages swap the gold rule for
+     their branch colour (Senate red, Tribunal blue). */
   .site-page-header {
     background: var(--brand-deep);
-    color: var(--on-brand);
+    color: var(--on-brand-deep);
     border-bottom: 4px solid var(--accent-gold);
   }
+  .site-page-header[data-branch='legislative'] {
+    border-bottom-color: var(--accent-legislative);
+  }
+  .site-page-header[data-branch='judicial'] {
+    border-bottom-color: var(--accent-judicial);
+  }
   .site-page-header .site-breadcrumbs li + li::before {
-    color: var(--on-brand);
+    color: var(--on-brand-deep);
   }
   .site-page-header a:focus-visible {
-    outline: 3px solid var(--on-brand);
+    outline: 3px solid var(--on-brand-deep);
     outline-offset: 2px;
   }
   .site-page-header-body {
@@ -629,7 +642,7 @@ html[data-theme='light'] {
     list-style: none;
     margin: 0;
     padding: 0;
-    border-top: 2px solid var(--brand);
+    border-top: 2px solid var(--primary);
   }
   .site-destinations li + li {
     border-top: 1px solid var(--border);

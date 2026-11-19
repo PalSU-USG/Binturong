@@ -43,7 +43,7 @@ function hexToLinear(hex: string): RGB {
 /** Linear-light blend of `top` over `bottom` at `alpha` (what a translucent band looks like). */
 const blend = (top: RGB, bottom: RGB, alpha: number): RGB =>
   top.map((v, i) => v * alpha + bottom[i] * (1 - alpha)) as RGB
-const luminance =([r, g, b]: RGB) => 0.2126 * r + 0.7152 * g + 0.0722 * b
+const luminance = ([r, g, b]: RGB) => 0.2126 * r + 0.7152 * g + 0.0722 * b
 function contrast(a: RGB, b: RGB) {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
   return (hi + 0.05) / (lo + 0.05)
@@ -91,14 +91,18 @@ const pairs: [string, string, number][] = [
   ['--secondary-foreground', '--secondary', 4.5],
   ['--accent-foreground', '--accent', 4.5],
   ['--on-brand', '--brand', 4.5],
-  ['--on-brand', '--brand-deep', 4.5],
+  ['--on-brand-deep', '--brand-deep', 4.5],
   ['--status-warning-fg', '--notice', 4.5],
-  ['--accent-gold', '--background', 3],
-  ['--brand', '--background', 3],
+  // Gold rules sit on the brown bands; the orange band is bounded by them, not by the page.
+  ['--accent-gold', '--brand-deep', 3],
+  ['--primary', '--background', 3],
+  // Branch rules under the identity band on Legislative and Judicial pages.
+  ['--accent-legislative', '--background', 3],
+  ['--accent-judicial', '--background', 3],
   ['--focus-ring', '--background', 3],
   ['--focus-ring', '--card', 3],
   ['--input', '--background', 3],
-  // Inner-page identity band: yellow current-item bar on the rust side-nav panel.
+  // Inner-page identity band: yellow current-item bar on the brown side-nav panel.
   ['--notice', '--brand-deep', 3],
   ['--foreground', '--muted', 4.5],
   ['--primary', '--muted', 3],
@@ -126,14 +130,18 @@ describe('semantic design tokens', () => {
     expect(light['--primary']).toMatch(/^var\(--brand/)
   })
 
-  it('carries the owner PalSU palette from Project Akademya in the brand layer', () => {
-    expect(light['--brand'].toLowerCase()).toBe('#b4440c')
-    expect(light['--accent-gold'].toLowerCase()).toBe('#bd8c0f')
-    expect(light['--on-brand'].toLowerCase()).toBe('#fff6f6')
-    expect(light['--brand-deep']).toBeDefined()
-    expect(light['--notice']).toBeDefined()
+  it('carries the Official USG Branding Guide palette in the brand layer', () => {
+    expect(light['--brand'].toLowerCase()).toBe('#f6931e')
+    expect(light['--brand-deep'].toLowerCase()).toBe('#70430c')
+    expect(light['--accent-gold'].toLowerCase()).toBe('#ffc61a')
+    expect(light['--notice'].toLowerCase()).toBe('#ffc61a')
+    expect(light['--branch-legislative'].toLowerCase()).toBe('#bf2230')
+    expect(light['--branch-judicial'].toLowerCase()).toBe('#4051a6')
+    // White on the guide orange is 2.3:1, so orange carries black text (owner, 19 Nov 2026).
+    expect(light['--on-brand'].toLowerCase()).toBe('#000000')
+    expect(light['--on-brand-deep'].toLowerCase()).toBe('#ffffff')
     expect(light['--status-warning-bg']).toBe('var(--notice)')
-    expect(css).toMatch(/Project Akademya[^*]*replace with approved originals/is)
+    expect(css).toMatch(/Official USG Branding\s+\*\s+Guide/)
   })
 
   it('keeps the hero text readable on the worst possible photo pixel', () => {
@@ -146,7 +154,9 @@ describe('semantic design tokens', () => {
     ] as const)
       for (const photo of [[1, 1, 1] as RGB, [0, 0, 0] as RGB]) {
         const band = blend(resolve(tokens, '--brand-deep'), photo, alpha)
-        expect(contrast(resolve(tokens, '--on-brand'), band), theme).toBeGreaterThanOrEqual(4.5)
+        expect(contrast(resolve(tokens, '--on-brand-deep'), band), theme).toBeGreaterThanOrEqual(
+          4.5,
+        )
       }
   })
 
@@ -174,7 +184,9 @@ describe('semantic design tokens', () => {
     const theme = globals.slice(globals.indexOf('@theme inline'))
     const semantic = Object.keys(light)
       .filter((name) =>
-        /^--(status-|link$|focus-ring$|brand$|brand-deep$|accent-gold$|on-brand$|notice$)/.test(name),
+        /^--(status-|link$|focus-ring$|brand$|brand-deep$|accent-gold$|on-brand$|on-brand-deep$|notice$|accent-legislative$|accent-judicial$)/.test(
+          name,
+        ),
       )
       .map((name) => name.slice(2))
     for (const name of semantic)
@@ -186,7 +198,7 @@ describe('semantic design tokens', () => {
     const used = new Set<string>()
     for (const file of walk(path.join(root, 'src/components/home'), ['.tsx']))
       for (const m of read(file).matchAll(
-        /\b(?:bg|text|border)-((?:status-[a-z]+-(?:bg|fg|border))|link|focus-ring|brand-deep|brand|on-brand|accent-gold|notice)\b/g,
+        /\b(?:bg|text|border)-((?:status-[a-z]+-(?:bg|fg|border))|link|focus-ring|brand-deep|brand|on-brand-deep|on-brand|accent-gold|notice)\b/g,
       ))
         used.add(m[1])
     expect(used.size).toBeGreaterThan(0)
@@ -206,7 +218,7 @@ describe('semantic design tokens', () => {
       for (const m of read(file).matchAll(/(--[\w-]+)\s*:/g)) defined.add(m[1])
     // Tailwind internals, next/font, the Radix select primitive and the Payload admin theme
     // (--theme-*, --base, used by admin SCSS) define their own variables.
-    const external = /^--(tw-|font-geist-|font-league-|radix-|theme-|base$)/
+    const external = /^--(tw-|font-geist-|font-montserrat$|radix-|theme-|base$)/
     const missing: string[] = []
     for (const file of files)
       for (const m of read(file).matchAll(/var\((--[\w-]+)/g))

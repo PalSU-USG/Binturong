@@ -42,7 +42,7 @@ export function HomePage({ data }: { data: HomeData }) {
           width={1024}
         />
         {/* Akademya proportions: a slim band across the photo, not a panel that hides it. */}
-        <div className="w-full bg-brand-deep/90 py-4 text-center text-on-brand md:py-6">
+        <div className="w-full bg-brand-deep/90 py-4 text-center text-on-brand-deep md:py-6">
           <div className="container">
             <p className="m-0 text-[length:var(--text-label)] font-semibold uppercase tracking-[0.2em]">
               University Student Government

@@ -2,7 +2,7 @@ import { draftMode } from 'next/headers'
 import React from 'react'
 
 import type { Crumb } from '@/components/Breadcrumbs'
-import { PageHeader } from '@/components/PageHeader'
+import { PageHeader, type Branch } from '@/components/PageHeader'
 import { SectionIndex } from '@/components/SectionIndex'
 import { findSection, resolveNavigation, type NavItem } from '@/Header/resolveNavigation'
 import { getCachedGlobal } from '@/utilities/getGlobals'
@@ -20,6 +20,7 @@ export async function SectionLayout({
   title,
   eyebrow,
   intro,
+  branch,
   children,
 }: {
   section: NavItem['section']
@@ -33,6 +34,7 @@ export async function SectionLayout({
   title: string
   eyebrow?: React.ReactNode
   intro?: React.ReactNode
+  branch?: Branch
   children: React.ReactNode
 }) {
   const { isEnabled: review } = await draftMode()
@@ -64,6 +66,7 @@ export async function SectionLayout({
           found ? { label: found.label, href: found.href ?? undefined } : fallback,
           ...trail,
         ]}
+        branch={branch}
         eyebrow={eyebrow}
         intro={intro}
         title={title}

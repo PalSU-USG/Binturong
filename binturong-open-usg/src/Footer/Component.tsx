@@ -22,7 +22,7 @@ export async function Footer() {
   const navItems = await readFooterLinks()
 
   return (
-    <footer className="site-footer mt-auto border-t-4 border-accent-gold bg-brand-deep text-on-brand">
+    <footer className="site-footer mt-auto border-t-4 border-accent-gold bg-brand-deep text-on-brand-deep">
       <div className="container flex flex-col gap-8 py-8 md:flex-row md:justify-between">
         <Wordmark />
         <nav aria-label="Footer">
@@ -31,7 +31,7 @@ export async function Footer() {
               {navItems.map(({ link }, i) => (
                 <li key={i}>
                   <CMSLink
-                    className="inline-flex min-h-[var(--target-hit)] items-center text-on-brand underline underline-offset-4"
+                    className="inline-flex min-h-[var(--target-hit)] items-center text-on-brand-deep underline underline-offset-4"
                     {...link}
                   />
                 </li>
@@ -40,7 +40,7 @@ export async function Footer() {
           )}
         </nav>
       </div>
-      <div className="border-t border-on-brand/30">
+      <div className="border-t border-on-brand-deep/30">
         <div className="container flex flex-col gap-2 py-3 text-[length:var(--text-meta)] sm:flex-row sm:items-center sm:justify-between">
           <p className="m-0">
             Public information, student services and institutional records of the University Student
