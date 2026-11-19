@@ -2,11 +2,11 @@
 
 ## Phase log
 
-| Phase                     | State                                  | Deliverable                                                                      |
-| ------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
-| 0: reconnaissance         | Complete, with inspection limits below | Architecture, gaps, affected modules, migration risks, and validation strategy   |
-| 1: specification and plan | Spec and account/access plan approved  | Six dependent tasks and the later-slice roadmap                                  |
-| 2: execution              | Slices 1–2 integrated; search/navigation next | Storage integrated; later slices reviewed or drafting                    |
+| Phase                     | State                                                     | Deliverable                                                                    |
+| ------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 0: reconnaissance         | Complete, with inspection limits below                    | Architecture, gaps, affected modules, migration risks, and validation strategy |
+| 1: specification and plan | Spec and account/access plan approved                     | Six dependent tasks and the later-slice roadmap                                |
+| 2: execution              | All approved slices integrated on `dev`; resolutions next | Slices integrated; hosted Preview live; production not started                 |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
@@ -15,75 +15,27 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-**Owner decision (15 Nov 2026):** USG will publish Senate resolutions (then memoranda
-and orders) on the site, and resolutions get their own public section. Sample: a USG
-Senate resolution PDF the owner holds (real names and amounts; not tracked). It maps
-to `Issuances` (`type: resolution`) on the admin-usability branch, with one gap:
-the sample's series is an academic-year range ("s. of 2026-2027") while
-`seriesYear` is a single integer; decide between storing the start year plus
-`academicYear` or a series text field before that branch's migration is regenerated.
-The letterhead also gives the official unit name "University Student Government —
-Tiniguiban", `usg.psu.edu.ph`, `usg@psu.palawan.edu.ph` and the office address;
-use them only after the owner confirms.
+Updated 19 November 2026. Local `dev` = GitHub `dev` = `debb6e3`. Vercel builds `dev`
+as a Preview. No production deployment exists.
 
-Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
-
-- **Integrated:** Phase01 access (`00f3b1f`), Phase02 domain foundations (`6ec0427`),
-  Slice2 private documents (this merge). Storage evidence on the final tree: 258/258
-  integration (serial), 13/13 browser, types and changed-file lint clean; full lint
-  keeps 5 inherited errors/10 warnings. Opus and Codex whole-slice reviews, then a
-  focused re-check: all P1/P2 findings resolved. Evidence: ignored
-  `.superpowers/sdd/2026-11-03-private-documents/` in the task checkout.
-- **Storage follow-ups (owner: record, not blocking):** add a total download
-  deadline (~10 min) and per-IP rate limiting in front of `GET /api/documents/:id/file`;
-  give the post-verification authorization/bucket checks their own timeout; the
-  decoded-stream cap is conservative and may reject legitimate PDFs with very large
-  object streams; production serverless file tracing of the pdf-lib worker path is
-  untested; no real uploads or cloud bucket exist yet.
-- **Local services:** test DBs `binturong-domain-review-db-56322` (original volume)
-  and `binturong-test-db-56323` (owner-approved second isolated DB, own volume);
-  Storage API `binturong-document-storage-56321`. Never run the original
-  `supabase_db_binturong-open-usg` together with the 56322 container.
-- **Search integrated** (this merge): branch `c5f29e2` merged dev and regenerated
-  `20261109_043524_search_index_fields` on the storage schema (sort_at backfill kept).
-  Final tree: 306/306 integration, tsc, changed-file lint, build pass; browser 18/19
-  with one `domain.e2e` ECONNRESET that passed on rerun. Follow-ups in
-  `plans/public-search.md` (published-id IN list scaling, swallowed live-hook sync
-  errors, unverified hook withdraw/restore for Issuances/Reports and scheduled publish).
-- **Navigation integrated** (`0e7dabd`): migration `20261109_045910_navigation_hierarchy`
-  (13 total). Final tree: 379/379 integration, 43 browser, production-cache 2/2, tsc and
-  build pass; full lint 5 inherited errors, 14 warnings (4 new, in untouched files).
-  Review ACCEPT WITH FOLLOW-UPS; follow-ups applied with revert proofs; delta re-check
-  OK. Open P2: a flipped menu could overflow the left edge at very narrow widths;
-  `revalidateRedirects` still uses `'max'`.
-- **Record sections integrated** (`cd703a4`, no migration): detail pages for
-  Issuances/Reports/Activities, Archives, Transparency overview, Government. Final tree:
-  436/436 integration, 49/49 browser, production-cache 3/3, tsc and build pass. Review
-  P1 (rich-text internal link crash) fixed via `src/records/richTextLinks.ts`; delta
-  re-check MERGE OK. Owner-open: `loading.tsx` dropped (hid content without JS); P3s
-  left: version numbering shifts after `maxPerDoc` pruning, office pages serve CSG
-  offices, withdrawal e2e bypasses the real transition. Checkpoint: `plans/record-sections.md`.
-- **Identity/home integrated** (`7fdb83f`, no migration): code-owned `/`, tokens,
-  neutral metadata. 526/526 integration, 55 browser, production-cache 3/3, tsc and build
-  pass; review MERGE OK, its P2s fixed before merge. Owner-open: `/home` still renders the
-  template hero when no stored home Page exists; stored SEO titles keep the old template
-  suffix until re-saved. Checkpoint: `plans/identity-home.md`.
-- **Owner inputs:** brand seal/logo/palette,
-  section intro copy, office branches, CSG list and commissions data remain owner inputs;
-  publishers must link the new sections in the Header global.
-- **Workflow notes:** no AI attribution trailers (engineering workflow); Codex
-  sandbox needs the oh-my-posh cache, the repo `.git` and loopback network allowed,
-  and cannot write git metadata, so the coordinator commits its work.
-- **Dev DB port moved (17 Nov, owner: "Just move the ports"):** Windows reserved
-  56283–56382, so the volume `binturong-test-db-56323` now runs in container
-  `binturong-db-45323` on `127.0.0.1:45323` (below the 49152+ dynamic range); main `.env`
-  points there. Then (owner: "move all of them"): volume `supabase_db_binturong-open-usg`
-  runs as `binturong-db-45322` (network alias `binturong-domain-review-db-56322`, so the
-  storage env is unchanged) and storage as `binturong-storage-45321`. Old containers kept,
-  stopped, with an `-old` suffix. Test guards still hard-code 55322/56322/56323 and storage
-  56321 (`assertTestDatabase`, `assertTestStorage`, `domainMigrations.mjs`,
-  `accountProvisioning.ts`), so tests don't run until those change. Main `.env` has no
-  `OFFICIAL_STORAGE_*`, so the dev server cannot upload documents on any port.
+- **Integrated on `dev`:** access (`00f3b1f`), domain foundations (`6ec0427`), private
+  documents, search (`c5f29e2`), navigation (`0e7dabd`), record sections (`cd703a4`),
+  identity/home (`7fdb83f`), inner pages (`d53c142`), UI consistency (`4bcf88c`), admin
+  usability (`081ee0a`), test ports (`32e529e`), Data API lockdown (`e88a49b`) and admin
+  follow-ups (`debb6e3`). Each slice's evidence and open follow-ups are in its own note:
+  `plans/public-search.md`, `plans/record-sections.md`, `plans/identity-home.md`,
+  `plans/admin-usability.md`. Last full run (15 Nov, admin usability): 588 integration,
+  65/67 browser (the 2 failures were leftover test data; rerun 9/9), tsc and build pass.
+- **Owner decision (15 Nov 2026):** USG will publish Senate resolutions (then memoranda
+  and orders) on the site, and resolutions get their own public section. Sample: a USG
+  Senate resolution PDF the owner holds (real names and amounts; not tracked). It maps
+  to `Issuances` (`type: resolution`), with one gap: the sample's series is an
+  academic-year range ("s. of 2026-2027") while `seriesYear` is still a single positive
+  integer (`src/collections/Issuances/validateNumber.ts`). Decide between storing the
+  start year plus `academicYear` or a series text field before building the section.
+  The letterhead also gives the official unit name "University Student Government —
+  Tiniguiban", `usg.psu.edu.ph`, `usg@psu.palawan.edu.ph` and the office address;
+  use them only after the owner confirms.
 - **Hosted dev deployment (17 Nov):** Vercel project `pal-su-usg/binturong` (Root Directory
   `binturong-open-usg`, Node 22) builds `dev` as Preview behind Vercel SSO. `vercel-build`
   runs `payload migrate` before `next build`. The Supabase project `ntzwpcnsjpijfhrgvvin`
@@ -93,22 +45,34 @@ Updated 9 November 2026. Local `dev` only; nothing pushed, no cloud change.
   `20261117_053700_data_api_lockdown`. Preview secrets were rotated. Open: no first admin
   on hosted (bootstrap guard is local-only), no hosted storage bucket, production needs a
   separate Supabase project.
-- **Local dev server (owner, 9 Nov):** main checkout `.env` points to
-  `127.0.0.1:56323/binturong_domain` (now 45323, above), a migrated copy of the local dev content where
-  `usg@psu.palawan.edu.ph` was promoted to super_admin with the bootstrap script (dry
-  run, then apply). The original `postgres` DB on 56322 is untouched (baseline only).
-  Backups: `C:/Users/Hawksprey/binturong-backups/` (public-schema dump, old `.env`).
-  `binturong-dev-db-56324` is an unused intermediate copy. The hosted Supabase project
-  is paused; restoring it is an owner dashboard action.
-- **Approved, queued after navigation:** `Hawksprey420/admin-usability` (`4a15eca`):
-  stay on Payload admin; acceptance = a non-technical editor completes tasks unaided;
-  adds server-set `lastEditedBy` (one migration); merges last.
-- **Next action:** finish admin-usability (in progress on 56322/binturong_test, reset
-  with owner approval 10 Nov), review, regenerate its migration on the final schema, integrate.
-  Previous note: slices ran sequentially on
-  56323/binturong_test (56322 binturong_test holds stale columns from the superseded
-  search migration; reset it only with owner approval). Then admin-usability. Never
-  touch `binturong_domain` (owner dev server).
+- **Local services (17 Nov, owner: "Just move the ports", then "move all of them"):**
+  Windows reserves 56283–56382. Containers: `binturong-db-45323` (volume
+  `binturong-test-db-56323`; main `.env`, database `binturong_domain`, owner dev server),
+  `binturong-db-45322` (volume `supabase_db_binturong-open-usg`, network alias
+  `binturong-domain-review-db-56322`) and `binturong-storage-45321`. Test guards use
+  45321–45323 since `926ed88`. Old containers are kept, stopped, with an `-old` suffix.
+  Main `.env` has no `OFFICIAL_STORAGE_*`, so the dev server cannot upload documents.
+  Backups: `C:/Users/Hawksprey/binturong-backups/`. Never write test data to
+  `binturong_domain`. Starting Docker Desktop also starts Bintanong's Supabase
+  containers; ask the owner first.
+- **Storage follow-ups (owner: record, not blocking):** add a total download
+  deadline (~10 min) and per-IP rate limiting in front of `GET /api/documents/:id/file`;
+  give the post-verification authorization/bucket checks their own timeout; the
+  decoded-stream cap may reject legitimate PDFs with very large object streams;
+  production serverless file tracing of the pdf-lib worker path is untested.
+- **Owner inputs:** approved logo/seal/palette (the logo is a placeholder), section intro
+  copy, office branches, CSG list and commissions data, PalSU portal link, and the
+  Header/Footer template content (template posts, "Payload" links) remain owner decisions.
+  Publishers must link new sections in the Header global.
+- **Workflow notes:** no AI attribution trailers; Codex sandbox needs the oh-my-posh cache,
+  the repo `.git` and loopback network allowed, and cannot write git metadata, so the
+  coordinator commits its work. Bash cannot fork on this machine; use PowerShell.
+- **Unmerged branches:** `Hawksprey420/vercel-skill` (`8fc1494`, Vercel deploy skill for
+  Codex, awaiting owner review). `phase02-domain-schema` and `test-db-56323` predate
+  their integrated replacements.
+- **Next action:** the owner decides the resolution series format (above). In parallel,
+  the owner runs the admin hallway test (`plans/admin-usability.md`). After the series
+  decision: build the public resolutions section on a task branch.
 
 ## Sources and reconnaissance snapshot
 
