@@ -107,9 +107,12 @@ that verified buffer in chunks. Do not forward an unchecked provider stream that
 could deliver corrupt bytes before a trailing checksum failure. Hold the process
 concurrency slot until the stream completes or is cancelled; cancellation releases
 the slot. Delivery uses its separate two-slot pool for staff and public downloads.
-A 120-second idle deadline resets on each pull; expiry or request abort errors the
-stream, drops its file buffer and releases the slot. Completion/cancellation clears
-the deadline and abort listener. Each chunk owns its bytes so retaining a chunk
+A 120-second idle deadline resets on each pull, and a 20-minute total deadline (owner
+decision, 19 November 2026) bounds the whole delivery; either expiry or request abort
+errors the stream, drops its file buffer and releases the slot. Completion/cancellation
+clears both deadlines and the abort listener. The total deadline bounds slot time, not
+availability: per-IP rate limiting remains a separate follow-up. A Vercel function limit
+shorter than 20 minutes ends the response first. Each chunk owns its bytes so retaining a chunk
 does not retain the whole PDF. Prove large-response behavior and peak process
 memory in production mode.
 

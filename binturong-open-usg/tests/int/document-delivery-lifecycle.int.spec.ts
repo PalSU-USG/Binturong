@@ -35,6 +35,7 @@ describe('verified delivery lifecycle', () => {
     vi.useRealTimers()
     vi.restoreAllMocks()
     fixture.name = 'synthetic.pdf'
+    fixture.bytes = new Uint8Array(200_000)
   })
 
   it('errors a stalled reader and releases its slot and abort listener', async () => {
@@ -73,6 +74,33 @@ describe('verified delivery lifecycle', () => {
     } finally {
       await reader.cancel().catch(() => {})
     }
+  })
+
+  it('errors a reader that never idles once the total delivery deadline passes', async () => {
+    vi.useFakeTimers()
+    fixture.bytes = new Uint8Array(64 * 1024 * 20)
+    const abort = new AbortController()
+    const remove = vi.spyOn(abort.signal, 'removeEventListener')
+    const response = await downloadDocument(request(abort.signal), 1)
+    const reader = response.body!.getReader()
+    try {
+      // Each read lands before the 120-second idle timeout; fourteen reads reach 1,260 seconds.
+      for (let i = 0; i < 13; i++) {
+        await vi.advanceTimersByTimeAsync(90_000)
+        expect((await reader.read()).value?.length).toBeGreaterThan(0)
+      }
+      await vi.advanceTimersByTimeAsync(90_000)
+      await expect(reader.read()).rejects.toThrow('Document delivery deadline exceeded')
+      expect(remove).toHaveBeenCalledWith('abort', expect.any(Function))
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      await reader.cancel().catch(() => {})
+    }
+    const replacements = [
+      await downloadDocument(request(), 1),
+      await downloadDocument(request(), 1),
+    ]
+    await Promise.all(replacements.map((replacement) => replacement.body!.cancel()))
   })
 
   it('copies chunks and clears the timer and abort listener on cancellation', async () => {
