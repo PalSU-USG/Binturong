@@ -148,6 +148,25 @@ describe('record list pages', () => {
     expect(out).not.toContain('id="filter-type"')
     expect(out).not.toContain('not recognised')
   })
+
+  it('locks_a_fixed_type_page_to_its_type_whatever_the_url_says', async () => {
+    listRecords.mockResolvedValue(list({ page: 1, pageCount: 2, total: 20 }))
+    const props = {
+      scope: 'legislative',
+      fixedType: 'resolution',
+      basePath: '/archives/legislative/resolutions',
+    }
+    const out = await page({ type: 'executive_order', year: 'sy-1' }, props)
+    expect(listRecords.mock.calls[0]![1]).toBe('legislative')
+    expect(listRecords.mock.calls[0]![2]).toMatchObject({ type: 'resolution', year: 'sy-1' })
+    expect(out).not.toContain('id="filter-type"')
+    expect(out).not.toContain('not recognised')
+    // The fixed type is the page itself, not a visitor filter, so it stays out of links.
+    expect(out).toContain('href="/archives/legislative/resolutions?year=sy-1&amp;page=2"')
+    listRecords.mockResolvedValue(list({ rows: [], total: 0, pageCount: 0 }))
+    expect(await page({}, props)).not.toContain('Clear filters')
+  })
+
   it('propagates_a_failed_read_so_the_error_boundary_renders_instead_of_an_empty_list', async () => {
     listRecords.mockRejectedValue(new Error('Synthetic outage'))
     await expect(page()).rejects.toThrow('Synthetic outage')
