@@ -15,8 +15,9 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-Updated 19 November 2026. Local `dev` = GitHub `dev` = `debb6e3`. Vercel builds `dev`
-as a Preview. No production deployment exists.
+Updated 19 November 2026. GitHub `dev` = `debb6e3`; local `dev` is ahead by the four
+merges below (not pushed). Vercel builds GitHub `dev` as a Preview. No production
+deployment exists.
 
 - **Integrated on `dev`:** access (`00f3b1f`), domain foundations (`6ec0427`), private
   documents, search (`c5f29e2`), navigation (`0e7dabd`), record sections (`cd703a4`),
@@ -88,12 +89,19 @@ as a Preview. No production deployment exists.
   `Organizations(draft: true)` query now returns an error (data `null`) where the tests
   expect `[]`. It fails closed (no leak); find which change altered it and fix the test
   or the response.
-- **Unmerged branches:** `vercel-skill` (`8fc1494`), `resolutions-archive` (`b5ea0c7`),
-  `download-deadline` (`eb3d8e5`), this `checkpoint-refresh`. `phase02-domain-schema`
-  and `test-db-56323` predate their integrated replacements.
-- **Next action:** independent review of `resolutions-archive` and `download-deadline`,
-  then integrate the reviewed branches into `dev` with the owner's approval. The owner
-  runs the admin hallway test (`plans/admin-usability.md`) when possible.
+- **Merged 19 Nov (owner: "merge them"), local only:** `vercel-skill`, `checkpoint-refresh`,
+  `download-deadline` (`9b5c179`) and `resolutions-archive` (`666a516`); dev at `3e7b0f5`,
+  tsc clean. Both code branches had independent reviews: MERGE WITH FOLLOW-UPS, no
+  P0/P1; follow-ups applied (structural 404, real-query test, spec and design docs).
+  Open from review: per-IP download rate limiting; Vercel function max duration.
+  `phase02-domain-schema` and `test-db-56323` predate their integrated replacements.
+- **Executive sample (19 Nov):** the owner's Memo 023, s. A.Y. 2026-2027 (real names; not
+  tracked) maps to `Issuances` `type: memorandum`, `seriesYear` 2026 plus `academicYear`,
+  issued by the President's office (Executive). Executive memos also number by academic year.
+- **Next action:** the owner chooses executive record-type pages (memoranda only, or also
+  executive orders) under the same `fixedType` route; then generalize
+  `archives/[group]/resolutions` into an allow-listed branch/type route. Pushing `dev`
+  needs owner approval. The owner runs the admin hallway test when possible.
 
 ## Sources and reconnaissance snapshot
 
