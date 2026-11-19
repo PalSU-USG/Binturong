@@ -79,8 +79,9 @@ as a Preview. No production deployment exists.
   no overflow), tsc, eslint and build pass. Not yet: independent review, full suites,
   light/dark visual check. A publisher must add the Archives side-menu link (Header global).
 - **Download deadline (19 Nov):** branch `Hawksprey420/download-deadline` (`d76040f`) caps
-  total PDF delivery at 10 minutes. Open owner questions: 10 vs 20 minutes for slow
-  connections; the Vercel function max duration is unknown from the repo.
+  total PDF delivery, raised to 20 minutes in `eb3d8e5` (owner: "Raise it to twenty") so
+  slow connections can finish a 50 MB file. Open: the Vercel function max duration is
+  unknown from the repo; if it is shorter, Vercel ends the download first.
 - **Test DB cleanup (19 Nov, owner "yes"):** 29 synthetic leftover rows deleted from
   `binturong_test` (45323). Account tests then pass. Still failing on `dev` code:
   `domain-schema` and `domain-references` GraphQL tests, because the anonymous
@@ -88,7 +89,7 @@ as a Preview. No production deployment exists.
   expect `[]`. It fails closed (no leak); find which change altered it and fix the test
   or the response.
 - **Unmerged branches:** `vercel-skill` (`8fc1494`), `resolutions-archive` (`b5ea0c7`),
-  `download-deadline` (`d76040f`), this `checkpoint-refresh`. `phase02-domain-schema`
+  `download-deadline` (`eb3d8e5`), this `checkpoint-refresh`. `phase02-domain-schema`
   and `test-db-56323` predate their integrated replacements.
 - **Next action:** independent review of `resolutions-archive` and `download-deadline`,
   then integrate the reviewed branches into `dev` with the owner's approval. The owner
