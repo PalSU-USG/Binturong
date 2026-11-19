@@ -70,12 +70,29 @@ as a Preview. No production deployment exists.
 - **Workflow notes:** no AI attribution trailers; Codex sandbox needs the oh-my-posh cache,
   the repo `.git` and loopback network allowed, and cannot write git metadata, so the
   coordinator commits its work. Bash cannot fork on this machine; use PowerShell.
-- **Unmerged branches:** `Hawksprey420/vercel-skill` (`8fc1494`, Vercel deploy skill for
-  Codex, awaiting owner review). `phase02-domain-schema` and `test-db-56323` predate
-  their integrated replacements.
-- **Next action:** the owner confirms where the resolutions section lives. In parallel,
-  the owner runs the admin hallway test (`plans/admin-usability.md`). After that:
-  build the public resolutions section on a task branch.
+- **Resolutions page (19 Nov, owner: "yes" to its own section, then "Yeah go ahead" on
+  `/archives/legislative/resolutions`):** the path follows the FigJam board's "Archives
+  (Executive dept, Legis dept, …)" and the design guide's branch-then-type breadcrumb.
+  `RecordListPage` gained `fixedType`; the URL cannot change it. Branch
+  `Hawksprey420/resolutions-archive` (`b5ea0c7`): list-page int 9/9, records e2e 7/7
+  (published resolution shown; memorandum, draft and executive resolution hidden; 320 px
+  no overflow), tsc, eslint and build pass. Not yet: independent review, full suites,
+  light/dark visual check. A publisher must add the Archives side-menu link (Header global).
+- **Download deadline (19 Nov):** branch `Hawksprey420/download-deadline` (`d76040f`) caps
+  total PDF delivery at 10 minutes. Open owner questions: 10 vs 20 minutes for slow
+  connections; the Vercel function max duration is unknown from the repo.
+- **Test DB cleanup (19 Nov, owner "yes"):** 29 synthetic leftover rows deleted from
+  `binturong_test` (45323). Account tests then pass. Still failing on `dev` code:
+  `domain-schema` and `domain-references` GraphQL tests, because the anonymous
+  `Organizations(draft: true)` query now returns an error (data `null`) where the tests
+  expect `[]`. It fails closed (no leak); find which change altered it and fix the test
+  or the response.
+- **Unmerged branches:** `vercel-skill` (`8fc1494`), `resolutions-archive` (`b5ea0c7`),
+  `download-deadline` (`d76040f`), this `checkpoint-refresh`. `phase02-domain-schema`
+  and `test-db-56323` predate their integrated replacements.
+- **Next action:** independent review of `resolutions-archive` and `download-deadline`,
+  then integrate the reviewed branches into `dev` with the owner's approval. The owner
+  runs the admin hallway test (`plans/admin-usability.md`) when possible.
 
 ## Sources and reconnaissance snapshot
 
