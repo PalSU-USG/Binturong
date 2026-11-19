@@ -9,6 +9,8 @@ import { verifyPDF } from './verifyPDF'
 const READY_KEY = /^ready\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.pdf$/
 const CHUNK_BYTES = 64 * 1024
 const ABANDONED_RESPONSE_MS = 120_000
+// A reader that keeps pulling just inside the idle timeout must still finish eventually.
+const DELIVERY_DEADLINE_MS = 10 * 60_000
 // One response for guessed, unauthorized, unpublished and nonexistent IDs.
 const notFound = () => new APIError('Official document not found', 404)
 
@@ -61,10 +63,12 @@ const asciiName = (name: string) =>
 function pdfStream(bytes: Uint8Array | null, release: () => void, signal?: AbortSignal) {
   let offset = 0
   let timer: ReturnType<typeof setTimeout>
+  let deadline: ReturnType<typeof setTimeout>
   let controller: ReadableStreamDefaultController<Uint8Array>
   const cleanup = () => {
     bytes = null
     clearTimeout(timer)
+    clearTimeout(deadline)
     signal?.removeEventListener('abort', abort)
     release()
   }
@@ -87,8 +91,13 @@ function pdfStream(bytes: Uint8Array | null, release: () => void, signal?: Abort
       start(streamController) {
         controller = streamController
         signal?.addEventListener('abort', abort, { once: true })
-        if (signal?.aborted) abort()
-        else resetIdle()
+        if (signal?.aborted) return abort()
+        resetIdle()
+        deadline = setTimeout(
+          () => fail(new Error('Document delivery deadline exceeded')),
+          DELIVERY_DEADLINE_MS,
+        )
+        deadline.unref()
       },
       pull() {
         if (!bytes) return
