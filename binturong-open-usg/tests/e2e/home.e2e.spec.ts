@@ -167,19 +167,24 @@ test.describe('Front page', () => {
       updates.getByRole('link', { name: new RegExp(`^PDF\\s*:\\s*${t('Executive order')}`) }),
     ).toBeVisible()
     await expect(
-      updates.getByRole('link', { name: new RegExp(`^Read update\\s*:\\s*${t('Published update')}`) }),
+      updates.getByRole('link', {
+        name: new RegExp(`^Read update\\s*:\\s*${t('Published update')}`),
+      }),
     ).toBeVisible()
   })
 
-  test('wears the PalSU identity: rust authority band, seal, hero within 55vh', async ({
+  test('wears the USG identity: orange authority band with black text, seal, hero within 55vh', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 })
     await page.goto('/')
     const header = page.getByRole('banner')
-    expect(await header.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(
-      'rgb(180, 68, 12)',
-    )
+    const style = await header.evaluate((el) => {
+      const s = getComputedStyle(el)
+      return { background: s.backgroundColor, color: s.color }
+    })
+    // Official USG Branding Guide #F6931E; black text because white on it is 2.3:1.
+    expect(style).toEqual({ background: 'rgb(246, 147, 30)', color: 'rgb(0, 0, 0)' })
     await expect(header.locator('img.site-wordmark-seal')).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     const hero = await page.locator('section[aria-labelledby="home-statement"]').boundingBox()
