@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import React from 'react'
 
 import { SectionLayout } from '@/components/SectionLayout'
-import { parseRecordFilters, type RecordScope } from '@/records/recordFilters'
+import { issuanceTypes, parseRecordFilters, type RecordScope } from '@/records/recordFilters'
 import {
   listAcademicYears,
   listActivities,
@@ -23,6 +23,7 @@ export type SearchParams = Record<string, string | string[] | undefined>
 export async function RecordListPage({
   scope,
   activities = false,
+  fixedType,
   title,
   intro,
   basePath,
@@ -33,6 +34,8 @@ export async function RecordListPage({
 }: {
   scope: RecordScope
   activities?: boolean
+  /** Issuance type the page always lists; the URL cannot change it. */
+  fixedType?: (typeof issuanceTypes)[number]['value']
   title: string
   intro?: string
   basePath: string
@@ -42,14 +45,20 @@ export async function RecordListPage({
   searchParams: Promise<SearchParams>
 }) {
   const { type: _ignored, ...params } = await searchParams
-  // Activities have no record types, so a type parameter is ignored.
-  const filters = parseRecordFilters(activities ? params : { ...params, type: _ignored }, scope)
+  // Activities have no record types and fixed-type pages set their own, so a type parameter is
+  // ignored. The fixed type goes to the query only, so links and "Clear filters" leave it out.
+  const filters = parseRecordFilters(
+    activities || fixedType ? params : { ...params, type: _ignored },
+    scope,
+  )
   const payload = await getPayload({ config: configPromise })
   const [list, years] = await Promise.all([
-    activities ? listActivities(payload, filters) : listRecords(payload, scope, filters),
+    activities
+      ? listActivities(payload, filters)
+      : listRecords(payload, scope, fixedType ? { ...filters, type: fixedType } : filters),
     listAcademicYears(payload) as Promise<YearOption[]>,
   ])
-  const withType = !activities && scope !== 'financial' && scope !== 'accomplishment'
+  const withType = !activities && !fixedType && scope !== 'financial' && scope !== 'accomplishment'
   return (
     <SectionLayout
       currentLabel={title}

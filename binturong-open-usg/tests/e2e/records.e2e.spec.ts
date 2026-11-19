@@ -52,6 +52,25 @@ test.describe('record pages and sections', () => {
       })
     ).slug
     ids.office = office.slug
+    const senate = await fx.office({
+      organization: usg.id,
+      name: `Senate ${fx.tag}`,
+      branch: 'legislative',
+    })
+    for (const [title, type, status] of [
+      [`Senate resolution ${fx.tag}`, 'resolution', 'published'],
+      [`Senate memorandum ${fx.tag}`, 'memorandum', 'published'],
+      [`Draft resolution ${fx.tag}`, 'resolution', 'draft'],
+    ] as const)
+      await fx.issuance({
+        organization: usg.id,
+        mainDocument: fileID,
+        academicYear: year.id,
+        issuingOffice: senate.id,
+        title,
+        type,
+        status,
+      })
     await fx.report({
       organization: usg.id,
       mainDocument: fileID,
@@ -168,10 +187,33 @@ test.describe('record pages and sections', () => {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   })
 
+  test('the legislative resolutions page lists published resolutions only', async ({ page }) => {
+    const response = await page.goto(
+      `/archives/legislative/resolutions?year=${year.slug}&type=memorandum`,
+    )
+    expect(response?.status()).toBe(200)
+    await expect(page.getByRole('heading', { level: 1, name: 'Resolutions' })).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: `Senate resolution ${fx.tag}`, exact: true }),
+    ).toBeVisible()
+    await expect(page.getByText(`Senate memorandum ${fx.tag}`)).toHaveCount(0)
+    await expect(page.getByText(`Draft resolution ${fx.tag}`)).toHaveCount(0)
+    // An executive resolution belongs to its own branch, not this page.
+    await expect(page.getByText(`Issuance ${fx.tag}`, { exact: true })).toHaveCount(0)
+    await expect(page.getByLabel('Type')).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Legislative' }).first()).toHaveAttribute(
+      'href',
+      '/archives/legislative',
+    )
+    for (const group of ['executive', 'judicial', 'not-a-group'])
+      expect((await page.goto(`/archives/${group}/resolutions`))?.status(), group).toBe(404)
+  })
+
   test('lists have no horizontal scroll at 320 px and work by keyboard', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 700 })
     for (const url of [
       `/archives?year=${year.slug}`,
+      `/archives/legislative/resolutions?year=${year.slug}`,
       `/issuances/${ids.issuance}`,
       '/transparency',
       '/government/organizational-chart',
