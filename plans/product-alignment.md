@@ -29,10 +29,13 @@ as a Preview. No production deployment exists.
 - **Owner decision (15 Nov 2026):** USG will publish Senate resolutions (then memoranda
   and orders) on the site, and resolutions get their own public section. Sample: a USG
   Senate resolution PDF the owner holds (real names and amounts; not tracked). It maps
-  to `Issuances` (`type: resolution`), with one gap: the sample's series is an
-  academic-year range ("s. of 2026-2027") while `seriesYear` is still a single positive
-  integer (`src/collections/Issuances/validateNumber.ts`). Decide between storing the
-  start year plus `academicYear` or a series text field before building the section.
+  to `Issuances` (`type: resolution`). The sample's series is an academic-year range
+  ("s. of 2026-2027"). **Settled 19 Nov 2026** (owner chose "Keep seriesYear = 2026 and
+  add a link to the Academic Year record", then "Skip the check"): store the start year in
+  `seriesYear`, link the existing `academicYear` relationship, and show its `label`. No
+  series text column (a third copy that could disagree) and no server check that the two
+  match, because calendar-year series such as an EO "s. 2027" issued in January 2027 fall
+  inside AY 2026-2027. Revisit if real resolutions use a label the year cannot express.
   The letterhead also gives the official unit name "University Student Government —
   Tiniguiban", `usg.psu.edu.ph`, `usg@psu.palawan.edu.ph` and the office address;
   use them only after the owner confirms.
@@ -70,9 +73,9 @@ as a Preview. No production deployment exists.
 - **Unmerged branches:** `Hawksprey420/vercel-skill` (`8fc1494`, Vercel deploy skill for
   Codex, awaiting owner review). `phase02-domain-schema` and `test-db-56323` predate
   their integrated replacements.
-- **Next action:** the owner decides the resolution series format (above). In parallel,
-  the owner runs the admin hallway test (`plans/admin-usability.md`). After the series
-  decision: build the public resolutions section on a task branch.
+- **Next action:** the owner confirms where the resolutions section lives. In parallel,
+  the owner runs the admin hallway test (`plans/admin-usability.md`). After that:
+  build the public resolutions section on a task branch.
 
 ## Sources and reconnaissance snapshot
 
