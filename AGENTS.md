@@ -124,9 +124,16 @@ actual identity model, database roles, and connection behavior.
 | Database tenant isolation or RLS policy changes                           | [RLS basics](.agents/skills/supabase-postgres-best-practices/references/security-rls-basics.md)                                                                  |
 | RLS query performance                                                     | [RLS performance](.agents/skills/supabase-postgres-best-practices/references/security-rls-performance.md)                                                        |
 | Reported incorrect Supabase skill guidance                                | [Skill feedback procedure](.agents/skills/supabase/references/skill-feedback.md) and [issue template](.agents/skills/supabase/assets/feedback-issue-template.md) |
+| Vercel deployment, project linking, or Vercel CLI work                    | [Deploy to Vercel skill](.agents/skills/deploy-to-vercel/SKILL.md), with the overrides below                                                                     |
 
 Reading a feedback procedure does not authorize posting an issue or sending a message.
 Keep third-party skill sources intact unless the task explicitly concerns those files.
+
+The deploy skill is generic. This app is already linked as Vercel project
+`pal-su-usg/binturong` (Root Directory `binturong-open-usg`). Where the skill says to
+proceed without asking, these rules win: ask before any deploy, push, `vercel link`, or
+global CLI install; skip its `--temporary` no-auth fallback, because it publishes a public
+production URL; and stage files explicitly instead of `git add .`.
 
 ## Database and RLS boundaries
 
