@@ -76,12 +76,14 @@ flowchart TD
 
     Archives --> Executive[Executive]
     Archives --> Legislative[Legislative]
+    Legislative --> Resolutions[Resolutions]
     Archives --> Judicial[Judicial]
     Archives --> CSGArchive[Participating CSG records]
 ```
 
 `Archives` and `Transparency` are public views over structured records. They are not dumping-ground
-CMS collections.
+CMS collections. `/archives/legislative/resolutions` is the same Legislative view locked to
+resolutions (owner decision, 19 November 2026); add a Header link for it like any section page.
 
 ## Record and presentation model
 

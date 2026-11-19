@@ -205,7 +205,8 @@ test.describe('record pages and sections', () => {
       'href',
       '/archives/legislative',
     )
-    expect((await page.goto('/archives/executive/resolutions'))?.status()).toBe(404)
+    for (const group of ['executive', 'judicial', 'not-a-group'])
+      expect((await page.goto(`/archives/${group}/resolutions`))?.status(), group).toBe(404)
   })
 
   test('lists have no horizontal scroll at 320 px and work by keyboard', async ({ page }) => {

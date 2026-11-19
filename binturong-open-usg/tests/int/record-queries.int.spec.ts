@@ -162,6 +162,29 @@ describe('record queries', () => {
     expect(all).toEqual(expect.arrayContaining([e.title, none.title, noOffice.title, hidden.title]))
   })
 
+  it('lists_only_published_resolutions_from_published_legislative_offices', async () => {
+    const senate = await fx.office({ organization: usg.id, branch: 'legislative' })
+    const draftSenate = await fx.office({
+      organization: usg.id,
+      branch: 'legislative',
+      status: 'draft',
+    })
+    const shown = await issuance({ title: `Res ${fx.tag}`, issuingOffice: senate.id })
+    const hidden = [
+      await issuance({ title: `Memo ${fx.tag}`, issuingOffice: senate.id, type: 'memorandum' }),
+      await issuance({ title: `DraftRes ${fx.tag}`, issuingOffice: senate.id, status: 'draft' }),
+      await issuance({ title: `HiddenSenate ${fx.tag}`, issuingOffice: draftSenate.id }),
+      await issuance({ title: `ExecRes ${fx.tag}`, issuingOffice: exec.id }),
+      await issuance({ title: `NoOfficeRes ${fx.tag}` }),
+      await report({ title: `SenateReport ${fx.tag}`, responsibleOffices: [senate.id] }),
+    ]
+    const rows = titles(
+      (await listRecords(payload, 'legislative', filters({ type: 'resolution' }), NOW)).rows,
+    )
+    expect(rows).toEqual([shown.title])
+    for (const { title } of hidden) expect(rows).not.toContain(title)
+  })
+
   it('lists_participating_csg_records_by_organization_kind_and_narrows_by_known_csg', async () => {
     const mine = await issuance({ title: `Csg ${fx.tag}`, organization: csgOrg.id })
     const other = await issuance({ title: `NotCsg ${fx.tag}` })
