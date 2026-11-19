@@ -84,8 +84,8 @@ describe('verified delivery lifecycle', () => {
     const response = await downloadDocument(request(abort.signal), 1)
     const reader = response.body!.getReader()
     try {
-      // Each read lands before the 120-second idle timeout; seven reads reach 630 seconds.
-      for (let i = 0; i < 6; i++) {
+      // Each read lands before the 120-second idle timeout; fourteen reads reach 1,260 seconds.
+      for (let i = 0; i < 13; i++) {
         await vi.advanceTimersByTimeAsync(90_000)
         expect((await reader.read()).value?.length).toBeGreaterThan(0)
       }

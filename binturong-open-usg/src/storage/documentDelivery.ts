@@ -10,7 +10,8 @@ const READY_KEY = /^ready\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a
 const CHUNK_BYTES = 64 * 1024
 const ABANDONED_RESPONSE_MS = 120_000
 // A reader that keeps pulling just inside the idle timeout must still finish eventually.
-const DELIVERY_DEADLINE_MS = 10 * 60_000
+// Twenty minutes lets a 50 MB file finish at about 42 KB/s (owner decision, 19 Nov 2026).
+const DELIVERY_DEADLINE_MS = 20 * 60_000
 // One response for guessed, unauthorized, unpublished and nonexistent IDs.
 const notFound = () => new APIError('Official document not found', 404)
 
