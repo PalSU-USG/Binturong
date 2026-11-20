@@ -16,17 +16,21 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-**Phase 3 progress (21 Nov 2026, local `dev` = `3ac6098`, not pushed).** Merged: branding
-(`d43b519`), production runbook (`73a2a86`, `docs/production-runbook.md`), draft autosave with
-guarded migration (`630dfc5`), admin slice 1 with review fixes (`980baec`), launch fixes B1–B5,
-B7 (`3ac6098`). Verified on `dev` before the last merge: tsc clean, `test:int` 612/612;
-launch-fixes branch: `test:int` 612/612, `test:e2e` 70/71 (known waiting-list test, Task E2).
-`npm run lint` has 5 errors in files untouched by Phase 3 (pre-existing). In progress:
-`Hawksprey420/admin-slice-2` (Phase C). Owed: `npm run payload -- migrate` on `binturong_domain`
-(owner approval, G3); push (G12). Found: no hosted first-admin path exists
-(`protectAccounts.ts:48` refuses anonymous creates; bootstrap is local-only); B6 heading skip
-is CMS content (seed `contact-page.ts` h3 after h1). Next: merge Phase C, combined `test:e2e`
-on `dev`, then E2 and V tasks.
+**Phase 3 progress (21 Nov 2026, local `dev`, not pushed).** Merged: branding (`d43b519`),
+production runbook (`73a2a86`, `docs/production-runbook.md`), draft autosave with guarded
+migration (`630dfc5`), admin slice 1 with review fixes (`980baec`), launch fixes B1–B5, B7
+(`3ac6098`), admin slice 2 C1–C4 with review fixes (Phase C merge), E2 waiting-list test fix.
+Verified on `dev`: tsc clean; `test:int` 612/612 (before Phase C; Phase C branch 614/614);
+full `test:e2e` after Phase C 66/72 in a 24.7 min memory-starved run, and all six failing
+files then passed alone (admin-usability + domain-transitions 10/10, domain + records +
+access 11/11). E1 (GraphQL) passes on every run; nothing to fix. `npm run lint` has 5
+pre-existing errors (Header, Card, Theme). Owed: `npm run payload -- migrate` on
+`binturong_domain` (G3); push (G12); G8/G9 for Phase D; Vercel/Supabase plan facts and
+G11 for Phase V. Found: no hosted first-admin path exists (no accounts on hosted;
+`protectAccounts.ts:48` refuses anonymous creates; `bootstrap:super-admin` only promotes an
+existing account and only on local databases), proposed fix awaits owner approval; B6 heading
+skip is CMS content (seed `contact-page.ts` h3 after h1). Run the full browser suite in two
+halves on this machine; one 25 min run times out under memory pressure.
 
 Updated 19 November 2026. GitHub `dev` = `debb6e3`; local `dev` is ahead by the four
 merges below (not pushed). Vercel builds GitHub `dev` as a Preview. No production
