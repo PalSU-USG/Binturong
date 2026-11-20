@@ -53,6 +53,7 @@ const withStateLinks = (collection: CollectionConfig): CollectionConfig =>
 export default buildConfig({
   admin: {
     components: {
+      actions: ['@/admin/viewSite'],
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],

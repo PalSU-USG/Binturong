@@ -30,6 +30,7 @@ export const adminCopy = {
   continue: 'Continue',
   createNew: 'Add new',
   lastSaved: 'Last saved',
+  viewSite: 'View the site',
   openAndReview: 'Open and review',
   statusDraft: 'Not live yet: only staff can see it.',
   statusPublished: 'Live on the site',

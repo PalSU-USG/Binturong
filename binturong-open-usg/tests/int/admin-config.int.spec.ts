@@ -231,6 +231,10 @@ describe('plain language', () => {
     expect(en.version.draft).toBe('Not live yet')
     expect(en.version.published).toBe('Live on the site')
   })
+
+  it('adds_a_view_the_site_link_to_the_admin_header', () => {
+    expect(resolved.admin?.components?.actions).toContain('@/admin/viewSite')
+  })
 })
 
 describe('editors cannot publish through the server', () => {
