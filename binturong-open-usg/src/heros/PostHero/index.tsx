@@ -1,9 +1,9 @@
-import { formatDateTime } from 'src/utilities/formatDateTime'
 import React from 'react'
 
 import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { formatInstantDate } from '@/components/records/format'
 import { formatAuthors } from '@/utilities/formatAuthors'
 
 /** Category titles for the identity band's eyebrow; null when the post has none. */
@@ -41,7 +41,7 @@ export const PostHero: React.FC<{
                 Date published
               </dt>
               <dd className="m-0">
-                <time dateTime={publishedAt}>{formatDateTime(publishedAt)}</time>
+                <time dateTime={publishedAt}>{formatInstantDate(publishedAt)}</time>
               </dd>
             </div>
           )}
