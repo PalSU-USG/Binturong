@@ -1,6 +1,27 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Public page consistency', () => {
+  test('menu and breadcrumb links are at least 44px tall', async ({ page }) => {
+    for (const path of ['/', '/archives/legislative']) {
+      const response = await page.goto(path)
+      expect(response?.status()).toBe(200)
+      const targets = await page
+        .locator('.site-nav-link:visible, .site-breadcrumbs a:visible')
+        .evaluateAll((elements) =>
+          elements.map((element) => ({
+            label: element.textContent?.trim(),
+            height: element.getBoundingClientRect().height,
+            minHeight: getComputedStyle(element).minHeight,
+            boxSizing: getComputedStyle(element).boxSizing,
+            targetHit: getComputedStyle(document.documentElement).getPropertyValue('--target-hit'),
+          })),
+        )
+      expect(targets.length).toBeGreaterThan(0)
+      for (const target of targets)
+        expect(target.height, `${path} ${JSON.stringify(target)}`).toBeGreaterThanOrEqual(44)
+    }
+  })
+
   for (const width of [375, 1280]) {
     test(`search, recovery and theme controls at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
