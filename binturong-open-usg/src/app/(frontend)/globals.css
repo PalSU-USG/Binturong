@@ -519,7 +519,9 @@ html[data-theme='light'] {
     color: var(--muted-foreground);
   }
   .site-breadcrumbs a {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-hit);
     padding-block: 0.625rem;
     text-decoration: underline;
     text-underline-offset: 0.2em;
