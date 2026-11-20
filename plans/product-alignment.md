@@ -16,6 +16,18 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Phase 3 progress (21 Nov 2026, local `dev` = `3ac6098`, not pushed).** Merged: branding
+(`d43b519`), production runbook (`73a2a86`, `docs/production-runbook.md`), draft autosave with
+guarded migration (`630dfc5`), admin slice 1 with review fixes (`980baec`), launch fixes B1–B5,
+B7 (`3ac6098`). Verified on `dev` before the last merge: tsc clean, `test:int` 612/612;
+launch-fixes branch: `test:int` 612/612, `test:e2e` 70/71 (known waiting-list test, Task E2).
+`npm run lint` has 5 errors in files untouched by Phase 3 (pre-existing). In progress:
+`Hawksprey420/admin-slice-2` (Phase C). Owed: `npm run payload -- migrate` on `binturong_domain`
+(owner approval, G3); push (G12). Found: no hosted first-admin path exists
+(`protectAccounts.ts:48` refuses anonymous creates; bootstrap is local-only); B6 heading skip
+is CMS content (seed `contact-page.ts` h3 after h1). Next: merge Phase C, combined `test:e2e`
+on `dev`, then E2 and V tasks.
+
 Updated 19 November 2026. GitHub `dev` = `debb6e3`; local `dev` is ahead by the four
 merges below (not pushed). Vercel builds GitHub `dev` as a Preview. No production
 deployment exists.
