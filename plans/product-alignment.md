@@ -6,7 +6,8 @@
 | ------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | 0: reconnaissance         | Complete, with inspection limits below                    | Architecture, gaps, affected modules, migration risks, and validation strategy |
 | 1: specification and plan | Spec and account/access plan approved                     | Six dependent tasks and the later-slice roadmap                                |
-| 2: execution              | All approved slices integrated on `dev`; resolutions next | Slices integrated; hosted Preview live; production not started                 |
+| 2: execution              | Complete: roadmap slices 1–8 integrated and pushed        | Slices integrated; hosted Preview live; production not started                 |
+| 3: launch readiness       | Started 20 Nov 2026 (owner: "Go for it for now")          | Done when a staff editor, unaided, publishes one real resolution and one memo on production. Plan (approved 21 Nov, owner: "Go."): `docs/superpowers/plans/2026-11-21-phase3-launch-path.md`; replaces queue items 3–6 of `plans/codex-handoff-2026-11-20.md` |
 
 Inspected on 19 October 2026. This is a reconnaissance report, not an approved
 field-level specification or an implementation plan. During reconnaissance, no
