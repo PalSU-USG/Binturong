@@ -28,6 +28,8 @@ export const adminCopy = {
   loadError: 'This list could not be loaded. Refresh the page, or ask an administrator.',
   open: 'Open',
   continue: 'Continue',
+  createNew: 'Add new',
+  lastSaved: 'Last saved',
   openAndReview: 'Open and review',
   statusDraft: 'Not live yet: only staff can see it.',
   statusPublished: 'Live on the site',

@@ -225,7 +225,7 @@ test.describe('domain editorial workflow', () => {
       })
     }
     await page.goto('/admin/collections/documents')
-    await expect(page.getByRole('link', { name: /Create New/i })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /Add new|Create New/i })).toHaveCount(0)
     await expect(page.locator('input[type=file]')).toHaveCount(0)
     const denied = await page.request.post('/api/documents', {
       data: { title: 'Synthetic denied upload', organization: records[0].id },
