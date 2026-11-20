@@ -47,14 +47,13 @@ export const PostHero: React.FC<{
           )}
         </dl>
       )}
-      {heroImage && typeof heroImage !== 'string' && (
-        <div className="mt-6 overflow-hidden">
-          <Media
-            imgClassName="aspect-[16/9] h-auto w-full object-cover"
-            priority
-            resource={heroImage}
-          />
-        </div>
+      {heroImage && typeof heroImage === 'object' && (
+        <Media
+          className="mt-6 overflow-hidden"
+          imgClassName="aspect-[16/9] h-auto w-full object-cover"
+          priority
+          resource={heroImage}
+        />
       )}
     </div>
   )
