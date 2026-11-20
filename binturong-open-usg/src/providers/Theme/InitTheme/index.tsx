@@ -1,14 +1,21 @@
-import Script from 'next/script'
-import React from 'react'
+'use client'
+
+import { useServerInsertedHTML } from 'next/navigation'
+import { useRef } from 'react'
 
 import { defaultTheme, themeLocalStorageKey } from '../ThemeSelector/types'
 
-export const InitTheme: React.FC = () => {
-  return (
-    // eslint-disable-next-line @next/next/no-before-interactive-script-outside-document
-    <Script
-      dangerouslySetInnerHTML={{
-        __html: `
+export function InitTheme() {
+  const inserted = useRef(false)
+  // The 404 can render the layout on the client. Emit the script only in the initial HTML.
+  useServerInsertedHTML(() => {
+    if (inserted.current) return null
+    inserted.current = true
+
+    return (
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
   (function () {
     function getImplicitPreference() {
       var mediaQuery = '(prefers-color-scheme: dark)'
@@ -42,9 +49,10 @@ export const InitTheme: React.FC = () => {
     document.documentElement.setAttribute('data-theme', themeToSet)
   })();
   `,
-      }}
-      id="theme-script"
-      strategy="beforeInteractive"
-    />
-  )
+        }}
+        id="theme-script"
+      />
+    )
+  })
+  return null
 }
