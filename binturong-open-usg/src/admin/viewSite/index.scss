@@ -2,7 +2,8 @@
 .view-site {
   display: inline-flex;
   align-items: center;
-  min-height: 2.75rem;
+  // px, not rem: the admin root font size is Payload's, and the target must stay 44px.
+  min-height: 44px;
   padding: 0 0.5rem;
   color: var(--theme-text);
   font-size: 1rem;
