@@ -1,0 +1,495 @@
+# Production runbook
+
+Status: written 21 Nov 2026 from repo files and the 21 Nov cloud research. Nothing in this
+runbook has been run against production yet. No production Supabase project or Vercel
+Production environment exists for this app as far as the repo records show.
+
+Placeholders: anything in angle brackets, such as `<project-ref>`, `<region>`,
+`<pooler-host>`, `<password>` or `<production-url>`, is a placeholder. Copy the real value
+from the dashboard at the time. Do not commit real values.
+
+Who does what: **OWNER** marks a dashboard action (Vercel, Supabase, DNS) that only the owner
+performs, each one asked and approved separately. **AGENT** marks a repo action (a file
+change, a test, a command run from a checkout) that goes through the normal branch, review
+and commit workflow in `docs/engineering-workflow.md`.
+
+## 1. Purpose and scope
+
+Production mirrors dev 1:1. The owner, 20 Nov 2026 (recorded in
+`plans/codex-handoff-2026-11-20.md`): "as much as possible, 1:1 sana para hindi mahirap".
+
+That means the same code, the same Payload migrations, the same environment variable names,
+the same Supabase settings (Data API off, private official-documents bucket of the same
+shape) and the same Postgres major version. Only secret values, the project reference and
+the public URL differ.
+
+Dev today (recorded in `plans/product-alignment.md`, "Hosted dev deployment (17 Nov)"):
+Vercel project `pal-su-usg/binturong`, Root Directory `binturong-open-usg`, Node 22, builds
+GitHub `dev` as a Preview behind Vercel SSO. `vercel-build` runs `payload migrate` before
+`next build`. The Supabase project `ntzwpcnsjpijfhrgvvin` is the dev database, not production.
+The owner turned its Data API off and wiped `public`; then all 15 migrations ran, ending with
+`20261117_053700_data_api_lockdown`. Still open on dev: no first admin on hosted, no hosted
+storage bucket, function maximum duration unknown, pooler settings not reviewed.
+
+Out of scope: choosing the production domain (gate G5), choosing the Media storage adapter
+(gate G11), and any code change. Code changes this runbook depends on are listed as AGENT
+steps and are marked PROPOSED when they are not in the repo yet.
+
+## 2. Facts to check first
+
+These three facts change several answers below. None of them has been checked (no login was
+used to write this runbook). OWNER: read them from the dashboards and write them here with
+the date.
+
+| Fact | Where to look | Value (fill in) |
+| --- | --- | --- |
+| Vercel plan of team `pal-su-usg` (Hobby, Pro or Enterprise) | Vercel team settings, billing | unknown |
+| Fluid compute on or off for project `pal-su-usg/binturong` | Vercel project settings, Functions | unknown |
+| Supabase plan of the organization that will hold production (Free, Pro, Team, Enterprise) | Supabase organization billing | unknown |
+
+How each one changes the answers (figures from the research in section 4, read 21 Nov 2026):
+
+- **Vercel plan, for function duration.** With Fluid compute: Hobby has a 300 s default and a
+  300 s maximum, with no extended maximum. Pro and Enterprise have a 300 s default, an 800 s
+  maximum (generally available) and an 1800 s extended maximum (beta). The owner approved a
+  20 minute (1200 s) download deadline, and `src/storage/documentDelivery.ts` sets
+  `DELIVERY_DEADLINE_MS = 20 * 60_000`. A function can only run 1200 s on Pro or Enterprise,
+  under the beta, set per function. On Hobby the real limit is 300 s, so a slow download
+  would be cut off at 5 minutes with a 504 `FUNCTION_INVOCATION_TIMEOUT`, before the app's
+  own 20 minute deadline.
+- **Fluid compute, for duration and connection pooling.** The duration figures above are for
+  Fluid compute. Limits with Fluid off are not on the current Vercel pages (unconfirmed).
+  Fluid is on by default for projects created on or after 23 Apr 2025, but whether it is on
+  for this project is unconfirmed. Fluid also decides the pool advice: under Fluid, Vercel
+  says not to set the pool maximum to 1 and recommends `attachDatabasePool` from
+  `@vercel/functions` (not installed).
+- **Supabase plan, for file size.** Free has a 50 MB maximum file size that cannot be raised.
+  Pro and Team have 500 GB. The app's PDF bucket check requires `file_size_limit` of exactly
+  50,000,000 bytes (`src/storage/officialStorage.ts`), which equals the Free ceiling. On Free,
+  50 MB is a hard ceiling for the PDF bucket and for any new Media bucket. On Pro the bucket
+  can keep the same 50,000,000 byte limit, which keeps it 1:1 with dev.
+
+Also record the Supabase plan of the dev project (`ntzwpcnsjpijfhrgvvin`). If dev and
+production are on different plans, they are not 1:1 on file limits.
+
+## 3. Ordered steps
+
+### Step 1. Supabase production project
+
+1. **OWNER.** Create a second Supabase project for production. Write down its reference as
+   `<prod-project-ref>` and its region as `<region>` in a private note, not in the repo.
+2. **OWNER.** Use the same Postgres major version as dev. `docs/local-development.md` records
+   cloud dev at 17.11 and local at 17.6, so the major version is 17. Check the version the
+   new project shows before continuing (unverified until checked).
+3. **OWNER.** Turn the Data API off, as on dev. If it must stay on for any reason, it must be
+   locked down to match dev. Migration `20261117_053700_data_api_lockdown` applies the
+   database side of the lockdown when `vercel-build` runs migrations (step 4); the dashboard
+   switch is separate.
+4. **OWNER.** Create the private bucket `official-documents` with the same shape the code
+   checks for: private (not public), file size limit 50,000,000 bytes, allowed MIME type
+   `application/pdf` only. The app refuses to use a bucket that differs
+   (`src/storage/officialStorage.ts`).
+5. **OWNER, only if gate G11 picks the S3 adapter.** Create a separate public bucket for Media
+   (for example `media`), and generate S3 access keys in project settings. These keys have full
+   access to every bucket, including the private PDF bucket, and bypass RLS, so treat them like
+   the service-role key. If G11 picks Vercel Blob instead, create a Blob store; its public or
+   private mode is fixed at creation.
+6. **OWNER.** Do the same storage setup on the dev project first if it is not done yet
+   (Tasks V1 and V2), so production copies a setup that has passed the Preview smoke (step 9).
+
+### Step 2. Connection strings
+
+Two different URLs, both through the Supavisor shared pooler (IPv4 on every plan). Copy the
+exact pooler hostname from the dashboard Connect panel; its format is unconfirmed, so it is
+written as `<pooler-host>` here.
+
+- **Runtime, `DATABASE_URL`:** transaction pooler, port 6543, user `postgres.<prod-project-ref>`.
+  Shape: `postgresql://postgres.<prod-project-ref>:<password>@<pooler-host>:6543/postgres`.
+  Transaction mode suits many short-lived function instances. It does not support named
+  prepared statements; Payload/Drizzle sends unnamed statements here (from reading installed
+  source), and whether unnamed statements are fully safe on Supavisor transaction mode is
+  unconfirmed. The app's account lock is `pg_advisory_xact_lock`, which is transaction-scoped
+  and fits transaction mode. Do not add session-level `SET`, `LISTEN` or session advisory locks.
+- **Migrations, `MIGRATION_DATABASE_URL`:** session pooler, port 5432 on the pooler host.
+  Shape: `postgresql://postgres.<prod-project-ref>:<password>@<pooler-host>:5432/postgres`.
+  Session mode behaves like a normal connection, so a migration that needs session state works,
+  and it avoids the IPv6-only direct host (whether Vercel build machines can reach IPv6 is
+  unconfirmed).
+
+**AGENT, PROPOSED (not in the repo yet).** The current script is
+`"vercel-build": "npm run payload -- migrate && npm run build"` in
+`binturong-open-usg/package.json`. The Payload Postgres adapter has no separate migration URL
+option, so the research proposes overriding the variable for the migrate command only:
+
+```json
+"vercel-build": "DATABASE_URL=\"$MIGRATION_DATABASE_URL\" npm run payload -- migrate && npm run build"
+```
+
+Conditions for this change: it relies on Vercel's build shell being sh-like (Linux; not
+verified by a test build); the build must fail if `MIGRATION_DATABASE_URL` is empty instead of
+falling back to the runtime URL (the line above does not yet do that check); and it is applied
+to dev first and proven by a Preview build before production uses it.
+
+**AGENT, PROPOSED (Task V3).** `src/payload.config.ts` sets only
+`pool: { connectionString: process.env.DATABASE_URL || '' }`, so `pg` uses its default
+maximum of 10 per instance. The research suggests a small explicit pool (for example `max` 3
+to 5, `idleTimeoutMillis: 5000`) and SSL through the `ssl` object with Supabase's root CA,
+not `sslmode` in the URL, because a URL `sslmode` replaces the `ssl` object. Supabase advises a
+pool of 1 and Vercel advises not 1 under Fluid; pick a small number and watch Supabase's
+connection count.
+
+One database, one migrator: dev Preview and Production use separate Supabase projects, so
+their builds never migrate the same database. Payload 3.90.2 takes no advisory lock during
+`payload migrate`, so two builds migrating one database at once are not serialized.
+
+### Step 3. Vercel Production environment variables
+
+**OWNER.** Set these in the Vercel Production environment, with the same names as Preview and
+new values. Do not reuse any dev secret.
+
+| Name | Production value | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | transaction pooler URL from step 2 | secret |
+| `MIGRATION_DATABASE_URL` | session pooler URL from step 2 | PROPOSED; only once the `vercel-build` change is merged; secret |
+| `PAYLOAD_SECRET` | new random value | secret; signs JWTs |
+| `NEXT_PUBLIC_SERVER_URL` | `<production-url>`, no trailing slash | public by design; used for CORS and links; depends on gate G5 (domain) |
+| `CRON_SECRET` | new random value | secret; checked as `Authorization: Bearer <value>` by the jobs `run` access |
+| `PREVIEW_SECRET` | new random value | secret |
+| `OFFICIAL_STORAGE_URL` | `https://<prod-project-ref>.supabase.co` (placeholder; origin only, path empty or `/storage/v1`) | server-only |
+| `OFFICIAL_STORAGE_BUCKET` | `official-documents` | same as dev |
+| `OFFICIAL_STORAGE_SERVICE_KEY` | production service-role key | secret, server-only |
+| Media storage variables | names set by Task V1 once G11 is decided | the research example uses `S3_BUCKET` plus S3 credential variables; not in the repo yet |
+
+Rules for these values:
+
+- The service-role key and the S3 access keys live only in Vercel environment variables. They
+  never go in the repo, in `.env.example`, in a chat or in any `NEXT_PUBLIC_` variable,
+  because `NEXT_PUBLIC_` values are sent to the browser.
+- Check the exact Preview names in the Vercel dashboard and compare them with this table and
+  with `binturong-open-usg/.env.example`; the table is built from the repo, not from the
+  dashboard (unverified).
+- Scope `MIGRATION_DATABASE_URL` to the build if the dashboard allows it.
+
+### Step 4. Migrations on the first production build
+
+**AGENT.** Before deploying, count the migrations in `binturong-open-usg/src/migrations`
+(15 on 21 Nov 2026, the last being `20261117_053700_data_api_lockdown`). **OWNER** approves
+and starts the first Production deploy. **AGENT** reads the build log to the end: `payload
+migrate` must list every migration as applied, then `next build` must succeed. A failed
+migration fails the deploy, which is the intended behaviour.
+
+### Step 5. First admin (unverified)
+
+None of this has been tried on any hosted database. Read it as a plan to test on dev first.
+
+What the code says (read 21 Nov 2026):
+
+- The plan and the 20 Nov handoff say "create via the `/admin` first-user screen". The code
+  suggests that screen will refuse. `docs/local-development.md` says "Public first-user
+  registration is disabled." In `src/collections/Users/hooks/protectAccounts.ts`, every user
+  create goes through `authorizeChange`, which throws 403 when there is no signed-in active
+  account, unless the request is marked as account provisioning. On an empty database there is
+  no signed-in account. This is from reading code, not from trying the screen.
+- Account provisioning (`src/collections/Users/accountProvisioning.ts`,
+  `assertLocalAccountDatabase`) and `npm run bootstrap:super-admin` only accept a local
+  database: host `127.0.0.1` or `localhost`, port 55322, 45322 or 45323, database
+  `binturong_domain` or `binturong_test`. They refuse any Supabase URL by design.
+- Database triggers from the account migrations refuse changes to `role`, `disabled`, `hash`
+  or `salt` unless the same backend holds the transaction advisory lock
+  `pg_advisory_xact_lock(20261020, 1)`, and they refuse any direct change to `auth_revision`.
+
+So there is currently no tested path to create the first hosted account. Procedure to try, on
+dev first:
+
+1. **OWNER.** Open `<preview-url>/admin` and see whether a first-user screen appears and
+   whether submitting it succeeds. Record the exact result. Expected from the code: refused.
+2. If it is refused, the owner decides how the first account is created (see open questions).
+   Any route that lets a hosted request create an account without a signed-in admin touches
+   login and permissions, so it needs the owner's approval and a reviewed code change.
+3. **OWNER, once one active account exists.** Promote it in the Supabase SQL editor inside one
+   transaction that takes the account lock first, so the guard trigger accepts it and bumps
+   `auth_revision` itself:
+
+   ```sql
+   begin;
+   select pg_advisory_xact_lock(20261020, 1);
+   update users set role = 'super_admin'
+     where id = <account-id> and disabled = false;
+   commit;
+   ```
+
+   Unverified: whether the SQL editor runs all of these statements in one session (the trigger
+   checks the lock on the current backend), and the exact effect of the trigger on this update.
+   Do not set `auth_revision` by hand. Check first that no other active super-admin exists
+   (`select id, role, disabled from users where role = 'super_admin';`), which matches the rule
+   in `src/collections/Users/bootstrap.ts`.
+4. **OWNER.** Sign in at `/admin` with the promoted account and confirm the Users screen opens.
+   Repeat the same steps on production only after they worked on dev.
+
+### Step 6. Vercel Firewall rate-limit rule on downloads
+
+**OWNER.** Add a Vercel Firewall rate-limit rule for requests to `GET /api/documents/:id/file`,
+counted per IP. The route is a Payload custom endpoint (`src/storage/documentEndpoints.ts`,
+path `/:id/file`) served by the catch-all `src/app/(payload)/api/[...slug]/route.ts`.
+
+Rule shape to enter (unverified; check the fields and whether rate limiting is available on
+the team's plan in the dashboard, since the 21 Nov research did not cover Vercel Firewall):
+
+- Condition: request method is `GET` and request path matches `/api/documents/<anything>/file`.
+- Key: client IP.
+- Limit: `<requests>` per `<window>`; the owner picks the numbers. No number has been decided.
+- Action when exceeded: deny with 429, or the closest action the dashboard offers.
+
+Why a firewall rule and not code: an in-memory limiter keeps its counter inside one function
+instance. On Vercel, requests are spread over many instances that start and stop on their own,
+so each instance sees only part of one visitor's traffic and the counter resets whenever an
+instance is replaced. The limit would be loose and unpredictable. The firewall counts at the
+edge, in front of every instance, and needs no code. No rate limiter exists in the app code
+today (searched 21 Nov 2026).
+
+### Step 7. File download duration (owner decides)
+
+The owner approved a 20 minute download deadline on 20 Nov ("Raise it to twenty"), and the
+code already uses 20 minutes (`DELIVERY_DEADLINE_MS` in `src/storage/documentDelivery.ts`). No
+route sets `maxDuration` and there is no `vercel.json`, so hosted downloads currently get the
+plan default (300 s under Fluid). The research gives two options. The owner decides; neither
+is built.
+
+- **Option A: raise `maxDuration` for Payload's catch-all route.** `export const maxDuration`
+  cannot go in `src/app/(payload)/api/[...slug]/route.ts` safely, because that file is generated
+  by Payload ("DO NOT MODIFY") and the export could be overwritten. Instead add `vercel.json`:
+  `"functions": { "src/app/(payload)/api/[...slug]/route.ts": { "maxDuration": 1200 } }`.
+  Costs: every REST route gets 20 minutes, not only downloads; 1200 s needs Pro or Enterprise
+  and the extended-duration beta (over 800 s must be set per function); on Hobby the cap stays
+  300 s. The function still buffers up to 50 MB in memory, and whether its fixed
+  `Content-Length` stream counts as streamed for Vercel's 4.5 MB response limit is unconfirmed.
+- **Option B: redirect to a short-lived signed URL.** The endpoint keeps its access check, then
+  answers 302 to a Supabase signed download URL (for example 60 to 300 s), so the browser
+  downloads straight from storage and the function ends in milliseconds. This works on any
+  Vercel plan, avoids buffering 50 MB in function memory and avoids the 4.5 MB question.
+  Costs: a code change in the download path (security review needed, since it changes how
+  published versus draft files are delivered), and the signed URL can be reused by anyone who
+  has it until it expires. Supabase documents no maximum expiry, so keep it short.
+
+The research recommends asking why 20 minutes is needed before buying it, since a 50 MB file
+should not take that long unless the client is very slow. If the plan's real limit is lower
+than 20 minutes and Option A is chosen, record that the download deadline is shorter on hosted.
+
+### Step 8. Restore drill
+
+This is the Phase F scratch restore (gate G10) written as steps. It has not been run. Do it on
+a local scratch database before production goes live, then again against production backups
+once they exist.
+
+1. **OWNER.** Approve the drill and which backup to use. Backups of the local `binturong_domain`
+   database are kept in `C:/Users/Hawksprey/binturong-backups/` (recorded in
+   `plans/product-alignment.md`). The format of the backup files was not checked for this
+   runbook. Starting Docker Desktop also starts Bintanong's Supabase containers, so ask the owner
+   before starting it.
+2. **AGENT.** Create an empty scratch database, for example `binturong_restore_drill`, on the
+   local container `binturong-db-45323`. Never restore into `binturong_domain` or
+   `binturong_test`.
+3. **AGENT.** Restore with the native tool that matches the backup format, passing the
+   password through the environment (`PGPASSWORD`), never in the command text:
+   `pg_restore --dbname <scratch-url> <backup-file>` for a custom-format dump, or
+   `psql <scratch-url> -f <backup-file>` for a plain SQL dump. Placeholders; which one applies
+   depends on the format.
+4. **AGENT.** Point a dev server from the main checkout on `dev` at the scratch database and run
+   `npm run payload -- migrate`. Expected: it applies only migrations newer than the backup, or
+   none.
+5. **AGENT.** Check records: compare row counts of the main tables (users, documents,
+   issuances, reports, pages, media) against the source, and open a few public pages and
+   `/admin`. Check files: run
+   `npm run documents:manifest -- --out manifest.json --backup-dir backup` against the restored
+   database and its storage; every entry must be `ok` (the command exits 2 otherwise). Keep the
+   manifest and backup folder outside Git.
+6. **AGENT.** Record what was checked and the results in the task checkpoint, without real
+   content or credentials.
+7. **OWNER approves, AGENT runs.** Drop the scratch database: `drop database binturong_restore_drill;`.
+
+For production: whether Supabase keeps automatic backups for the production project, and how
+often, depends on its plan and was not researched. OWNER: check the project's backup settings
+and record them here.
+
+### Step 9. Preview smoke checklist (Task V6)
+
+Run after each push of `dev` the owner approves, and run the same list on production after its
+first deploy (on production, use the production admin and clearly fake test content).
+
+1. Watch the Vercel build log to the end (`vercel inspect <deployment-url> --logs` or the
+   dashboard). Expected: migrate lists the applied migrations and the build succeeds.
+2. Home returns 200.
+3. `/admin` login works with the hosted admin.
+4. Upload an image, redeploy, and check it still shows. That proves it is not on local disk.
+5. Upload a PDF, publish a test record, and download the PDF as an anonymous visitor.
+6. Confirm a draft PDF is refused to an anonymous visitor.
+7. Delete the test record.
+8. Record pass or fail per item in the checkpoint. A failure becomes a task on the next branch.
+
+### Step 10. Rollback
+
+1. **OWNER.** If a production deploy is bad, put the previous working Production deployment back
+   from the Vercel dashboard (redeploy or promote it). The exact dashboard wording was not
+   checked for this runbook.
+2. Rolling back the deployment does not roll back the database. If the bad deploy applied a new
+   migration, the previous code runs against the newer schema. Check that it still works before
+   relying on the rollback.
+3. Run a migration's `down()` only with the owner's explicit approval, after a fresh backup, and
+   against the exact database named in the approval. `down()` can drop columns and data (for
+   example, `20261020_060134_account_auth_revision` drops `users.auth_revision`).
+4. Record what happened, which deployment is live, and the migration state in the checkpoint.
+
+## 4. Research (read 21 Nov 2026)
+
+Carried over from the V0 research notes written by a research agent on 21 Nov 2026. Items marked
+unconfirmed were not established by an official source.
+
+### Repo facts the research is fitted to (read 21 Nov 2026)
+
+- `src/payload.config.ts`: `postgresAdapter({ push: false, pool: { connectionString:
+  process.env.DATABASE_URL || '' } })`. No `max`, `ssl` or `idleTimeoutMillis` set. `sharp` is
+  passed to the config.
+- `src/collections/Media.ts`: `upload.staticDir = public/media`, seven `imageSizes`, `read:
+  anyone`, writes `authenticated`.
+- `src/storage/officialStorage.ts`: custom Supabase Storage REST client using
+  `OFFICIAL_STORAGE_URL`, `OFFICIAL_STORAGE_SERVICE_KEY` (sent as `apikey` and
+  `Authorization: Bearer`) and `OFFICIAL_STORAGE_BUCKET`. It checks the bucket is private,
+  `file_size_limit === 50_000_000`, and only `application/pdf`. It reads with a 30 s timeout and
+  buffers up to 50 MB in memory.
+- `src/storage/documentLimits.ts`: `MAX_DOCUMENT_BYTES = 50_000_000`, `TUS_CHUNK_BYTES = 6 MiB`,
+  `UPLOAD_SESSION_TTL_MS = 2 h`, `STORAGE_TIMEOUT_MS = 30 s`.
+- The download route is a Payload custom endpoint served by the generated catch-all
+  `src/app/(payload)/api/[...slug]/route.ts` ("DO NOT MODIFY"). No `vercel.json`; no
+  `maxDuration`.
+- Installed `@payloadcms/drizzle` 3.90.2 runs each migration in its own transaction and takes no
+  advisory lock. No `.prepare(` call was found in `node_modules/@payloadcms`.
+- `@vercel/functions` is not installed.
+
+### Media storage adapter
+
+- `@payloadcms/storage-s3` and `@payloadcms/storage-vercel-blob` both have 3.90.2, peer-depending
+  on `payload` 3.90.2 (npm registry, `npm view`, run 21 Nov 2026). Pin 3.90.2 to match Payload.
+- S3 adapter shape: `s3Storage({ collections: { media: true }, bucket, config: { credentials,
+  region, ... } })`; Supabase also needs `endpoint` and `forcePathStyle: true`
+  (https://payloadcms.com/docs/upload/storage-adapters and
+  https://github.com/payloadcms/payload/blob/main/packages/storage-s3/README.md, read 21 Nov 2026).
+- Vercel Blob adapter shape: `vercelBlobStorage({ enabled: true, collections: { media: true },
+  token: process.env.BLOB_READ_WRITE_TOKEN })`
+  (https://github.com/payloadcms/payload/blob/main/packages/storage-vercel-blob/README.md, read
+  21 Nov 2026).
+- `disableLocalStorage` defaults to `true` with the adapters. `disablePayloadAccessControl: true`
+  serves files straight from the cloud host
+  (https://github.com/payloadcms/payload/blob/main/packages/plugin-cloud-storage/README.md, read
+  21 Nov 2026).
+- Image sizes are uploaded on normal server uploads, from reading package source
+  (https://unpkg.com/@payloadcms/plugin-cloud-storage@3.90.2/dist/utilities/getIncomingFiles.js,
+  read 21 Nov 2026) and https://payloadcms.com/docs/upload/overview (read via search result 21 Nov
+  2026). Not stated on an official doc page.
+- "When deploying to Vercel, server uploads are limited with 4.5MB." `clientUploads: true` sends
+  files from the browser to the bucket (Payload storage-adapters page, read 21 Nov 2026).
+- Vercel request and response body limit is 4.5 MB; the response limit does not apply to
+  streamed responses; over-limit requests get `413 FUNCTION_PAYLOAD_TOO_LARGE`
+  (https://vercel.com/docs/functions/limitations, read 21 Nov 2026).
+- Supabase S3 endpoint `https://<project_ref>.storage.supabase.co/storage/v1/s3`, region is the
+  project's region, `forcePathStyle: true`. S3 access keys are server-only, have full access to
+  all buckets and bypass RLS. The service role key is not an S3 credential
+  (https://supabase.com/docs/guides/storage/s3/authentication, read 21 Nov 2026).
+- Vercel Blob stores are private or public, fixed at creation
+  (https://vercel.com/docs/vercel-blob, read 21 Nov 2026).
+- Recommendation (research, not a decision; G11 decides): `@payloadcms/storage-s3@3.90.2`
+  against a separate public Supabase bucket, `clientUploads` off at first,
+  `disablePayloadAccessControl` false at first.
+
+### Postgres from Vercel to Supabase
+
+- Direct connection is IPv6 unless the IPv4 add-on is bought. The shared pooler is IPv4 on every
+  plan: session mode port 5432, transaction mode port 6543, user `postgres.[REF]`. The shared
+  pooler does not support prepared statements in transaction mode. For serverless: client at
+  module scope, small pool, prepared statements off, SSL required; `verify-full` with the Supabase
+  root certificate verifies the server
+  (https://supabase.com/docs/guides/database/connecting-to-postgres, read 21 Nov 2026).
+- Supabase recommends the transaction pooler for serverless clients
+  (https://supabase.com/docs/guides/database/connecting-to-postgres/serverless-drivers, read
+  21 Nov 2026).
+- For node-postgres, omit the query `name` to avoid prepared statements
+  (https://supabase.com/docs/guides/troubleshooting/disabling-prepared-statements-qL8lEL, read
+  21 Nov 2026).
+- Under Fluid compute: pool at module scope, `attachDatabasePool(pool)`, short idle timeout,
+  do not set max to 1 (https://vercel.com/kb/guide/connection-pooling-with-functions, read 21 Nov
+  2026). `attachDatabasePool` supports `pg`
+  (https://vercel.com/docs/functions/functions-api-reference/vercel-functions-package, via search
+  21 Nov 2026).
+- Fluid is on by default for projects created on or after 23 Apr 2025
+  (https://vercel.com/docs/fluid-compute, read 21 Nov 2026).
+- `sslmode` or `sslrootcert` in the connection string replaces the `ssl` object
+  (https://node-postgres.com/features/ssl, read 21 Nov 2026).
+
+### Migrations at build time
+
+- Run migrations in the build step; a failed migration fails the deploy. `prodMigrations` is
+  advised against for serverless (https://payloadcms.com/docs/database/migrations, read 21 Nov
+  2026).
+- The Postgres adapter has no separate migration URL option
+  (https://payloadcms.com/docs/database/postgres, read 21 Nov 2026).
+- Recommendation: migrate over the session pooler (5432) with a `MIGRATION_DATABASE_URL`
+  override in `vercel-build` (section 3, step 2).
+
+### Function duration
+
+- With Fluid compute: Hobby 300 s default and maximum; Pro and Enterprise 300 s default, 800 s
+  maximum, 1800 s extended maximum (beta). Over 800 s must be set per function. Timeout returns
+  504 `FUNCTION_INVOCATION_TIMEOUT`; duration includes streaming time
+  (https://vercel.com/docs/functions/configuring-functions/duration and
+  https://vercel.com/docs/functions/limitations, read 21 Nov 2026).
+- `export const maxDuration` in a route file, or `vercel.json` `functions` (paths start with
+  `src/` when a `src` directory is used). Precedence: function code, then `vercel.json`, then
+  dashboard, then Fluid defaults (https://vercel.com/docs/fluid-compute, read 21 Nov 2026).
+
+### Supabase Storage limits
+
+- Maximum file size: Free 50 MB (cannot be raised), Pro 500 GB, Team 500 GB, Enterprise custom.
+  Per-bucket limits can be lower; buckets can restrict MIME types
+  (https://supabase.com/docs/guides/storage/uploads/file-limits, read 21 Nov 2026).
+- Standard upload is ideal up to 6 MB; above that use TUS resumable uploads
+  (https://supabase.com/docs/guides/storage/uploads/standard-uploads, read 21 Nov 2026).
+- Resumable chunk size must be 6 MB; each upload URL is valid up to 24 hours
+  (https://supabase.com/docs/guides/storage/uploads/resumable-uploads, read 21 Nov 2026).
+- Signed upload URLs are valid for 2 hours
+  (https://supabase.com/docs/reference/javascript/storage-from-createsigneduploadurl, read 21 Nov
+  2026).
+- Signed download URL `expiresIn` is in seconds; no maximum is documented
+  (https://supabase.com/docs/reference/javascript/storage-from-createsignedurl, read 21 Nov 2026).
+
+### Unconfirmed points (from the research)
+
+- Whether sharp image sizes are generated when `clientUploads: true` is used.
+- That Payload uploads all image sizes on server uploads (from package source, not a doc page).
+- Whether Supavisor transaction mode is safe for node-postgres unnamed statements in all cases.
+- Whether `@payloadcms/db-postgres` exposes its `pg` Pool for `attachDatabasePool`.
+- Whether Vercel build machines can reach IPv6-only Supabase direct connections.
+- Vercel duration limits with Fluid compute disabled.
+- Whether Fluid compute is enabled on `pal-su-usg/binturong`, and the team's Vercel plan.
+- Whether a `Response` from a `ReadableStream` with a fixed `Content-Length` counts as streamed for
+  the 4.5 MB limit.
+- Maximum `expiresIn` for Supabase signed download URLs.
+- Exact pooler hostname format; copy it from the dashboard Connect panel.
+- The Supabase project's plan (Free 50 MB versus Pro).
+- Whether the `payload-migrations` table has a unique constraint on `name` that would stop a
+  concurrent duplicate run.
+
+## 5. Open questions for the owner
+
+1. Which Vercel plan is team `pal-su-usg` on, and is Fluid compute on for `pal-su-usg/binturong`?
+2. Which Supabase plan will the production project use, and which plan is the dev project on?
+3. Download duration: Option A (`maxDuration` 1200 on the catch-all, Pro or Enterprise only) or
+   Option B (redirect to a short-lived signed URL)? Why is 20 minutes needed?
+4. Media storage (G11): Supabase S3 adapter or Vercel Blob?
+5. Production domain (G5), which sets `NEXT_PUBLIC_SERVER_URL`.
+6. First admin: the code refuses account creation without a signed-in admin on hosted databases.
+   How should the first hosted account be created? This touches login and permissions.
+7. Who is the first super-admin (which person and email)?
+8. Rate-limit numbers for `GET /api/documents/:id/file`: how many requests per IP per window?
+9. Approve the `MIGRATION_DATABASE_URL` change to `vercel-build`, tested on dev first?
+10. Approve the restore drill, and which backup file to use?
+11. What backup schedule should production have, and where should offsite copies of the PDF
+    manifest backup live?
