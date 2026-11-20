@@ -40,11 +40,12 @@ function List<T extends { href: string; title?: string }>({
         <ul>
           {result.items.map((item) => (
             <li key={item.href}>
-              <a href={item.href}>
-                <span className="admin-home__item-title">{item.title || 'Untitled'}</span>
-                <span className="visually-hidden"> ({linkLabel})</span>
-              </a>
+              <span className="admin-home__item-title">{item.title || 'Untitled'}</span>
               <span className="admin-home__detail">{detail(item)}</span>
+              <a className="admin-home__action" href={item.href}>
+                {linkLabel}
+                <span className="visually-hidden">: {item.title || 'Untitled'}</span>
+              </a>
             </li>
           ))}
         </ul>
@@ -138,8 +139,8 @@ export default async function AdminHome({ initPageResult }: AdminViewServerProps
         id="your-drafts"
         result={mine}
         empty={adminCopy.yourDraftsEmpty}
-        linkLabel={adminCopy.open}
-        detail={(item) => `Saved ${when(item.updatedAt)}`}
+        linkLabel={adminCopy.continue}
+        detail={(item) => `${item.type}. Saved ${when(item.updatedAt)}`}
       />
       {waiting && (
         <List
@@ -148,7 +149,7 @@ export default async function AdminHome({ initPageResult }: AdminViewServerProps
           result={waiting}
           empty={adminCopy.waitingEmpty}
           linkLabel={adminCopy.openAndReview}
-          detail={(item) => `Saved ${when(item.updatedAt)}. ${adminCopy.openAndReview}.`}
+          detail={(item) => `${item.type}. Saved ${when(item.updatedAt)}`}
         />
       )}
       <List
@@ -157,7 +158,7 @@ export default async function AdminHome({ initPageResult }: AdminViewServerProps
         result={recent}
         empty={adminCopy.recentEmpty}
         linkLabel={adminCopy.open}
-        detail={(item) => `${item.action} ${when(item.at)}`}
+        detail={(item) => `${item.type}. ${item.action} ${when(item.at)}`}
       />
     </div>
   )

@@ -1,0 +1,26 @@
+// Loaded on every admin page, so it carries its own hidden-text rule.
+.view-site {
+  display: inline-flex;
+  align-items: center;
+  // px, not rem: the admin root font size is Payload's, and the target must stay 44px.
+  min-height: 44px;
+  padding: 0 0.5rem;
+  color: var(--theme-text);
+  font-size: 1rem;
+  text-decoration: underline;
+  white-space: nowrap;
+
+  &:focus-visible {
+    outline: 3px solid var(--theme-text);
+    outline-offset: 2px;
+  }
+
+  &__hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

@@ -56,23 +56,62 @@
       list-style: none;
     }
 
+    // Title and detail stacked on the left, the one action button on the right.
     li {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr auto;
       gap: 0.25rem 1rem;
-      justify-content: space-between;
+      align-items: center;
       padding: 0.5rem 0;
       border-bottom: 1px solid var(--theme-elevation-150);
     }
   }
 
   &__item-title {
+    grid-column: 1;
     font-weight: 600;
-    text-decoration: underline;
   }
 
   &__detail {
+    grid-column: 1;
     color: var(--theme-elevation-800);
+  }
+
+  &__action {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    // px, not rem: the admin root font size is Payload's, and the target must stay 44px.
+    min-height: 44px;
+    padding: 0 1rem;
+    border: 2px solid var(--theme-elevation-300);
+    border-radius: 0.25rem;
+    background: var(--theme-elevation-50);
+    color: var(--theme-text);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      border-color: var(--theme-text);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--theme-text);
+      outline-offset: 2px;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    &__section li {
+      grid-template-columns: 1fr;
+    }
+
+    &__action {
+      grid-column: 1;
+      grid-row: auto;
+    }
   }
 
   &__error {

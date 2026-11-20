@@ -224,6 +224,25 @@ describe('plain language', () => {
     )
     expect(findBannedTerms(adminCopy.accountDisabled)).toEqual([])
   })
+
+  it('replaces_payload_wording_with_the_admin_word_set', () => {
+    const en = resolved.i18n?.translations?.en as unknown as Record<string, Record<string, string>>
+    expect(en.general.createNew).toBe('Add new')
+    expect(en.general.updatedAt).toBe('Last saved')
+    expect(en.version.draft).toBe('Not live yet')
+    expect(en.version.published).toBe('Live on the site')
+  })
+
+  it('adds_a_view_the_site_link_to_the_admin_header', () => {
+    expect(resolved.admin?.components?.actions).toContain('@/admin/viewSite')
+  })
+
+  it('shows_the_usg_emblem_instead_of_the_payload_logo', () => {
+    expect(resolved.admin?.components?.graphics).toMatchObject({
+      Logo: '@/admin/graphics/Logo',
+      Icon: '@/admin/graphics/Icon',
+    })
+  })
 })
 
 describe('editors cannot publish through the server', () => {

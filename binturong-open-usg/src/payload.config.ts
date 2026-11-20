@@ -53,6 +53,8 @@ const withStateLinks = (collection: CollectionConfig): CollectionConfig =>
 export default buildConfig({
   admin: {
     components: {
+      actions: ['@/admin/viewSite'],
+      graphics: { Logo: '@/admin/graphics/Logo', Icon: '@/admin/graphics/Icon' },
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
@@ -122,7 +124,16 @@ export default buildConfig({
   ].map(withStateLinks),
   cors: [getServerSideURL()].filter(Boolean),
   // Heading of Payload's no-access page, shown only to a signed-in account that lost access.
-  i18n: { translations: { en: { error: { unauthorizedAdmin: adminCopy.accountDisabled } } } },
+  // Payload's own labels use the admin word set ("Not live yet", "Live on the site").
+  i18n: {
+    translations: {
+      en: {
+        error: { unauthorizedAdmin: adminCopy.accountDisabled },
+        general: { createNew: adminCopy.createNew, updatedAt: adminCopy.lastSaved },
+        version: { draft: adminCopy.stateNotLive, published: adminCopy.statusPublished },
+      },
+    },
+  },
   globals: [Header, Footer],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
