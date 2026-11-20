@@ -235,6 +235,13 @@ describe('plain language', () => {
   it('adds_a_view_the_site_link_to_the_admin_header', () => {
     expect(resolved.admin?.components?.actions).toContain('@/admin/viewSite')
   })
+
+  it('shows_the_usg_emblem_instead_of_the_payload_logo', () => {
+    expect(resolved.admin?.components?.graphics).toMatchObject({
+      Logo: '@/admin/graphics/Logo',
+      Icon: '@/admin/graphics/Icon',
+    })
+  })
 })
 
 describe('editors cannot publish through the server', () => {

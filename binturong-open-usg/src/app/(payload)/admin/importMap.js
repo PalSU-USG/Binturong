@@ -32,6 +32,8 @@ import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from 
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { RowLabel as RowLabel_ec255a65fa6fa8d1faeb09cf35284224 } from '@/Header/RowLabel'
 import { RowLabel as RowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/RowLabel'
+import { default as default_586723811577fcd570b153bacaa81664 } from '@/admin/graphics/Icon'
+import { default as default_fb41377240e79a3f427000f9c4717644 } from '@/admin/graphics/Logo'
 import { default as default_6daf87a36a4c35d3b6fc4bd62719752e } from '@/admin/viewSite'
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
 import { default as default_9b311d46516cfb4456fe0cd8d3560c84 } from '@/admin/dashboard'
@@ -74,6 +76,8 @@ export const importMap = {
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
   "@/Header/RowLabel#RowLabel": RowLabel_ec255a65fa6fa8d1faeb09cf35284224,
   "@/Footer/RowLabel#RowLabel": RowLabel_1f6ff6ff633e3695d348f4f3c58f1466,
+  "@/admin/graphics/Icon#default": default_586723811577fcd570b153bacaa81664,
+  "@/admin/graphics/Logo#default": default_fb41377240e79a3f427000f9c4717644,
   "@/admin/viewSite#default": default_6daf87a36a4c35d3b6fc4bd62719752e,
   "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
   "@/admin/dashboard#default": default_9b311d46516cfb4456fe0cd8d3560c84,
