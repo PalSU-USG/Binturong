@@ -2,16 +2,20 @@
  * Design tokens in three layers. Components consume only layer 3 (the Tailwind utilities that
  * bind to the semantic names below); nothing in a component carries a raw color.
  *
- * Layer 1, brand: the ONLY layer a real palette edits. The PalSU palette below is taken from the
- * owner's Project Akademya Figma (node 1072:424): --brand #B4440C (authority bar), --brand-deep
- * (footer, hero band), --accent-gold #BD8C0F, --notice (notice band) and --on-brand #FFF6F6.
- * Brand inputs from the owner's Project Akademya Figma; replace with approved originals:
- * public/brand/palsu-seal.png (900x900) and public/brand/campus-gate.png (1024x768), the palette
- * above and League Spartan (Google Fonts, SIL OFL). --brand-deep and --notice are adjusted shades
- * chosen only to meet contrast, not owner-approved values.
- * Inputs still expected from the owner: approved PalSU seal and USG logo files, authoritative
- * palette with permitted combinations and dark-mode rules, an approved typeface with web licence,
- * officer photograph, favicon and default share image.
+ * Layer 1, brand: the ONLY layer a real palette edits. Values come from the Official USG Branding
+ * Guide (owner, 19 November 2026): official #FFFFFF, #F6931E and #000000; accents #FFC61A,
+ * #A37235 and #70430C; Senate #BF2230; Tribunal #4051A6; typeface Montserrat. The guide asks that
+ * official colours always appear; other colours may support a theme.
+ * Text pairings follow contrast, not the guide's samples (owner decision, 19 November 2026):
+ * white on #F6931E is 2.3:1, so orange carries black text (--on-brand, 9.1:1) and the deep brown
+ * #70430C carries white text (--on-brand-deep, 8.4:1). #A37235 is under 4.5:1 on white, so it is
+ * not a text colour. The branch colours mark Legislative and Judicial pages; their dark-theme
+ * shades are lightened only to stay visible on the dark page.
+ * public/brand/usg-emblem.png, senate-emblem.png and tribunal-emblem.png are cut from slide 1
+ * of the guide (background removed, about 512 px wide); replace them with original vector files
+ * when the owner has them. Still expected: officer photograph, favicon and share image.
+ * public/brand/palsu-seal.png and campus-gate.png come from Project Akademya; replace with
+ * approved originals.
  * After editing layer 1, run tests/int/design-tokens.int.spec.ts: it resolves every pair below
  * in both themes and fails under 4.5:1 (text) or 3:1 (focus ring, control boundary, status border).
  *
@@ -22,13 +26,17 @@
  */
 
 :root {
-  /* Layer 1: brand (PalSU palette from Project Akademya, plus neutrals) */
-  --brand: #b4440c;
-  --brand-deep: #853107;
-  --brand-light: oklch(76% 0.13 50deg);
-  --accent-gold: #bd8c0f;
-  --notice: #e0cb1c;
-  --on-brand: #fff6f6;
+  /* Layer 1: brand (Official USG Branding Guide, plus neutrals) */
+  --brand: #f6931e;
+  --brand-deep: #70430c;
+  --accent-gold: #ffc61a;
+  --notice: #ffc61a;
+  --on-brand: #000000;
+  --on-brand-deep: #ffffff;
+  --branch-legislative: #bf2230;
+  --branch-judicial: #4051a6;
+  --branch-legislative-on-dark: oklch(68% 0.17 22deg);
+  --branch-judicial-on-dark: oklch(70% 0.12 275deg);
   --brand-ink: oklch(20.5% 0 0deg);
   --brand-paper: oklch(100% 0 0deg);
   --brand-grey-50: oklch(97% 0 0deg);
@@ -49,16 +57,18 @@
   --card-foreground: var(--foreground);
   --popover: var(--brand-paper);
   --popover-foreground: var(--foreground);
-  --primary: var(--brand);
-  --primary-foreground: var(--on-brand);
+  --primary: var(--brand-deep);
+  --primary-foreground: var(--on-brand-deep);
   --secondary: var(--brand-grey-50);
   --secondary-foreground: var(--brand-ink);
   --muted: var(--brand-grey-50);
   --muted-foreground: var(--brand-grey-500);
   --accent: var(--brand-grey-50);
   --accent-foreground: var(--brand-ink);
-  --link: var(--brand);
+  --link: var(--brand-deep);
   --focus-ring: var(--brand-deep);
+  --accent-legislative: var(--branch-legislative);
+  --accent-judicial: var(--branch-judicial);
   --destructive: oklch(57.7% 0.245 27.325deg);
   --destructive-foreground: oklch(57.7% 0.245 27.325deg);
   /* Decorative divider; control boundaries use --input (3:1). */
@@ -68,10 +78,10 @@
   --status-info-bg: oklch(96% 0 0deg);
   --status-info-fg: oklch(25% 0 0deg);
   --status-info-border: oklch(55% 0 0deg);
-  /* Warning is the Akademya notice yellow: it styles the front-page official notice. */
+  /* Warning is the USG accent yellow: it styles the front-page official notice. */
   --status-warning-bg: var(--notice);
   --status-warning-fg: var(--brand-ink);
-  --status-warning-border: var(--brand);
+  --status-warning-border: var(--brand-deep);
   --status-error-bg: oklch(95% 0.03 25deg);
   --status-error-fg: oklch(38% 0.14 27deg);
   --status-error-border: oklch(55% 0.18 27deg);
@@ -129,16 +139,18 @@
   --card-foreground: var(--brand-ink-on-dark);
   --popover: var(--brand-paper-dark);
   --popover-foreground: var(--brand-ink-on-dark);
-  --primary: var(--brand-light);
-  --primary-foreground: var(--brand-ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--on-brand);
   --secondary: var(--brand-grey-800);
   --secondary-foreground: var(--brand-ink-on-dark);
   --muted: var(--brand-grey-800);
   --muted-foreground: var(--brand-grey-300);
   --accent: var(--brand-grey-800);
   --accent-foreground: var(--brand-ink-on-dark);
-  --link: var(--brand-light);
+  --link: var(--brand);
   --focus-ring: var(--brand-ink-on-dark);
+  --accent-legislative: var(--branch-legislative-on-dark);
+  --accent-judicial: var(--branch-judicial-on-dark);
   --destructive: oklch(39.6% 0.141 25.723deg);
   --destructive-foreground: oklch(63.7% 0.237 25.331deg);
   --border: var(--brand-grey-800);

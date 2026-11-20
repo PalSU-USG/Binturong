@@ -61,6 +61,7 @@ export async function RecordListPage({
   const withType = !activities && !fixedType && scope !== 'financial' && scope !== 'accomplishment'
   return (
     <SectionLayout
+      branch={scope === 'legislative' || scope === 'judicial' ? scope : undefined}
       currentLabel={title}
       currentPath={basePath}
       fallback={{ label: fallback.label }}
