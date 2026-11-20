@@ -2,7 +2,10 @@ import { randomUUID } from 'node:crypto'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createLocalReq, getPayload, type Payload } from 'payload'
 
+import { renderToStaticMarkup } from 'react-dom/server'
+
 import config from '@/payload.config'
+import AdminHome from '@/admin/dashboard'
 import { loadDrafts, loadRecentChanges } from '@/admin/dashboard/queries'
 import { syntheticContent as content } from '../helpers/contentFixtures'
 import { createAccessFixtures, removeTestAccounts } from '../helpers/accessFixtures'
@@ -14,7 +17,7 @@ const context = { disableRevalidate: true }
 describe('dashboard queries', () => {
   let payload: Payload
   let fixtures: Awaited<ReturnType<typeof createAccessFixtures>>
-  const created: { collection: 'posts' | 'people'; id: number }[] = []
+  const created: { collection: 'posts' | 'people' | 'issuances'; id: number }[] = []
   const tag = randomUUID().slice(0, 8)
   const user = (role: 'editor' | 'publisher') => ({
     ...fixtures.users[role],
@@ -48,12 +51,15 @@ describe('dashboard queries', () => {
     vi.restoreAllMocks()
     for (const record of created) {
       // Domain records are only deletable through the guarded draft path; remove below it.
-      if (record.collection === 'people') {
+      if (record.collection !== 'posts') {
         await payload.db.deleteVersions({
-          collection: 'people',
+          collection: record.collection,
           where: { parent: { equals: record.id } },
         })
-        await payload.db.deleteOne({ collection: 'people', where: { id: { equals: record.id } } })
+        await payload.db.deleteOne({
+          collection: record.collection,
+          where: { id: { equals: record.id } },
+        })
       } else if (await payload.findByID({ ...record, disableErrors: true }))
         await payload.delete({ ...record, context })
     }
@@ -74,7 +80,14 @@ describe('dashboard queries', () => {
     expect(ids).not.toContain(`posts:${theirs.id}`)
     expect(ids).not.toContain(`posts:${live.id}`)
     const item = result.items.find((entry) => entry.id === mine.id)!
-    expect(Object.keys(item).sort()).toEqual(['collection', 'href', 'id', 'title', 'updatedAt'])
+    expect(Object.keys(item).sort()).toEqual([
+      'collection',
+      'href',
+      'id',
+      'title',
+      'type',
+      'updatedAt',
+    ])
     expect(item.title).toBe(`Mine ${tag}`)
     expect(item.href).toBe(`/admin/collections/posts/${mine.id}`)
   })
@@ -150,6 +163,68 @@ describe('dashboard queries', () => {
           collection: 'posts',
           where: { id: { in: orphanIDs } },
         })
+    }
+  })
+
+  async function issuance(type: 'resolution' | 'memorandum', title: string) {
+    const doc = await payload.create({
+      collection: 'issuances',
+      user: user('editor'),
+      overrideAccess: false,
+      draft: true,
+      data: { title: `${title} ${tag}`, type } as never,
+    })
+    created.push({ collection: 'issuances', id: doc.id })
+    return doc
+  }
+
+  it('labels_each_draft_with_its_type', async () => {
+    const notice = await post('editor', 'Typed post')
+    const resolution = await issuance('resolution', 'Typed resolution')
+    const memo = await issuance('memorandum', 'Typed memo')
+    const result = await loadDrafts(await reqFor('editor'), { mine: true })
+    if (!result.ok) throw new Error(result.error)
+    const typeOf = (id: number) => result.items.find((item) => item.id === id)?.type
+    expect(typeOf(memo.id)).toBe('Memorandum')
+    expect(typeOf(resolution.id)).toBe('Resolution')
+    expect(typeOf(notice.id)).toBe('Post')
+  })
+
+  it('labels_recent_changes_with_their_type', async () => {
+    const live = await post('publisher', 'Typed recent', true)
+    const result = await loadRecentChanges(await reqFor('editor'))
+    if (!result.ok) throw new Error(result.error)
+    expect(result.items.find((item) => item.id === live.id)?.type).toBe('Post')
+  })
+
+  it('renders_each_home_row_with_type_age_and_one_action_button', async () => {
+    const draft = await issuance('resolution', 'Rendered resolution')
+    const render = async (role: 'editor' | 'publisher') =>
+      renderToStaticMarkup(
+        await AdminHome({
+          initPageResult: { req: await reqFor(role), permissions: {} },
+        } as never),
+      )
+    const section = (html: string, id: string) =>
+      html.match(new RegExp(`id="${id}-section".*?</section>`, 's'))?.[0] ?? ''
+    const rows = (html: string) => html.match(/<li>.*?<\/li>/gs) ?? []
+
+    const mine = rows(section(await render('editor'), 'your-drafts')).find((row) =>
+      row.includes(draft.title),
+    )
+    expect(mine).toBeDefined()
+    expect(mine).toContain('Resolution. Saved ')
+    const mineLinks = mine!.match(/<a [^>]*>(.*?)<\/a>/gs) ?? []
+    expect(mineLinks).toHaveLength(1)
+    expect(mineLinks[0]).toMatch(/^<a [^>]*>Continue/)
+    expect(mineLinks[0]).toContain(draft.title)
+
+    const waiting = rows(section(await render('publisher'), 'waiting'))
+    expect(waiting.length).toBeGreaterThan(0)
+    for (const row of waiting) {
+      const links = row.match(/<a [^>]*>(.*?)<\/a>/gs) ?? []
+      expect(links).toHaveLength(1)
+      expect(links[0]).toMatch(/^<a [^>]*>Open and review/)
     }
   })
 })

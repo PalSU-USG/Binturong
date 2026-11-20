@@ -3,6 +3,7 @@ import type { CollectionSlug, PayloadRequest, Where } from 'payload'
 import { getActiveAccount } from '@/access/activeAccount'
 import { adminCopy } from '@/admin/copy'
 import { domainCollections } from '@/collections/shared/domainCollections'
+import { issuanceTypes } from '@/records/recordFilters'
 
 export const sources = ['pages', 'posts', ...domainCollections] as const
 export type Source = (typeof sources)[number]
@@ -12,6 +13,7 @@ export type DraftItem = {
   collection: Source
   id: number | string
   title: string
+  type: string
   updatedAt: string
   href: string
 }
@@ -19,6 +21,7 @@ export type RecentItem = {
   collection: Source
   id: number | string
   title: string
+  type: string
   action: 'Published' | 'Withdrawn' | 'Restored'
   at: string
   href: string
@@ -31,6 +34,14 @@ const titleField = (req: PayloadRequest, slug: Source): string => {
   return typeof field === 'string' ? field : 'title'
 }
 const href = (slug: Source, id: number | string) => `/admin/collections/${slug}/${id}`
+/** Issuances read their own kind ("Resolution", "Memorandum"); everything else its collection name. */
+const typeSelect = (slug: Source) => (slug === 'issuances' ? { type: true } : {})
+const typeLabel = (req: PayloadRequest, slug: Source, row: Record<string, unknown>): string => {
+  const kind = issuanceTypes.find((t) => slug === 'issuances' && t.value === row.type)
+  if (kind) return kind.label
+  const singular = req.payload.collections[slug]?.config.labels?.singular
+  return typeof singular === 'string' ? singular : slug
+}
 
 /** Run one small, access-checked read per source. Any failure fails the whole list visibly. */
 async function readAll<T>(
@@ -80,7 +91,7 @@ export async function loadDrafts(
       limit: LIMIT,
       depth: 0,
       pagination: false,
-      select: { [title]: true, updatedAt: true } as never,
+      select: { [title]: true, updatedAt: true, ...typeSelect(slug) } as never,
       overrideAccess: false,
       req,
     })
@@ -93,6 +104,7 @@ export async function loadDrafts(
           collection: slug,
           id: row.id as number | string,
           title: String(row[title] ?? ''),
+          type: typeLabel(req, slug, row),
           updatedAt: String(row.updatedAt),
           href: href(slug, row.id as number | string),
         },
@@ -161,7 +173,7 @@ export async function loadRecentChanges(req: PayloadRequest): Promise<DashboardR
       depth: 0,
       pagination: false,
       select: (isDomain
-        ? { [title]: true, lastTransition: { action: true, at: true } }
+        ? { [title]: true, lastTransition: { action: true, at: true }, ...typeSelect(slug) }
         : { [title]: true, publishedAt: true }) as never,
       overrideAccess: false,
       req,
@@ -179,6 +191,7 @@ export async function loadRecentChanges(req: PayloadRequest): Promise<DashboardR
           collection: slug,
           id: row.id as number | string,
           title: String(row[title] ?? ''),
+          type: typeLabel(req, slug, row),
           action,
           at: String(at),
           href: href(slug, row.id as number | string),
