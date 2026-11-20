@@ -146,7 +146,9 @@ describe('semantic design tokens', () => {
 
   it('keeps the hero text readable on the worst possible photo pixel', () => {
     const hero = read(path.join(root, 'src/components/home/HomePage.tsx'))
-    const alpha = Number(hero.match(/bg-brand-deep\/(\d+)/)?.[1]) / 100
+    const bandClass = hero.match(/\bbg-brand-deep(?:\/(\d+))?(?=[\s"])/)
+    expect(bandClass).not.toBeNull()
+    const alpha = bandClass?.[1] ? Number(bandClass[1]) / 100 : 1
     expect(alpha).toBeGreaterThanOrEqual(0.85)
     for (const [theme, tokens] of [
       ['light', light],

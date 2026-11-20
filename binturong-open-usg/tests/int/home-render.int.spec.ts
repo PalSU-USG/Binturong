@@ -164,6 +164,9 @@ describe('front page', () => {
 
   it('opens with the hero image and statement before anything else', () => {
     const out = html(data({ notice: { title: 'N', href: '/posts/n', date: null } }))
+    expect(out).toContain('bg-brand-deep ')
+    expect(out).not.toContain('bg-brand-deep/90')
+    expect(out).not.toMatch(/uppercase[^"]*">University Student Government</)
     const hero = out.indexOf('id="home-statement"')
     expect(out.indexOf('<img')).toBeGreaterThanOrEqual(0)
     expect(out.indexOf('<img')).toBeLessThan(hero)

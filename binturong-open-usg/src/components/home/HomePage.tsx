@@ -26,8 +26,8 @@ export const HOME_STATEMENT = siteDescription
 export function HomePage({ data }: { data: HomeData }) {
   return (
     <>
-      {/* The photo is decorative; the statement is real text on a 90% deep-rust band so it stays
-          readable on any part of the picture (checked in design-tokens.int.spec.ts). */}
+      {/* The statement sits on a solid deep-rust band so its contrast never depends on the photo
+          (checked in design-tokens.int.spec.ts). */}
       <section
         aria-labelledby="home-statement"
         className="relative isolate flex min-h-[clamp(18rem,50vh,32rem)] items-center"
@@ -41,14 +41,10 @@ export function HomePage({ data }: { data: HomeData }) {
           src="/brand/campus-gate.png"
           width={1024}
         />
-        {/* Akademya proportions: a slim band across the photo, not a panel that hides it. */}
-        <div className="w-full bg-brand-deep/90 py-4 text-center text-on-brand-deep md:py-6">
+        <div className="w-full bg-brand-deep py-4 text-center text-on-brand-deep md:py-6">
           <div className="container">
-            <p className="m-0 text-[length:var(--text-label)] font-semibold uppercase tracking-[0.2em]">
-              University Student Government
-            </p>
             <h1
-              className="mx-auto mt-1 max-w-[64rem] text-[clamp(1.75rem,1.2rem+2.2vw,3rem)] font-semibold leading-tight [overflow-wrap:anywhere]"
+              className="mx-auto max-w-[64rem] text-[clamp(1.75rem,1.2rem+2.2vw,3rem)] font-semibold leading-tight [overflow-wrap:anywhere]"
               id="home-statement"
             >
               {HOME_STATEMENT}
