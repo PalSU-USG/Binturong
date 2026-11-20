@@ -19,7 +19,7 @@ export function RecordList({
   list,
   basePath,
   filters,
-  emptyText = 'No published records match these filters.',
+  emptyText = 'No records have been published here yet.',
 }: {
   list: RecordListData
   basePath: string
@@ -30,10 +30,13 @@ export function RecordList({
   if (list.rows.length === 0)
     return (
       <div role="status">
-        <p>{emptyText}</p>
+        <p>{filtered ? 'No published records match these filters.' : emptyText}</p>
         {filtered && (
           <p>
-            <Link className="inline-flex min-h-[var(--target-hit)] items-center underline" href={basePath}>
+            <Link
+              className="inline-flex min-h-[var(--target-hit)] items-center underline"
+              href={basePath}
+            >
               Clear filters
             </Link>
           </p>

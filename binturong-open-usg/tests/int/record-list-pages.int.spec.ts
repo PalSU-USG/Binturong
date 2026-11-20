@@ -116,7 +116,10 @@ describe('record list pages', () => {
     const filtered = await page({ year: 'sy-1' })
     expect(filtered).toContain('No published records match these filters.')
     expect(filtered).toContain('Clear filters')
-    expect(await page()).not.toContain('Clear filters')
+    const unfiltered = await page()
+    expect(unfiltered).toContain('No records have been published here yet.')
+    expect(unfiltered).not.toContain('match these filters')
+    expect(unfiltered).not.toContain('Clear filters')
   })
 
   it('shows_notices_and_keeps_filters_in_pagination_links', async () => {
