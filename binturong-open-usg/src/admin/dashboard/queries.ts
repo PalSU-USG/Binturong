@@ -4,8 +4,8 @@ import { getActiveAccount } from '@/access/activeAccount'
 import { adminCopy } from '@/admin/copy'
 import { domainCollections } from '@/collections/shared/domainCollections'
 
-const sources = ['pages', 'posts', ...domainCollections] as const
-type Source = (typeof sources)[number]
+export const sources = ['pages', 'posts', ...domainCollections] as const
+export type Source = (typeof sources)[number]
 const LIMIT = 5
 
 export type DraftItem = {
@@ -106,6 +106,43 @@ export async function loadDrafts(
       : Date.parse(b.updatedAt) - Date.parse(a.updatedAt),
   )
   return { ok: true, items: items.slice(0, LIMIT) }
+}
+
+export type StateCounts = { all: number; draft: number; published: number }
+
+/**
+ * Totals for the list view's "All | Not live yet | Live" links. Like Payload's list view, it reads
+ * each record's newest save (`draft: true`), so a live record with saved changes counts as not
+ * live yet and every count matches the list its link opens.
+ */
+export async function loadStateCounts(
+  req: PayloadRequest,
+  slug: Source,
+): Promise<{ ok: true; counts: StateCounts } | { ok: false; error: string }> {
+  try {
+    if (!(await getActiveAccount(req))) return failure
+    const total = async (where?: Where) =>
+      (
+        await req.payload.find({
+          collection: slug as CollectionSlug,
+          draft: true,
+          where,
+          limit: 1,
+          depth: 0,
+          select: { updatedAt: true } as never,
+          overrideAccess: false,
+          req,
+        })
+      ).totalDocs
+    const [all, draft, published] = await Promise.all([
+      total(),
+      total({ _status: { equals: 'draft' } }),
+      total({ _status: { equals: 'published' } }),
+    ])
+    return { ok: true, counts: { all, draft, published } }
+  } catch {
+    return failure
+  }
 }
 
 const actions = { publish: 'Published', withdraw: 'Withdrawn', restore: 'Restored' } as const
