@@ -3,6 +3,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { getPayload, type Payload } from 'payload'
 
 import config from '../../src/payload.config'
+import { sources } from '../../src/admin/dashboard/queries'
 import {
   createAccessFixtures,
   fixturePassword,
@@ -20,7 +21,7 @@ test.describe('admin usability', () => {
   test.beforeAll(async () => {
     payload = await getPayload({ config })
     fixtures = await createAccessFixtures(payload)
-    // The publisher list shows only the five oldest drafts per kind, so start from a clean set.
+    // The publisher list shows the five oldest drafts across all kinds, so start from a clean set.
     const stale = await payload.find({
       collection: 'posts',
       draft: true,
@@ -30,8 +31,9 @@ test.describe('admin usability', () => {
     })
     for (const { id } of stale.docs)
       await payload.delete({ collection: 'posts', id, context: { disableRevalidate: true } })
-    // Leftover synthetic drafts of other kinds would also crowd the oldest-first list.
-    for (const collection of ['people', 'activities', 'offices', 'organizations'] as const) {
+    // Never-published drafts of every other kind the list reads (blank pages included) would
+    // also crowd the oldest-first list. Published rows keep their status and are untouched.
+    for (const collection of sources.filter((slug) => slug !== 'posts')) {
       await payload.db.deleteMany({ collection, where: { _status: { equals: 'draft' } } })
       await payload.db.deleteVersions({ collection, where: { parent: { exists: false } } })
     }
