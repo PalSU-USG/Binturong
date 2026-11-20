@@ -15,6 +15,7 @@ import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c08
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { SlugField as SlugField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
+import { default as default_0d704fbac9e8af54cafd3994335e0dc7 } from '@/admin/stateLinks'
 import { default as default_198c66ca24371a0a20764db33aeea5cc } from '@/components/StatusPanel'
 import { RolePublishButton as RolePublishButton_267b06d8043ac0376efa65968251bc1f } from '@/components/StatusPanel/RoleButtons'
 import { RoleUnpublishButton as RoleUnpublishButton_267b06d8043ac0376efa65968251bc1f } from '@/components/StatusPanel/RoleButtons'
@@ -55,6 +56,7 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/next/client#SlugField": SlugField_2b8867833a34864a02ddf429b0728a40,
+  "@/admin/stateLinks#default": default_0d704fbac9e8af54cafd3994335e0dc7,
   "@/components/StatusPanel#default": default_198c66ca24371a0a20764db33aeea5cc,
   "@/components/StatusPanel/RoleButtons#RolePublishButton": RolePublishButton_267b06d8043ac0376efa65968251bc1f,
   "@/components/StatusPanel/RoleButtons#RoleUnpublishButton": RoleUnpublishButton_267b06d8043ac0376efa65968251bc1f,

@@ -9,6 +9,7 @@ import {
   removeTestAccounts,
 } from '../helpers/accessFixtures'
 import { login } from '../helpers/login'
+import { syntheticContent } from '../helpers/contentFixtures'
 
 test.describe('admin usability', () => {
   test.setTimeout(180000)
@@ -183,6 +184,51 @@ test.describe('admin usability', () => {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       )
       expect(overflow).toBeLessThanOrEqual(0)
+    } finally {
+      await context.close()
+    }
+  })
+
+  test('list state links open filtered lists whose size matches the count', async ({ browser }) => {
+    const unique = `${title} state`
+    for (const published of [false, true])
+      await payload.create({
+        collection: 'posts',
+        draft: !published,
+        context: { disableRevalidate: true },
+        data: {
+          title: `${unique} ${published ? 'live' : 'draft'}`,
+          slug: `synthetic-${randomUUID()}`,
+          content: syntheticContent,
+          _status: published ? 'published' : 'draft',
+        },
+      })
+    const { page, context } = await as(browser, 'editor')
+    try {
+      await page.goto('/admin/collections/posts')
+      // Payload adds `limit` to the URL once the list has hydrated; links clicked before that are lost.
+      await expect(page).toHaveURL(/limit=/)
+      const states = page.getByRole('navigation', { name: 'Show by state' })
+      await expect(states.getByRole('link', { name: /^All \(\d+\)$/ })).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
+      for (const [label, status, shown, hidden] of [
+        ['Not live yet', 'draft', 'draft', 'live'],
+        ['Live', 'published', 'live', 'draft'],
+      ] as const) {
+        const link = states.getByRole('link', { name: new RegExp(`^${label} \\(\\d+\\)$`) })
+        const count = Number((await link.textContent())?.match(/\((\d+)\)/)?.[1])
+        await link.click()
+        await expect(page).toHaveURL(new RegExp(`=${status}&.*limit=`))
+        await expect(states.getByRole('link', { name: new RegExp(`^${label} `) })).toHaveAttribute(
+          'aria-current',
+          'page',
+        )
+        await expect(page.getByRole('link', { name: `${unique} ${shown}` })).toBeVisible()
+        await expect(page.getByRole('link', { name: `${unique} ${hidden}` })).toHaveCount(0)
+        await expect(page.locator('tbody tr')).toHaveCount(Math.min(count, 10))
+      }
     } finally {
       await context.close()
     }

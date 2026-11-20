@@ -1,7 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import sharp from 'sharp'
 import path from 'path'
-import { buildConfig, PayloadRequest } from 'payload'
+import { buildConfig, type CollectionConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
@@ -30,6 +30,25 @@ import { domainCollections } from './collections/shared/domainCollections'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const draftCollections: string[] = ['pages', 'posts', ...domainCollections]
+/** Lists of drafts collections open with "All | Not live yet | Live" links and their counts. */
+const withStateLinks = (collection: CollectionConfig): CollectionConfig =>
+  draftCollections.includes(collection.slug)
+    ? {
+        ...collection,
+        admin: {
+          ...collection.admin,
+          components: {
+            ...collection.admin?.components,
+            beforeListTable: [
+              '@/admin/stateLinks',
+              ...(collection.admin?.components?.beforeListTable ?? []),
+            ],
+          },
+        },
+      }
+    : collection
 
 export default buildConfig({
   admin: {
@@ -100,7 +119,7 @@ export default buildConfig({
     Media,
     Categories,
     Users,
-  ],
+  ].map(withStateLinks),
   cors: [getServerSideURL()].filter(Boolean),
   // Heading of Payload's no-access page, shown only to a signed-in account that lost access.
   i18n: { translations: { en: { error: { unauthorizedAdmin: adminCopy.accountDisabled } } } },
