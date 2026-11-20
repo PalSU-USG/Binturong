@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createLocalReq, getPayload, type Payload } from 'payload'
 
 import config from '@/payload.config'
+import { adminCopy } from '@/admin/copy'
 import { loadStateCounts } from '@/admin/dashboard/queries'
 import { domainCollections } from '@/collections/shared/domainCollections'
 import { syntheticContent as content } from '../helpers/contentFixtures'
@@ -78,10 +79,18 @@ describe('list state links', () => {
   })
 
   it('reports a failed count as an error, never as zero', async () => {
-    const spy = vi.spyOn(payload, 'find').mockRejectedValueOnce(new Error('synthetic failure'))
+    // Fail only the posts counts, so the account lookup passes and the count path is what fails.
+    const original = payload.find.bind(payload)
+    const spy = vi
+      .spyOn(payload, 'find')
+      .mockImplementation(((args: Parameters<Payload['find']>[0]) =>
+        args.collection === 'posts'
+          ? Promise.reject(new Error('synthetic failure'))
+          : original(args)) as Payload['find'])
     const result = await loadStateCounts(await reqFor('editor'), 'posts')
+    expect(spy.mock.calls.some(([args]) => args.collection === 'posts')).toBe(true)
     spy.mockRestore()
-    expect(result.ok).toBe(false)
+    expect(result).toEqual({ ok: false, error: adminCopy.loadError })
   })
 
   it('refuses to count without a signed-in staff member', async () => {

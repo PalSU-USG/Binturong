@@ -14,8 +14,9 @@
   a {
     display: inline-flex;
     align-items: center;
-    min-height: 2.75rem;
-    padding: 0 0.5rem;
+    // Pixels, not rem: the admin's root font size is Payload's, and the target must stay 44px.
+    min-height: 44px;
+    padding: 0 8px;
     color: var(--theme-text);
     text-decoration: underline;
 
