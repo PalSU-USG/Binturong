@@ -150,10 +150,8 @@ export const Pages: CollectionConfig<'pages'> = {
   },
   versions: {
     drafts: {
-      autosave: {
-        interval: 100, // We set this interval for optimal live preview
-        showSaveDraftButton: true,
-      },
+      // Off so an abandoned "create" form leaves no blank draft; editors use Save draft.
+      autosave: false,
       schedulePublish: true,
     },
     maxPerDoc: 50,

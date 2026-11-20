@@ -197,26 +197,27 @@ describe('plain language', () => {
     expect(missing).toEqual([])
   })
 
-  it('keeps the Save Draft button visible alongside autosave on pages and posts', () => {
+  it('saves page and post drafts only on Save draft, never by autosave', () => {
+    // Autosave saved a blank draft as soon as "create" opened, so abandoned forms appeared as
+    // "Untitled" under "Waiting for a publisher".
     for (const slug of ['pages', 'posts'] as const) {
       const entity = find(slug) as Entity & {
-        versions?: { drafts?: { autosave?: { showSaveDraftButton?: boolean } } }
+        versions?: { drafts?: { autosave?: unknown; schedulePublish?: boolean } }
       }
-      expect(entity.versions?.drafts?.autosave?.showSaveDraftButton, slug).toBe(true)
+      expect(entity.versions?.drafts?.autosave, slug).toBe(false)
+      expect(entity.versions?.drafts?.schedulePublish, slug).toBe(true)
     }
   })
 
   it('registers the how-to view as an exact route', () => {
     const howTo = resolved.admin?.components?.views?.howTo as
-      | { path?: string; exact?: boolean }
-      | undefined
+      { path?: string; exact?: boolean } | undefined
     expect(howTo).toMatchObject({ path: '/how-to', exact: true })
   })
 
   it('explains a turned-off account in plain words on the no-access page', () => {
     const translations = resolved.i18n?.translations as
-      | { en?: { error?: { unauthorizedAdmin?: string } } }
-      | undefined
+      { en?: { error?: { unauthorizedAdmin?: string } } } | undefined
     expect(translations?.en?.error?.unauthorizedAdmin).toBe(adminCopy.accountDisabled)
     expect(adminCopy.accountDisabled).toBe(
       'This account is disabled. Ask a USG administrator to re-enable it.',

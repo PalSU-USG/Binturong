@@ -64,8 +64,8 @@ test.describe('CMS permission boundaries', () => {
           response.request().method() === 'PATCH',
       )
       await title.fill('Synthetic reviewed browser draft')
-      await page.keyboard.press('Tab')
-      await expect(title).not.toBeFocused()
+      // Autosave is off, so the editor saves the draft explicitly.
+      await page.getByRole('button', { name: 'Save draft' }).click()
       expect((await saved).ok()).toBe(true)
       expect((await (await request.get(`/api/posts/${postID}`)).json()).title).toBe(originalTitle)
       const denied = await page.request.patch(`/api/posts/${postID}`, {
