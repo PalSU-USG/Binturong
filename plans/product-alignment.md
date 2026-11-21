@@ -32,7 +32,15 @@ copying local content (menu, pages, posts) to the hosted database (owner saw a b
 the Header menu lives only in the local database). Done 21 Nov: G3, both pending migrations on
 local `binturong_domain` (backup in session scratchpad); first hosted admin via
 `npm run create:first-account` (`dafa3d5`, runbook Step 5; account-bootstrap 7/7); owner ran
-it on the dev cloud project and reported "I've already done it" (V5 done on dev). Full `test:int` on this machine: 615/625, all 10 failures 5 s timeouts
+it on the dev cloud project and reported "I've already done it" (V5 done on dev).
+Owner decisions 21 Nov 2026: Vercel plan "Hobby" (function limit 300 s, so hosted downloads
+stop at 5 min, not the approved 20); G8 "Yes you ca build the memo pages"; G9 "G9 is go" =
+citation "Memorandum No. 023, s. 2026-2027" from the linked academic year label (replaces the
+"s. 2026" stand-in in the plan); G11 "G11 go" = `@payloadcms/storage-s3` on Supabase Storage;
+G1 "maybe you can try to find anything from USG online as sample content (then pull its
+images)" = replace the Payload demo posts with public USG content. G4 unanswered (executive
+orders page stays "later"). Admin redesign A–D (issuance form uploads its own PDF; one
+vocabulary; three main task cards; empty-database setup checklist) proposed, awaiting answer. Full `test:int` on this machine: 615/625, all 10 failures 5 s timeouts
 or knock-on effects in upload/search files at 1.9 GB free RAM; upload file still fails alone
 under that load, untouched by this change. B6 heading
 skip is CMS content (seed `contact-page.ts` h3 after h1). Run the full browser suite in two
