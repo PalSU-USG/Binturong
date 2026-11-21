@@ -71,6 +71,19 @@ test.describe('record pages and sections', () => {
         type,
         status,
       })
+    for (const [title, status] of [
+      [`Executive memorandum ${fx.tag}`, 'published'],
+      [`Draft memorandum ${fx.tag}`, 'draft'],
+    ] as const)
+      await fx.issuance({
+        organization: usg.id,
+        mainDocument: fileID,
+        academicYear: year.id,
+        issuingOffice: office.id,
+        title,
+        type: 'memorandum',
+        status,
+      })
     await fx.report({
       organization: usg.id,
       mainDocument: fileID,
@@ -207,6 +220,38 @@ test.describe('record pages and sections', () => {
     )
     for (const group of ['executive', 'judicial', 'not-a-group'])
       expect((await page.goto(`/archives/${group}/resolutions`))?.status(), group).toBe(404)
+  })
+
+  test('the executive memoranda page lists published executive memoranda only', async ({
+    page,
+  }) => {
+    const response = await page.goto(
+      `/archives/executive/memoranda?year=${year.slug}&type=resolution`,
+    )
+    expect(response?.status()).toBe(200)
+    await expect(page.getByRole('heading', { level: 1, name: 'Memoranda' })).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: `Executive memorandum ${fx.tag}`, exact: true }),
+    ).toBeVisible()
+    // Legislative memoranda, drafts and other executive types stay off this page.
+    await expect(page.getByText(`Senate memorandum ${fx.tag}`)).toHaveCount(0)
+    await expect(page.getByText(`Draft memorandum ${fx.tag}`)).toHaveCount(0)
+    await expect(page.getByText(`Issuance ${fx.tag}`, { exact: true })).toHaveCount(0)
+    await expect(page.getByLabel('Type')).toHaveCount(0)
+    // The section crumb comes from the Header global, so only the branch crumb is asserted here.
+    const crumbs = page.getByRole('navigation', { name: 'Breadcrumb' })
+    await expect(crumbs.getByRole('link', { name: 'Executive' })).toHaveAttribute(
+      'href',
+      '/archives/executive',
+    )
+    // Executive orders wait for the owner (G4); other branch/type pairs are not pages.
+    for (const path of [
+      'legislative/memoranda',
+      'executive/resolutions',
+      'executive/executive-orders',
+      'judicial/memoranda',
+    ])
+      expect((await page.goto(`/archives/${path}`))?.status(), path).toBe(404)
   })
 
   test('lists have no horizontal scroll at 320 px and work by keyboard', async ({ page }) => {
