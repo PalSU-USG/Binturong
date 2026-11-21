@@ -21,20 +21,28 @@ changed. The current checkpoint below records subsequent approved execution.
 records the starting point.
 
 - Memo branch `37fc8fe` and cloud branch `3751821` were independently reviewed. Memo checks
-  passed 39 integration and eight records browser tests. Cloud checks passed 18 integration
-  tests, including fresh and populated migration proofs. The combined production build against
-  the isolated test database returned 200 for both supported archive URLs and 404 for four
-  unsupported pairs. Full integration on port 45323 passed 640/645. The five account failures
+  passed 39 integration, eight records browser and 26 navigation browser tests. Cloud checks
+  passed 18 integration tests, including fresh and populated migration proofs. The production
+  build against the isolated test database returned 200 for both supported archive URLs and 404
+  for four unsupported pairs. Full integration on port 45323 passed 640/645. The five account failures
   involved a leftover synthetic super-admin. All 18 checks in those three specs passed on the
   empty alternate test database on port 45322. Lint still reports the five inherited errors.
-- SSO branch `Hawksprey420/sso` is implemented at `83bb70c`. Eleven identity checks, two
-  migration proofs, three mocked Chromium flows, TypeScript and changed-file lint passed. It
-  retains Payload authorization and password fallback and adds access requests and invitations.
-  Next action is to regenerate its migration snapshot against the integrated Cloud schema.
+- With owner approval, Codex backed up `binturong_domain` to
+  `~/binturong-backups/binturong_domain-pre-media-20261121-195825.dump`, verified the archive
+  and copied checksum, and applied only `20261121_051921_media_storage_fields`. The history
+  records the migration once. Both Media columns exist and the table still has three rows.
+- SSO branch `Hawksprey420/sso` is implemented at `83bb70c`. Its integration candidate
+  `Hawksprey420/phase3-sso-integration` at `fadf15d` combines both migration histories and
+  regenerates the Payload schema snapshot against Cloud. Its production build, 42 focused
+  integration checks and three mocked Chromium workflows passed. SSO stays on the candidate
+  branch pending the hosted rollout. Payload retains role checks and the password fallback.
 - The admin canvas source is backed up outside the repo under
   `~/binturong-backups/admin-canvas-4yJ4zBaY85xEMtGq4v4VA2`. The redesign is awaiting the
   owner's approval. Hosted buckets, the live Google callback, Preview smoke and rollout approval
   remain open. The Vercel connector required reauthentication, so Fluid compute is unverified.
+- Next action is to confirm Preview's storage and Fluid settings, then obtain approval for the
+  `dev` push that triggers the Preview build. Use the candidate's SSO plan for the Google OAuth
+  and Supabase callback settings before its separate Preview check.
 
 **Phase 3 progress (21 Nov 2026; pushed to GitHub `dev` at `b9d8465`, owner: "hmm you can
 push it now").** Vercel Preview for `b9d8465` built (state success,

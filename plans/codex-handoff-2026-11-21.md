@@ -1,5 +1,8 @@
 # Codex handoff, 21 Nov 2026
 
+For the branch tips and checks after Codex took over, see the
+[current product checkpoint](product-alignment.md#current-checkpoint).
+
 From the Claude session `3853cd48-e3a3-484c-b8c5-ef395dbc4be8` (transcript:
 `~/.claude/projects/C--Users-Hawksprey-Binturong/3853cd48-e3a3-484c-b8c5-ef395dbc4be8.jsonl`).
 Read this, then `plans/product-alignment.md` (checkpoint), then the plans named below. Verify every
