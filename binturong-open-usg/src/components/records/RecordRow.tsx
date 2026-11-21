@@ -18,7 +18,7 @@ export function RecordRow({ row, headingLevel = 2 }: { row: RecordRowData; headi
           </span>
         )}
       </p>
-      {row.identifier && <p className="[overflow-wrap:anywhere]">{row.identifier}</p>}
+      {row.identifier && <p className="tabular-nums [overflow-wrap:anywhere]">{row.identifier}</p>}
       <Heading className="mt-1 text-xl font-semibold [overflow-wrap:anywhere]">
         <Link className="underline" href={row.href}>
           {row.title}

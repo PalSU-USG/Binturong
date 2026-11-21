@@ -184,6 +184,25 @@ describe('record detail route', () => {
     spy.mockRestore()
   })
 
+  it('shows_the_citation_under_the_issuance_title_only_when_number_and_year_exist', async () => {
+    readPublicFileFacts.mockResolvedValue(facts())
+    const render = async (over: Partial<PublicRecord>) => {
+      readPublicRecord.mockResolvedValue(record({ typeLabel: 'Memorandum', ...over }))
+      return renderToStaticMarkup(
+        await RecordDetailPage({ collection: 'issuances', params: Promise.resolve({ slug: 'm' }) }),
+      )
+    }
+    const full = await render({ identifier: '023', academicYear: '2026-2027' })
+    expect(full).toContain('Memorandum No. 023, s. 2026-2027')
+    expect(full).toContain('tabular-nums')
+    const noNumber = await render({ identifier: null, academicYear: '2026-2027' })
+    expect(noNumber).not.toContain('No. ')
+    // Without a published academic year there is no series, so only the number shows.
+    const noYear = await render({ identifier: '023', academicYear: null })
+    expect(noYear).not.toContain('No. 023')
+    expect(noYear).toContain('<p>023</p>')
+  })
+
   it('uses_the_matching_section_trail_for_reports', async () => {
     readPublicRecord.mockResolvedValue(
       record({ collection: 'reports', typeLabel: 'Financial report' }),
