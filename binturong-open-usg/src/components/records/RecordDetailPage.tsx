@@ -6,6 +6,7 @@ import React from 'react'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { RecordDetail } from '@/components/records/RecordDetail'
 import { SectionLayout } from '@/components/SectionLayout'
+import { citation } from '@/records/citation'
 import {
   readPublicFileFacts,
   type FileOwner,
@@ -48,6 +49,13 @@ export async function RecordDetailPage({
   }
 
   const isIssuance = collection === 'issuances'
+  const cited =
+    isIssuance &&
+    citation({
+      typeLabel: record.typeLabel,
+      documentNumber: record.identifier,
+      seriesLabel: record.academicYear,
+    })
   const reportsPage =
     record.typeLabel === 'Financial report'
       ? { label: 'Financial reports', href: '/transparency/financial-reports' }
@@ -62,7 +70,7 @@ export async function RecordDetailPage({
           : { label: 'Transparency', href: '/transparency' }
       }
       eyebrow={record.typeLabel}
-      intro={record.identifier || undefined}
+      intro={cited ? <span className="tabular-nums">{cited}</span> : record.identifier || undefined}
       section={isIssuance ? 'archives' : 'transparency'}
       title={record.title}
       trail={[...(isIssuance ? [] : [reportsPage]), { label: record.title }]}

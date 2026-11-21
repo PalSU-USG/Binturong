@@ -63,7 +63,7 @@ export async function SectionLayout({
       <PageHeader
         crumbs={[
           { label: 'Home', href: '/' },
-          found ? { label: found.label, href: found.href ?? undefined } : fallback,
+          found ? { label: found.label, href: found.href ?? fallback.href } : fallback,
           ...trail,
         ]}
         branch={branch}

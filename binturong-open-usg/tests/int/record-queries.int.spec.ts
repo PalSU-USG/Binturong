@@ -109,7 +109,8 @@ describe('record queries', () => {
     const visible = await issuance({
       title: `Visible ${fx.tag}`,
       issuingOffice: exec.id,
-      identifier: 'EO No. 1',
+      type: 'executive_order',
+      identifier: '1',
     })
     const draft = await issuance({ title: `Draft ${fx.tag}`, status: 'draft' })
     const withdrawn = await report({ title: `Withdrawn ${fx.tag}`, status: 'draft' })
@@ -124,7 +125,8 @@ describe('record queries', () => {
     const row = result.rows.find((r) => r.title === `Visible ${fx.tag}`)!
     expect(row).toMatchObject({
       href: `/issuances/${visible.slug}`,
-      identifier: 'EO No. 1',
+      identifier: '1',
+      citation: `Executive order No. 1, s. Year ${fx.tag}`,
       organization: usg.name,
       fileHref: `/api/documents/${file}/file`,
     })
@@ -133,6 +135,34 @@ describe('record queries', () => {
       fileHref: null,
     })
     expect(JSON.stringify(result)).not.toContain('ready/')
+  })
+
+  it('shows_only_the_number_when_the_academic_year_is_missing_or_unpublished', async () => {
+    const draftYear = await fx.year({ label: `Hidden year ${fx.tag}`, status: 'draft' })
+    // This run's own organization keeps leftover test rows off the page.
+    const hidden = await issuance({
+      title: `DraftYear ${fx.tag}`,
+      organization: csgOrg.id,
+      type: 'memorandum',
+      identifier: '023',
+      academicYear: draftYear.id,
+    })
+    const none = await issuance({
+      title: `NoYear ${fx.tag}`,
+      organization: csgOrg.id,
+      type: 'memorandum',
+      identifier: '024',
+      academicYear: undefined,
+    })
+    const { rows } = await listRecords(
+      payload,
+      'csg',
+      filters({ csg: csgOrg.slug, type: 'memorandum', year: null }),
+      NOW,
+    )
+    expect(rows.find((r) => r.title === hidden.title)?.identifier).toBe('023')
+    expect(rows.find((r) => r.title === none.title)?.identifier).toBe('024')
+    expect(JSON.stringify(rows)).not.toContain(draftYear.label)
   })
 
   it('filters_by_branch_and_keeps_unclassified_records_on_archives_only', async () => {

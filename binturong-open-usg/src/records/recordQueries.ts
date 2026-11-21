@@ -3,6 +3,7 @@ import type { CollectionSlug, Payload, Where } from 'payload'
 
 import type { Activity, Issuance, Report } from '@/payload-types'
 import { isRecent } from '@/search/params'
+import { citation } from './citation'
 import { resolveRichTextLinks } from './richTextLinks'
 import { readReadyMainDocuments, type FileOwner } from './publicFileFacts'
 import {
@@ -26,6 +27,7 @@ export type RecordRowData = {
   id: number
   typeLabel: string
   identifier: string | null
+  citation?: string
   title: string
   href: string
   sourceDate: string | null
@@ -191,6 +193,7 @@ type CommonDoc = Pick<
 > & { type?: string | null }
 type ListedRow = Pick<CommonDoc, 'id' | 'title' | 'slug' | 'publishedAt' | 'organization'> & {
   mainDocument?: unknown
+  academicYear?: unknown
   type?: string
   documentNumber?: string | null
   issuedDate?: string | null
@@ -207,6 +210,7 @@ const SELECT = {
     type: true,
     documentNumber: true,
     issuedDate: true,
+    academicYear: true,
   },
   reports: {
     title: true,
@@ -276,6 +280,12 @@ async function toRows(
     items.flatMap((i) => relationID(i.organization) ?? []),
     { name: true },
   )
+  const years = await publishedFields(
+    payload,
+    'academic-years',
+    items.flatMap((i) => (i.collection === 'issuances' ? ids(i.academicYear) : [])),
+    { label: true },
+  )
   const files = new Map<FileOwner, Map<number, number>>()
   for (const collection of ['issuances', 'reports'] as const) {
     const ids = items.filter((i) => i.collection === collection).map((i) => i.id)
@@ -293,12 +303,22 @@ async function toRows(
   return items.map((item) => {
     const isIssuance = item.collection === 'issuances'
     const documentID = files.get(item.collection)?.get(item.id)
+    const typeLabel = isIssuance ? issuanceLabel(item.type) : reportLabel(item.type)
+    const raw = (isIssuance ? item.documentNumber : item.reportingPeriod)?.trim() || null
+    const cited =
+      isIssuance &&
+      citation({
+        typeLabel,
+        documentNumber: raw,
+        seriesLabel: textOf(years.get(relationID(item.academicYear) ?? 0), 'label'),
+      })
     return {
       key: `${item.collection}-${item.id}`,
       collection: item.collection,
       id: item.id,
-      typeLabel: isIssuance ? issuanceLabel(item.type) : reportLabel(item.type),
-      identifier: (isIssuance ? item.documentNumber : item.reportingPeriod)?.trim() || null,
+      typeLabel,
+      identifier: raw,
+      citation: cited || undefined,
       title: item.title,
       href: `/${item.collection}/${encodeURIComponent(item.slug ?? '')}`,
       sourceDate: (isIssuance ? item.issuedDate : item.periodEndDate) ?? null,
