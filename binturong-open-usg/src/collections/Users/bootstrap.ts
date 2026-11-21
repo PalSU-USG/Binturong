@@ -1,10 +1,43 @@
 import { APIError, type PayloadRequest } from 'payload'
 
+import type { User } from '@/payload-types'
 import {
   assertLocalAccountDatabase,
   lockAccounts,
   withAccountProvisioning,
+  withFirstAccountProvisioning,
 } from './accountProvisioning'
+
+export const firstAccountMinPasswordLength = 12
+
+export async function createFirstSuperAdmin(
+  req: PayloadRequest,
+  { email, name, password }: { email: string; name?: string; password: string },
+): Promise<User> {
+  const address = email.trim().toLowerCase()
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address))
+    throw new APIError('Enter a valid email address', 400)
+  if (password.length < firstAccountMinPasswordLength)
+    throw new APIError(
+      `Use a password of at least ${firstAccountMinPasswordLength} characters`,
+      400,
+    )
+  return withFirstAccountProvisioning(req, () =>
+    req.payload.create({
+      collection: 'users',
+      data: {
+        email: address,
+        name: name?.trim() || undefined,
+        password,
+        role: 'super_admin',
+        disabled: false,
+        authRevision: 0,
+      },
+      req,
+      overrideAccess: true,
+    }),
+  )
+}
 
 export async function bootstrapSuperAdmin(req: PayloadRequest, userID: number): Promise<void> {
   assertLocalAccountDatabase()

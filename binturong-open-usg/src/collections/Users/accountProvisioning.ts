@@ -34,6 +34,26 @@ export async function withAccountProvisioning<T>(
   }
 }
 
+/**
+ * The only provisioning path for a hosted database: it exists so the first person can sign in,
+ * and it stops working once any account exists. The count runs under the account lock.
+ */
+export async function withFirstAccountProvisioning<T>(
+  req: PayloadRequest,
+  action: () => Promise<T>,
+): Promise<T> {
+  await lockAccounts(req)
+  const { totalDocs } = await req.payload.count({ collection: 'users', req, overrideAccess: true })
+  if (totalDocs > 0)
+    throw new APIError('Accounts already exist; sign in and use account management', 409)
+  provisioning.add(req)
+  try {
+    return await action()
+  } finally {
+    provisioning.delete(req)
+  }
+}
+
 export async function lockAccounts(req: PayloadRequest): Promise<void> {
   const transactionID = await req.transactionID
   const transaction = transactionID && req.payload.db.sessions?.[transactionID]?.db
