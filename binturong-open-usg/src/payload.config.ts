@@ -24,6 +24,7 @@ import { hiddenBelow } from './admin/navVisibility'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { databasePool } from './utilities/databasePool'
 import { publishContent } from './access/contentAccess'
 import { scheduledPublication } from './jobs/authorizePublication'
 import { domainCollections } from './collections/shared/domainCollections'
@@ -94,9 +95,7 @@ export default buildConfig({
   editor: defaultLexical,
   db: postgresAdapter({
     push: false,
-    pool: {
-      connectionString: process.env.DATABASE_URL || '',
-    },
+    pool: databasePool(),
   }),
   folders: {
     collectionOverrides: [

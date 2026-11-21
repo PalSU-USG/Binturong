@@ -16,6 +16,7 @@ import { hasRole } from '@/access/roles'
 import { protectSearchReindex, trustedSearchWrite } from '@/search/authorizeReindex'
 import { publishedSearchAccess } from '@/search/publishedSearchAccess'
 import { indexedCollections } from '@/search/searchTargets'
+import { mediaStorage } from '@/storage/mediaStorage'
 
 import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -118,4 +119,5 @@ export const plugins: Plugin[] = [
     },
   }),
   protectSearchReindex,
+  mediaStorage(),
 ]

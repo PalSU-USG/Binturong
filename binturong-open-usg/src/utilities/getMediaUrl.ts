@@ -11,9 +11,10 @@
 export const getMediaUrl = (url: string | null | undefined, cacheTag?: string | null): string => {
   if (!url) return ''
 
-  if (cacheTag && cacheTag !== '') {
-    cacheTag = encodeURIComponent(cacheTag)
-  }
+  if (!cacheTag) return url
 
-  return cacheTag ? `${url}?${cacheTag}` : url
+  const fragmentStart = url.indexOf('#')
+  const path = fragmentStart < 0 ? url : url.slice(0, fragmentStart)
+  const fragment = fragmentStart < 0 ? '' : url.slice(fragmentStart)
+  return `${path}${path.includes('?') ? '&' : '?'}${encodeURIComponent(cacheTag)}${fragment}`
 }

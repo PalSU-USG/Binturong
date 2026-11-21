@@ -23,8 +23,9 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
     }
   }, [])
 
-  if (resource && typeof resource === 'object') {
-    const { filename } = resource
+  // The served URL works with local disk and with cloud storage; public/media does not.
+  if (resource && typeof resource === 'object' && resource.url) {
+    const { url } = resource
 
     return (
       <video
@@ -37,7 +38,7 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
         playsInline
         ref={videoRef}
       >
-        <source src={getMediaUrl(`/media/${filename}`)} />
+        <source src={getMediaUrl(url)} />
       </video>
     )
   }
