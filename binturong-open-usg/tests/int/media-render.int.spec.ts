@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { Media } from '@/components/Media'
 import type { Media as MediaResource } from '@/payload-types'
+import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 const resource: MediaResource = {
   id: 1,
@@ -17,6 +18,11 @@ const resource: MediaResource = {
 }
 
 describe('media rendering', () => {
+  it('preserves the cloud object prefix when cache-busting a media URL', () => {
+    expect(getMediaUrl('/api/media/file/example.png?prefix=archive', '2026-11-21')).toBe(
+      '/api/media/file/example.png?prefix=archive&2026-11-21',
+    )
+  })
   it('omits the image and its frame when the resource has no URL', () => {
     const out = renderToStaticMarkup(React.createElement(Media, { resource }))
     expect(out).toBe('')

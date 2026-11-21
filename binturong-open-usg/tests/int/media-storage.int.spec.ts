@@ -1,5 +1,7 @@
+import type { Field } from 'payload'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { mediaStorage } from '@/storage/mediaStorage'
 import { buildConfigWith } from '../helpers/freshConfig'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn(), revalidateTag: vi.fn() }))
@@ -49,6 +51,28 @@ describe('media storage', () => {
       expect(uploadOf(config, slug).handlers ?? [], slug).toHaveLength(0)
   }, 60_000)
 
+  it('stores the same media columns whether cloud storage is on or off', async () => {
+    // Migrations are generated from the local (storage off) config, so a field that only the
+    // enabled adapter adds would be a missing column on hosted.
+    const names = (fields: Field[]): string[] =>
+      fields.flatMap((field) =>
+        'name' in field
+          ? [
+              field.name,
+              ...('fields' in field ? names(field.fields).map((n) => `${field.name}.${n}`) : []),
+            ]
+          : [],
+      )
+    const mediaFields = async (env: Record<string, string>) =>
+      names(
+        (await buildConfigWith(env)).collections.find(({ slug }) => slug === 'media')?.fields ?? [],
+      ).sort()
+    const off = await mediaFields(unsetMedia)
+    vi.unstubAllEnvs()
+    expect(await mediaFields(mediaEnv)).toEqual(off)
+    expect(off).toEqual(expect.arrayContaining(['_objectKey', 'prefix', 'sizes.thumbnail.url']))
+  }, 60_000)
+
   it('refuses a partial or malformed configuration instead of silently using local disk', async () => {
     await expect(
       buildConfigWith({ ...unsetMedia, MEDIA_S3_BUCKET: 'synthetic-media' }),
@@ -57,4 +81,10 @@ describe('media storage', () => {
       /MEDIA_S3_ENDPOINT/,
     )
   }, 60_000)
+
+  it('refuses to use the official documents bucket for public media', () => {
+    expect(() =>
+      mediaStorage({ ...mediaEnv, OFFICIAL_STORAGE_BUCKET: mediaEnv.MEDIA_S3_BUCKET }),
+    ).toThrow(/separate/)
+  })
 })

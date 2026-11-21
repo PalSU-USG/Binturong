@@ -127,7 +127,7 @@ if (!process.argv[3]) {
       alter default privileges for role postgres in schema public grant all on sequences to anon, authenticated, service_role;
       alter default privileges for role postgres in schema public grant all on functions to anon, authenticated, service_role;
     `)
-    assert.equal(migrations.length, 16)
+    assert.equal(migrations.length, 17)
     let baseline, predecessor, beforeDocumentSessions, beforeNavigation, userID, searchID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
@@ -276,7 +276,7 @@ if (!process.argv[3]) {
     )
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 16)
+    assert.equal(history.length, 17)
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
@@ -286,7 +286,14 @@ if (!process.argv[3]) {
       "select count(*)::int as n from information_schema.columns where table_schema='public' and table_name in ('_pages_v','_posts_v') and column_name='autosave'",
     )
     assert.equal(leftover.rows[0].n, 0, 'draft_autosave_off drops the autosave flags')
-    console.info('PASS sixteen migrations and repeat no-op')
+    const mediaColumns = await pool.query(
+      "select column_name from information_schema.columns where table_schema='public' and table_name='media' and column_name in ('prefix','_objectkey')",
+    )
+    assert.deepEqual(mediaColumns.rows.map(({ column_name }) => column_name).sort(), [
+      '_objectkey',
+      'prefix',
+    ])
+    console.info('PASS complete migration history and repeat no-op')
     const lockedDown = (await pool.query(dataAPIExposure)).rows
     assert.deepEqual(
       lockedDown

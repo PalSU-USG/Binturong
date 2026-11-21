@@ -25,6 +25,10 @@ export const mediaStorage = (env: Record<string, string | undefined> = process.e
   if (!enabled && missing.length < variables.length)
     throw new Error(`Media storage is partly configured; also set ${missing.join(', ')}`)
 
+  const bucket = value('MEDIA_S3_BUCKET')
+  if (bucket && bucket === env.OFFICIAL_STORAGE_BUCKET?.trim())
+    throw new Error('Media and official documents require separate storage buckets')
+
   const endpoint = value('MEDIA_S3_ENDPOINT')
   if (endpoint && !URL.canParse(endpoint))
     throw new Error(
@@ -33,8 +37,11 @@ export const mediaStorage = (env: Record<string, string | undefined> = process.e
 
   return s3Storage({
     enabled,
+    // The enabled adapter stores `_objectKey` (and `prefix`) on media. Insert them either way so
+    // migrations generated from the local, disabled config match the hosted schema.
+    alwaysInsertFields: true,
     collections: { media: true },
-    bucket: value('MEDIA_S3_BUCKET') ?? '',
+    bucket: bucket ?? '',
     config: {
       endpoint,
       region: value('MEDIA_S3_REGION'),
