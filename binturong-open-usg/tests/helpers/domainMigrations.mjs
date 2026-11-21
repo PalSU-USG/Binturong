@@ -127,7 +127,8 @@ if (!process.argv[3]) {
       alter default privileges for role postgres in schema public grant all on sequences to anon, authenticated, service_role;
       alter default privileges for role postgres in schema public grant all on functions to anon, authenticated, service_role;
     `)
-    assert.equal(migrations.length, 16)
+    const accessRequestsMigration = migrations.at(-1)
+    assert.equal(accessRequestsMigration.name, '20261121_112130_staff_access_requests')
     let baseline, predecessor, beforeDocumentSessions, beforeNavigation, userID, searchID
     if (mode === 'populated') {
       await payload.db.migrate({ migrations: migrations.slice(0, 1) })
@@ -276,7 +277,10 @@ if (!process.argv[3]) {
     )
     await payload.db.migrate({ migrations })
     const history = (await pool.query('select * from payload_migrations order by id')).rows
-    assert.equal(history.length, 16)
+    assert.deepEqual(
+      history.map(({ name }) => name),
+      migrations.map(({ name }) => name),
+    )
     await payload.db.migrate({ migrations })
     assert.deepEqual(
       (await pool.query('select * from payload_migrations order by id')).rows,
@@ -286,7 +290,7 @@ if (!process.argv[3]) {
       "select count(*)::int as n from information_schema.columns where table_schema='public' and table_name in ('_pages_v','_posts_v') and column_name='autosave'",
     )
     assert.equal(leftover.rows[0].n, 0, 'draft_autosave_off drops the autosave flags')
-    console.info('PASS sixteen migrations and repeat no-op')
+    console.info('PASS complete migration history and repeat no-op')
     const lockedDown = (await pool.query(dataAPIExposure)).rows
     assert.deepEqual(
       lockedDown
@@ -297,6 +301,28 @@ if (!process.argv[3]) {
     assert.deepEqual(
       lockedDown.filter(({ kind, allowed }) => kind !== 'f' && allowed).map(({ name }) => name),
       [],
+    )
+    assert.deepEqual(
+      lockedDown
+        .filter(({ name }) => name === 'access_requests')
+        .map(({ role, rls, allowed }) => ({
+          role,
+          rls,
+          allowed,
+        })),
+      [
+        { role: 'anon', rls: true, allowed: false },
+        { role: 'authenticated', rls: true, allowed: false },
+      ],
+    )
+    await assert.rejects(
+      payload.db.drizzle.transaction(async (db) => {
+        await accessRequestsMigration.down({ db })
+        const result = await db.execute(sql`select to_regclass('public.access_requests') as name`)
+        assert.equal(result.rows[0].name, null)
+        throw new Error('Synthetic rollback after access requests down review')
+      }),
+      /Synthetic rollback after access requests down review/,
     )
     const probe = async (db) => {
       await db.execute(sql`create table public.lockdown_probe (id serial primary key)`)
@@ -314,6 +340,7 @@ if (!process.argv[3]) {
     )
     await assert.rejects(
       payload.db.drizzle.transaction(async (db) => {
+        await accessRequestsMigration.down({ db })
         await migrations[14].down({ db })
         const restored = await db.execute(sql.raw(dataAPIExposure))
         assert.deepEqual(restored.rows, beforeLockdown, 'down() restores the pre-lockdown access')

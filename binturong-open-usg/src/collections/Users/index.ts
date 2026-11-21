@@ -3,6 +3,8 @@ import type { CollectionConfig } from 'payload'
 import { hiddenBelow } from '../../admin/navVisibility'
 import { getActiveAccount } from '../../access/activeAccount'
 import { userRoles, type UserRole } from '../../access/roles'
+import { clearSupabaseSession, ssoMe, supabaseStrategy } from '@/auth/supabaseStrategy'
+import { inviteGoogleStaff } from './inviteGoogleStaff'
 import {
   createAccounts,
   deleteAccounts,
@@ -32,14 +34,18 @@ export const Users: CollectionConfig = {
   },
   labels: { singular: 'Account', plural: 'Accounts' },
   admin: {
+    components: { beforeListTable: ['@/admin/InviteGoogleStaff'] },
     group: 'Accounts',
     hidden: hiddenBelow('admin'),
     description: 'Staff accounts and what each person is allowed to do.',
     defaultColumns: ['name', 'email', 'role'],
     useAsTitle: 'name',
   },
-  auth: { useSessions: true },
+  auth: { useSessions: true, strategies: [supabaseStrategy] },
+  endpoints: [inviteGoogleStaff],
   hooks: {
+    afterLogout: clearSupabaseSession,
+    me: [ssoMe],
     beforeOperation: [protectAccountOperation],
     beforeChange: [protectAccountChange],
     beforeDelete: [protectAccountDelete],
