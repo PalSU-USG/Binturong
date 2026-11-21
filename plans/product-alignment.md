@@ -38,7 +38,11 @@ stop at 5 min, not the approved 20); G8 "Yes you ca build the memo pages"; G9 "G
 citation "Memorandum No. 023, s. 2026-2027" from the linked academic year label (replaces the
 "s. 2026" stand-in in the plan); G11 "G11 go" = `@payloadcms/storage-s3` on Supabase Storage;
 G1 "maybe you can try to find anything from USG online as sample content (then pull its
-images)" = replace the Payload demo posts with public USG content. G4 unanswered (executive
+images)" = replace the Payload demo posts with public USG content. Done on local
+`binturong_domain` 21 Nov: demo posts 1–3 and media 1–3 deleted; posts 9–11 published, our own
+summaries with source links and a "Sample post … Replace or delete before launch" line (PSU news
+16 and 21 Dec 2022 with one PSU photo each; Palawan Daily News 20 Mar 2020, text only because
+the photo is the paper's). One-time script kept outside the repo; not yet rendered in a browser. G4 unanswered (executive
 orders page stays "later"). Admin redesign A–D (issuance form uploads its own PDF; one
 vocabulary; three main task cards; empty-database setup checklist) proposed, awaiting answer. Full `test:int` on this machine: 615/625, all 10 failures 5 s timeouts
 or knock-on effects in upload/search files at 1.9 GB free RAM; upload file still fails alone
