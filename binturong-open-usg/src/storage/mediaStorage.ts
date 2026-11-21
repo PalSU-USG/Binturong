@@ -18,7 +18,7 @@ const variables = [
  * Files are still served through Payload's `/api/media/file/...` route (access control kept),
  * so the bucket does not need to be public and next/image needs no remote pattern.
  */
-export const mediaStorage = (env: NodeJS.ProcessEnv = process.env): Plugin => {
+export const mediaStorage = (env: Record<string, string | undefined> = process.env): Plugin => {
   const value = (name: (typeof variables)[number]) => env[name]?.trim() || undefined
   const missing = variables.filter((name) => !value(name))
   const enabled = missing.length === 0
