@@ -29,4 +29,16 @@ describe('media rendering', () => {
     expect(out).toContain('<img')
     expect(out).toContain('alt="Synthetic image"')
   })
+
+  it('plays a video from its served URL, not from the local public folder', () => {
+    // With cloud storage, public/media is empty; the file is only reachable through its URL.
+    const video = { ...resource, mimeType: 'video/mp4', filename: 'clip.mp4' }
+    const out = renderToStaticMarkup(
+      React.createElement(Media, { resource: { ...video, url: '/api/media/file/clip.mp4' } }),
+    )
+    expect(out).toContain('<source src="/api/media/file/clip.mp4"')
+    expect(renderToStaticMarkup(React.createElement(Media, { resource: video }))).not.toContain(
+      '<source',
+    )
+  })
 })
