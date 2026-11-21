@@ -26,11 +26,15 @@ Verified on `dev`: tsc clean; `test:int` 612/612 (before Phase C; Phase C branch
 full `test:e2e` after Phase C 66/72 in a 24.7 min memory-starved run, and all six failing
 files then passed alone (admin-usability + domain-transitions 10/10, domain + records +
 access 11/11). E1 (GraphQL) passes on every run; nothing to fix. `npm run lint` has 5
-pre-existing errors (Header, Card, Theme). Owed: `npm run payload -- migrate` on
-`binturong_domain` (G3); V6 Preview smoke check; G8/G9 for Phase D; Vercel/Supabase plan facts and
-G11 for Phase V. Found: no hosted first-admin path exists (no accounts on hosted;
-`protectAccounts.ts:48` refuses anonymous creates; `bootstrap:super-admin` only promotes an
-existing account and only on local databases), proposed fix awaits owner approval; B6 heading
+pre-existing errors (Header, Card, Theme). Owed:
+V6 Preview smoke check; G8/G9 for Phase D; Vercel/Supabase plan facts and G11 for Phase V;
+copying local content (menu, pages, posts) to the hosted database (owner saw a bare Preview:
+the Header menu lives only in the local database). Done 21 Nov: G3, both pending migrations on
+local `binturong_domain` (backup in session scratchpad); first hosted admin via
+`npm run create:first-account` (`dafa3d5`, runbook Step 5; account-bootstrap 7/7, not yet run
+on a hosted database). Full `test:int` on this machine: 615/625, all 10 failures 5 s timeouts
+or knock-on effects in upload/search files at 1.9 GB free RAM; upload file still fails alone
+under that load, untouched by this change. B6 heading
 skip is CMS content (seed `contact-page.ts` h3 after h1). Run the full browser suite in two
 halves on this machine; one 25 min run times out under memory pressure.
 
