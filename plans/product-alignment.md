@@ -31,8 +31,8 @@ V6 Preview smoke check; G8/G9 for Phase D; Vercel/Supabase plan facts and G11 fo
 copying local content (menu, pages, posts) to the hosted database (owner saw a bare Preview:
 the Header menu lives only in the local database). Done 21 Nov: G3, both pending migrations on
 local `binturong_domain` (backup in session scratchpad); first hosted admin via
-`npm run create:first-account` (`dafa3d5`, runbook Step 5; account-bootstrap 7/7, not yet run
-on a hosted database). Full `test:int` on this machine: 615/625, all 10 failures 5 s timeouts
+`npm run create:first-account` (`dafa3d5`, runbook Step 5; account-bootstrap 7/7); owner ran
+it on the dev cloud project and reported "I've already done it" (V5 done on dev). Full `test:int` on this machine: 615/625, all 10 failures 5 s timeouts
 or knock-on effects in upload/search files at 1.9 GB free RAM; upload file still fails alone
 under that load, untouched by this change. B6 heading
 skip is CMS content (seed `contact-page.ts` h3 after h1). Run the full browser suite in two
