@@ -31,19 +31,20 @@ The owner turned its Data API off and wiped `public`; then all 15 migrations ran
 `20261117_053700_data_api_lockdown`. Still open on dev: no first admin on hosted, no hosted
 storage bucket, function maximum duration unknown, pooler settings not reviewed.
 
-Out of scope: choosing the production domain (gate G5), choosing the Media storage adapter
-(gate G11), and any code change. Code changes this runbook depends on are listed as AGENT
+Out of scope: choosing the production domain (gate G5) and any code change. Gate G11 is decided
+(owner, 21 Nov 2026: "G11 go"): Media uses `@payloadcms/storage-s3` 3.90.2 against Supabase
+Storage's S3-compatible endpoint. Code changes this runbook depends on are listed as AGENT
 steps and are marked PROPOSED when they are not in the repo yet.
 
 ## 2. Facts to check first
 
-These three facts change several answers below. None of them has been checked (no login was
-used to write this runbook). OWNER: read them from the dashboards and write them here with
-the date.
+These three facts change several answers below. The Vercel plan was given by the owner on
+21 Nov 2026; the other two have not been checked (no login was used to write this runbook).
+OWNER: read them from the dashboards and write them here with the date.
 
 | Fact | Where to look | Value (fill in) |
 | --- | --- | --- |
-| Vercel plan of team `pal-su-usg` (Hobby, Pro or Enterprise) | Vercel team settings, billing | unknown |
+| Vercel plan of team `pal-su-usg` (Hobby, Pro or Enterprise) | Vercel team settings, billing | Hobby (owner, 21 Nov 2026) |
 | Fluid compute on or off for project `pal-su-usg/binturong` | Vercel project settings, Functions | unknown |
 | Supabase plan of the organization that will hold production (Free, Pro, Team, Enterprise) | Supabase organization billing | unknown |
 
@@ -89,11 +90,13 @@ production are on different plans, they are not 1:1 on file limits.
    checks for: private (not public), file size limit 50,000,000 bytes, allowed MIME type
    `application/pdf` only. The app refuses to use a bucket that differs
    (`src/storage/officialStorage.ts`).
-5. **OWNER, only if gate G11 picks the S3 adapter.** Create a separate public bucket for Media
-   (for example `media`), and generate S3 access keys in project settings. These keys have full
+5. **OWNER (G11 picked the S3 adapter).** Create a separate bucket for Media (for example
+   `media`). It can stay private: the app serves every Media file through Payload's own route
+   `/api/media/file/<filename>` (the adapter's `disablePayloadAccessControl` is left off), which
+   reads the bucket with the S3 keys, so no browser fetches from the bucket directly. Then
+   generate S3 access keys in the project's Storage settings (S3 section). These keys have full
    access to every bucket, including the private PDF bucket, and bypass RLS, so treat them like
-   the service-role key. If G11 picks Vercel Blob instead, create a Blob store; its public or
-   private mode is fixed at creation.
+   the service-role key. The five `MEDIA_S3_*` variables in step 3 come from here.
 6. **OWNER.** Do the same storage setup on the dev project first if it is not done yet
    (Tasks V1 and V2), so production copies a setup that has passed the Preview smoke (step 9).
 
@@ -130,13 +133,25 @@ verified by a test build); the build must fail if `MIGRATION_DATABASE_URL` is em
 falling back to the runtime URL (the line above does not yet do that check); and it is applied
 to dev first and proven by a Preview build before production uses it.
 
-**AGENT, PROPOSED (Task V3).** `src/payload.config.ts` sets only
-`pool: { connectionString: process.env.DATABASE_URL || '' }`, so `pg` uses its default
-maximum of 10 per instance. The research suggests a small explicit pool (for example `max` 3
-to 5, `idleTimeoutMillis: 5000`) and SSL through the `ssl` object with Supabase's root CA,
-not `sslmode` in the URL, because a URL `sslmode` replaces the `ssl` object. Supabase advises a
-pool of 1 and Vercel advises not 1 under Fluid; pick a small number and watch Supabase's
-connection count.
+The `MIGRATION_DATABASE_URL` change above is still a recommendation; the owner has not
+approved it (open question 9), so `vercel-build` still migrates over `DATABASE_URL`.
+
+**Built (Task V3, branch `Hawksprey420/cloud-ready`).** `src/utilities/databasePool.ts` builds
+the pool options from env only:
+
+- Without `VERCEL` (local Docker, tests): exactly `{ connectionString }`, as before.
+- On Vercel (`VERCEL=1`): `max` 5 and `idleTimeoutMillis` 5000 per function instance.
+- `DATABASE_POOL_MAX` (whole number 1 to 100) overrides the size anywhere. Supabase advises a
+  pool of 1 and Vercel advises not 1 under Fluid; start at 5 and watch Supabase's connection
+  count.
+- `DATABASE_SSL_CA` (Supabase's root certificate, PEM; `\n` escapes allowed) turns on verified
+  TLS through the `ssl` object. When it is set, `DATABASE_URL` must not contain `sslmode` or
+  `sslrootcert`, because node-postgres lets those replace the `ssl` object; the app refuses to
+  start if both are set. Without the CA, TLS follows `DATABASE_URL` exactly as the Preview does
+  today. Setting the CA on Preview is optional and should be tried there before production.
+
+`@vercel/functions` `attachDatabasePool` is not used (not installed, and whether the Payload
+adapter exposes its pool for it is unconfirmed).
 
 One database, one migrator: dev Preview and Production use separate Supabase projects, so
 their builds never migrate the same database. Payload 3.90.2 takes no advisory lock during
@@ -158,7 +173,19 @@ new values. Do not reuse any dev secret.
 | `OFFICIAL_STORAGE_URL` | `https://<prod-project-ref>.supabase.co` (placeholder; origin only, path empty or `/storage/v1`) | server-only |
 | `OFFICIAL_STORAGE_BUCKET` | `official-documents` | same as dev |
 | `OFFICIAL_STORAGE_SERVICE_KEY` | production service-role key | secret, server-only |
-| Media storage variables | names set by Task V1 once G11 is decided | the research example uses `S3_BUCKET` plus S3 credential variables; not in the repo yet |
+| `MEDIA_S3_BUCKET` | the Media bucket name from step 1.5, for example `media` | server-only |
+| `MEDIA_S3_ENDPOINT` | `https://<prod-project-ref>.storage.supabase.co/storage/v1/s3` (placeholder; copy from Storage settings, S3 section) | server-only |
+| `MEDIA_S3_REGION` | the project's region as shown in the same S3 section | server-only |
+| `MEDIA_S3_ACCESS_KEY_ID` | S3 access key ID generated in step 1.5 | secret, server-only; reaches every bucket |
+| `MEDIA_S3_SECRET_ACCESS_KEY` | its secret access key | secret, server-only |
+| `DATABASE_POOL_MAX` | optional; leave unset for the default 5 on Vercel | server-only |
+| `DATABASE_SSL_CA` | optional; Supabase root certificate (PEM), then no `sslmode` in `DATABASE_URL` | server-only; try on Preview first |
+
+Media storage switches on only when all five `MEDIA_S3_*` variables are set. With none set,
+Media is written to the function's temporary disk and lost; with only some set, loading the
+Payload config fails with an error naming the missing ones (so `payload migrate` in the build
+fails too). Set all five in Preview first (Task V1 step 5).
+Dashboard labels in the table are from the Supabase S3 docs, not checked in the dashboard.
 
 Rules for these values:
 
@@ -225,22 +252,34 @@ instance is replaced. The limit would be loose and unpredictable. The firewall c
 edge, in front of every instance, and needs no code. No rate limiter exists in the app code
 today (searched 21 Nov 2026).
 
-### Step 7. File download duration (owner decides)
+### Step 7. File download duration
 
 The owner approved a 20 minute download deadline on 20 Nov ("Raise it to twenty"), and the
-code already uses 20 minutes (`DELIVERY_DEADLINE_MS` in `src/storage/documentDelivery.ts`). No
-route sets `maxDuration` and there is no `vercel.json`, so hosted downloads currently get the
-plan default (300 s under Fluid). The research gives two options. The owner decides; neither
-is built.
+code uses 20 minutes (`DELIVERY_DEADLINE_MS` in `src/storage/documentDelivery.ts`).
 
-- **Option A: raise `maxDuration` for Payload's catch-all route.** `export const maxDuration`
-  cannot go in `src/app/(payload)/api/[...slug]/route.ts` safely, because that file is generated
-  by Payload ("DO NOT MODIFY") and the export could be overwritten. Instead add `vercel.json`:
-  `"functions": { "src/app/(payload)/api/[...slug]/route.ts": { "maxDuration": 1200 } }`.
-  Costs: every REST route gets 20 minutes, not only downloads; 1200 s needs Pro or Enterprise
-  and the extended-duration beta (over 800 s must be set per function); on Hobby the cap stays
-  300 s. The function still buffers up to 50 MB in memory, and whether its fixed
-  `Content-Length` stream counts as streamed for Vercel's 4.5 MB response limit is unconfirmed.
+**Built (Task V4, owner decision 21 Nov 2026, team plan Hobby).**
+`src/app/(payload)/api/[...slug]/route.ts` exports `maxDuration = 300`, the Hobby maximum.
+What that means:
+
+- **Hosted downloads stop at 5 minutes on Hobby**, not the approved 20. A download still
+  running at 300 s is cut off with a 504 `FUNCTION_INVOCATION_TIMEOUT` before the app's own
+  20 minute deadline. Locally the 20 minute deadline still applies.
+- 20 minutes needs either a Pro (or Enterprise) plan with `maxDuration` 1200 (over 800 s is the
+  extended-duration beta, set per function), or Option B below (signed-URL downloads).
+- The export is in Payload's catch-all route, so it applies to **every** Payload REST route in
+  that file, not only `GET /api/documents/:id/file`.
+- Under Fluid compute on Hobby, 300 s is already the default and the maximum, so the export
+  pins the value rather than raising it. With Fluid off, Hobby's limit is unconfirmed; check in
+  the first Preview build after this change that Vercel accepts 300 (step 9).
+- The route file carries Payload's "generated, do not modify" header. Neither `payload` nor
+  `@payloadcms/next` 3.90.2 rewrites it at build or run time (their `dist` folders were searched
+  21 Nov 2026); `tests/int/download-duration.int.spec.ts` fails if a Payload upgrade or template
+  copy drops the export.
+- The function still buffers up to 50 MB in memory, and whether its fixed `Content-Length`
+  stream counts as streamed for Vercel's 4.5 MB response limit is unconfirmed.
+
+Option still open for a 20 minute download on Hobby:
+
 - **Option B: redirect to a short-lived signed URL.** The endpoint keeps its access check, then
   answers 302 to a Supabase signed download URL (for example 60 to 300 s), so the browser
   downloads straight from storage and the function ends in milliseconds. This works on any
@@ -250,8 +289,8 @@ is built.
   has it until it expires. Supabase documents no maximum expiry, so keep it short.
 
 The research recommends asking why 20 minutes is needed before buying it, since a 50 MB file
-should not take that long unless the client is very slow. If the plan's real limit is lower
-than 20 minutes and Option A is chosen, record that the download deadline is shorter on hosted.
+should not take that long unless the client is very slow. The shorter hosted deadline is
+recorded above.
 
 ### Step 8. Restore drill
 
@@ -295,10 +334,14 @@ Run after each push of `dev` the owner approves, and run the same list on produc
 first deploy (on production, use the production admin and clearly fake test content).
 
 1. Watch the Vercel build log to the end (`vercel inspect <deployment-url> --logs` or the
-   dashboard). Expected: migrate lists the applied migrations and the build succeeds.
+   dashboard). Expected: migrate lists the applied migrations and the build succeeds. On the
+   first build after Task V4, also confirm Vercel accepted `maxDuration` 300 (no build error,
+   and the function's maximum duration shows 300 s where the dashboard lists it).
 2. Home returns 200.
 3. `/admin` login works with the hosted admin.
-4. Upload an image, redeploy, and check it still shows. That proves it is not on local disk.
+4. Upload an image under 4.5 MB, redeploy, and check it still shows on a public page and in
+   the bucket. That proves it is not on local disk. Server uploads over 4.5 MB are refused by
+   Vercel (413) because the adapter's `clientUploads` is off; that is expected for now.
 5. Upload a PDF, publish a test record, and download the PDF as an anonymous visitor.
 6. Confirm a draft PDF is refused to an anonymous visitor.
 7. Delete the test record.
@@ -438,6 +481,41 @@ unconfirmed were not established by an official source.
 - Signed download URL `expiresIn` is in seconds; no maximum is documented
   (https://supabase.com/docs/reference/javascript/storage-from-createsignedurl, read 21 Nov 2026).
 
+### Implementation reading for Tasks V1, V3 and V4 (read 21 Nov 2026)
+
+- Payload storage adapters page (https://payloadcms.com/docs/upload/storage-adapters, read
+  21 Nov 2026): `s3Storage` takes `collections`, `bucket`, `config` (AWS `S3ClientConfig`),
+  `acl`, `clientUploads`, `signedDownloads`, `enabled` (default `true`; "conditionally enable
+  the plugin"). Per-collection `disableLocalStorage` "Defaults to `true`".
+  `disablePayloadAccessControl: true` points URLs straight at the cloud host. "When deploying
+  to Vercel, server uploads are limited with 4.5MB." The page does not cover Supabase or image
+  sizes.
+- Installed `@payloadcms/storage-s3` 3.90.2 and `@payloadcms/plugin-cloud-storage` 3.90.2
+  source (read in `node_modules`, 21 Nov 2026):
+  - With `enabled: false` the plugin returns the config unchanged except that it always adds
+    its client upload handler to `admin.dependencies` "to avoid import map discrepancies between
+    dev and prod". The app therefore always registers the plugin, enabled only when the
+    `MEDIA_S3_*` variables are set, and `importMap.js` lists the handler.
+  - When enabled it sets `disableLocalStorage: true` on `media`, adds the S3 static handler (so
+    `/api/media/file/<filename>` streams the object from the bucket, with range and ETag
+    support), and adds `afterChange`/`afterDelete` hooks that upload and delete the file and
+    every image size.
+  - Image sizes: Payload still runs sharp on the server and keeps each size's buffer in
+    `req.payloadUploadSizes` (`payload/dist/uploads/image-resizing/createImageSizes.js`); the
+    adapter's `getIncomingFiles` uploads the original plus those sizes. This is for server
+    uploads (`clientUploads` off); client uploads remain unconfirmed.
+  - `staticDir` stays in the collection config but nothing is written there once enabled.
+- next/image: `next.config.ts` already allows `localPatterns` `/api/media/file/**`, and
+  `ImageMedia` renders the record's relative `url`, so Supabase hosts need no `remotePatterns`
+  entry while `disablePayloadAccessControl` stays off. `VideoMedia` read `/media/<filename>`
+  from `public/`; it now uses the record's `url`.
+- Next.js 16.3.3 bundled docs
+  (`node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/02-route-segment-config/maxDuration.md`,
+  read 21 Nov 2026): `export const maxDuration = <seconds>` in `route.ts`; "Deployment
+  platforms can use `maxDuration` from the Next.js build output".
+- `@payloadcms/db-postgres` 3.90.2 passes `args.pool` to `pg` unchanged and keeps it as
+  `poolOptions` on the adapter (`dist/index.js`, read 21 Nov 2026).
+
 ### Unconfirmed points (from the research)
 
 - Whether sharp image sizes are generated when `clientUploads: true` is used.
@@ -457,11 +535,12 @@ unconfirmed were not established by an official source.
 
 ## 5. Open questions for the owner
 
-1. Which Vercel plan is team `pal-su-usg` on, and is Fluid compute on for `pal-su-usg/binturong`?
+1. Vercel plan: Hobby (owner, 21 Nov 2026). Still open: is Fluid compute on for
+   `pal-su-usg/binturong`?
 2. Which Supabase plan will the production project use, and which plan is the dev project on?
-3. Download duration: Option A (`maxDuration` 1200 on the catch-all, Pro or Enterprise only) or
-   Option B (redirect to a short-lived signed URL)? Why is 20 minutes needed?
-4. Media storage (G11): Supabase S3 adapter or Vercel Blob?
+3. Download duration: `maxDuration` 300 on the catch-all for Hobby (owner, 21 Nov 2026; built in
+   Task V4). Still open: is 5 minutes enough, or move to Pro or Option B for 20 minutes?
+4. Media storage (G11): answered 21 Nov 2026, Supabase S3 adapter (built in Task V1).
 5. Production domain (G5), which sets `NEXT_PUBLIC_SERVER_URL`.
 6. First admin: answered 21 Nov 2026 by `npm run create:first-account` (Step 5).
 7. Who is the first super-admin (which person and email)?
