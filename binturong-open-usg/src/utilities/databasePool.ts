@@ -28,11 +28,13 @@ export const databasePool = (
 
   const ca = env.DATABASE_SSL_CA?.trim().replaceAll('\\n', '\n')
   if (ca) {
-    // node-postgres lets sslmode/sslrootcert in the URL replace this ssl object entirely.
-    if (/[?&](sslmode|sslrootcert)=/i.test(connectionString))
-      throw new Error(
-        'Remove sslmode and sslrootcert from DATABASE_URL when DATABASE_SSL_CA is set',
-      )
+    // node-postgres lets SSL settings in the URL replace this ssl object entirely.
+    const url = URL.parse(connectionString)
+    if (connectionString && !url)
+      throw new Error('DATABASE_URL must be a valid URL when DATABASE_SSL_CA is set')
+    const params = url?.searchParams ?? new URLSearchParams()
+    if ([...params.keys()].some((key) => /^ssl(mode|cert|key|rootcert|negotiation)?$/i.test(key)))
+      throw new Error('Remove SSL parameters from DATABASE_URL when DATABASE_SSL_CA is set')
     pool.ssl = { ca, rejectUnauthorized: true }
   }
 

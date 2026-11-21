@@ -58,8 +58,9 @@ How each one changes the answers (figures from the research in section 4, read 2
   under the beta, set per function. On Hobby the real limit is 300 s, so a slow download
   would be cut off at 5 minutes with a 504 `FUNCTION_INVOCATION_TIMEOUT`, before the app's
   own 20 minute deadline.
-- **Fluid compute, for duration and connection pooling.** The duration figures above are for
-  Fluid compute. Limits with Fluid off are not on the current Vercel pages (unconfirmed).
+- **Fluid compute, for duration and connection pooling.** Vercel caps Hobby functions at 60 s
+  with Fluid compute off. Confirm Fluid compute is enabled before pushing the 300 s route
+  configuration.
   Fluid is on by default for projects created on or after 23 Apr 2025, but whether it is on
   for this project is unconfirmed. Fluid also decides the pool advice: under Fluid, Vercel
   says not to set the pool maximum to 1 and recommends `attachDatabasePool` from
@@ -145,10 +146,9 @@ the pool options from env only:
   pool of 1 and Vercel advises not 1 under Fluid; start at 5 and watch Supabase's connection
   count.
 - `DATABASE_SSL_CA` (Supabase's root certificate, PEM; `\n` escapes allowed) turns on verified
-  TLS through the `ssl` object. When it is set, `DATABASE_URL` must not contain `sslmode` or
-  `sslrootcert`, because node-postgres lets those replace the `ssl` object; the app refuses to
-  start if both are set. Without the CA, TLS follows `DATABASE_URL` exactly as the Preview does
-  today. Setting the CA on Preview is optional and should be tried there before production.
+  TLS through the `ssl` object. Remove SSL parameters from `DATABASE_URL`, because node-postgres
+  can replace the certificate settings with those parameters. Without the CA, TLS follows
+  `DATABASE_URL`. Setting the CA on Preview is optional and should be tried there before production.
 
 `@vercel/functions` `attachDatabasePool` is not used (not installed, and whether the Payload
 adapter exposes its pool for it is unconfirmed).
@@ -179,12 +179,16 @@ new values. Do not reuse any dev secret.
 | `MEDIA_S3_ACCESS_KEY_ID` | S3 access key ID generated in step 1.5 | secret, server-only; reaches every bucket |
 | `MEDIA_S3_SECRET_ACCESS_KEY` | its secret access key | secret, server-only |
 | `DATABASE_POOL_MAX` | optional; leave unset for the default 5 on Vercel | server-only |
-| `DATABASE_SSL_CA` | optional; Supabase root certificate (PEM), then no `sslmode` in `DATABASE_URL` | server-only; try on Preview first |
+| `DATABASE_SSL_CA` | optional Supabase root certificate (PEM), remove SSL parameters from `DATABASE_URL` when set | server-only, try on Preview first |
 
 Media storage switches on only when all five `MEDIA_S3_*` variables are set. With none set,
 Media is written to the function's temporary disk and lost; with only some set, loading the
 Payload config fails with an error naming the missing ones (so `payload migrate` in the build
 fails too). Set all five in Preview first (Task V1 step 5).
+
+When copying local CMS content to Preview, also copy the original media and each generated image
+size into the Media bucket under the recorded object keys, or upload the originals through Payload
+and remap the content references. Copying database rows alone leaves broken media URLs.
 Dashboard labels in the table are from the Supabase S3 docs, not checked in the dashboard.
 
 Rules for these values:
@@ -200,7 +204,7 @@ Rules for these values:
 ### Step 4. Migrations on the first production build
 
 **AGENT.** Before deploying, count the migrations in `binturong-open-usg/src/migrations`
-(15 on 21 Nov 2026, the last being `20261117_053700_data_api_lockdown`). **OWNER** approves
+(17 on 21 Nov 2026, the last being `20261121_051921_media_storage_fields`). **OWNER** approves
 and starts the first Production deploy. **AGENT** reads the build log to the end: `payload
 migrate` must list every migration as applied, then `next build` must succeed. A failed
 migration fails the deploy, which is the intended behaviour.
@@ -269,8 +273,8 @@ What that means:
 - The export is in Payload's catch-all route, so it applies to **every** Payload REST route in
   that file, not only `GET /api/documents/:id/file`.
 - Under Fluid compute on Hobby, 300 s is already the default and the maximum, so the export
-  pins the value rather than raising it. With Fluid off, Hobby's limit is unconfirmed; check in
-  the first Preview build after this change that Vercel accepts 300 (step 9).
+  pins the value rather than raising it. Confirm Fluid is enabled and verify the route in the
+  first Preview build (step 9).
 - The route file carries Payload's "generated, do not modify" header. Neither `payload` nor
   `@payloadcms/next` 3.90.2 rewrites it at build or run time (their `dist` folders were searched
   21 Nov 2026); `tests/int/download-duration.int.spec.ts` fails if a Payload upgrade or template
@@ -523,7 +527,6 @@ unconfirmed were not established by an official source.
 - Whether Supavisor transaction mode is safe for node-postgres unnamed statements in all cases.
 - Whether `@payloadcms/db-postgres` exposes its `pg` Pool for `attachDatabasePool`.
 - Whether Vercel build machines can reach IPv6-only Supabase direct connections.
-- Vercel duration limits with Fluid compute disabled.
 - Whether Fluid compute is enabled on `pal-su-usg/binturong`, and the team's Vercel plan.
 - Whether a `Response` from a `ReadableStream` with a fixed `Content-Length` counts as streamed for
   the 4.5 MB limit.

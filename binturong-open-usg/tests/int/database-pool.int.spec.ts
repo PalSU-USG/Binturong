@@ -51,10 +51,17 @@ describe('database pool', () => {
     expect(
       databasePool({ DATABASE_URL: url, DATABASE_SSL_CA: ca.replaceAll('\n', '\\n') }).ssl,
     ).toEqual({ ca, rejectUnauthorized: true })
-    // A URL sslmode replaces the ssl object in node-postgres, which would drop the CA check.
-    for (const query of ['?sslmode=require', '?sslrootcert=x'])
+    for (const query of [
+      '?sslmode=require',
+      '?sslrootcert=x',
+      '?sslcert=x',
+      '?sslkey=x',
+      '?sslnegotiation=direct',
+      '?ssl=0',
+      '?%73slmode=disable',
+    ])
       expect(() => databasePool({ DATABASE_URL: `${url}${query}`, DATABASE_SSL_CA: ca })).toThrow(
-        /sslmode/,
+        /DATABASE_SSL_CA/,
       )
   })
 
@@ -65,4 +72,11 @@ describe('database pool', () => {
     }
     expect(adapter.poolOptions).toMatchObject({ max: 4, idleTimeoutMillis: 5_000 })
   }, 60_000)
+
+  it('reports a malformed database URL without including the input', () => {
+    const connectionString = 'postgresql://synthetic:synthetic-secret@['
+    expect(() => databasePool({ DATABASE_URL: connectionString, DATABASE_SSL_CA: 'CA' })).toThrow(
+      'DATABASE_URL must be a valid URL when DATABASE_SSL_CA is set',
+    )
+  })
 })
