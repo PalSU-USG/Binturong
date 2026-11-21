@@ -9,6 +9,7 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { AccessRequests } from './collections/AccessRequests'
 import { Organizations } from './collections/Organizations'
 import { AcademicYears } from './collections/AcademicYears'
 import { Offices } from './collections/Offices'
@@ -20,6 +21,7 @@ import { Reports } from './collections/Reports'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { adminCopy } from './admin/copy'
+import { installGoogleSessionEndpoints } from './auth/supabaseStrategy'
 import { hiddenBelow } from './admin/navVisibility'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
@@ -59,6 +61,7 @@ export default buildConfig({
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
+      afterLogin: ['@/admin/GoogleSignIn'],
       views: {
         dashboard: { Component: '@/admin/dashboard' },
         howTo: { Component: '@/admin/howTo', path: '/how-to', exact: true },
@@ -120,6 +123,7 @@ export default buildConfig({
     Media,
     Categories,
     Users,
+    AccessRequests,
   ].map(withStateLinks),
   cors: [getServerSideURL()].filter(Boolean),
   // Heading of Payload's no-access page, shown only to a signed-in account that lost access.
@@ -157,6 +161,7 @@ export default buildConfig({
     tasks: [],
   },
 }).then((config) => {
+  installGoogleSessionEndpoints(config)
   // Payload appends this task during sanitization; replace its handler without registering a duplicate.
   const tasks = config.jobs.tasks?.filter(({ slug }) => slug === 'schedulePublish')
   if (tasks?.length !== 1) throw new Error('Expected one native publication task')

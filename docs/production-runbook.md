@@ -204,7 +204,7 @@ Rules for these values:
 ### Step 4. Migrations on the first production build
 
 **AGENT.** Before deploying, count the migrations in `binturong-open-usg/src/migrations`
-(17 on 21 Nov 2026, the last being `20261121_051921_media_storage_fields`). **OWNER** approves
+(18 on 21 Nov 2026, the last being `20261121_112130_staff_access_requests`). **OWNER** approves
 and starts the first Production deploy. **AGENT** reads the build log to the end: `payload
 migrate` must list every migration as applied, then `next build` must succeed. A failed
 migration fails the deploy, which is the intended behaviour.

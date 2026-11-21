@@ -27,6 +27,8 @@ import { NativeTransitionButton as NativeTransitionButton_4c094a07c9b5ac9d14b813
 import { default as default_bfdae604c09db20d4bdf506994411d82 } from '@/components/DocumentUpload'
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { default as default_cae42cf537d62bfabc98252b64b4029a } from '@/admin/InviteGoogleStaff'
+import { default as default_de6df9717de203ad4844d780b5edee35 } from '@/admin/ApproveAccessRequest'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
@@ -35,6 +37,7 @@ import { RowLabel as RowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/
 import { default as default_586723811577fcd570b153bacaa81664 } from '@/admin/graphics/Icon'
 import { default as default_fb41377240e79a3f427000f9c4717644 } from '@/admin/graphics/Logo'
 import { default as default_6daf87a36a4c35d3b6fc4bd62719752e } from '@/admin/viewSite'
+import { default as default_81326abe97eae339cb67d771c1be1cad } from '@/admin/GoogleSignIn'
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
 import { default as default_9b311d46516cfb4456fe0cd8d3560c84 } from '@/admin/dashboard'
 import { default as default_25f044e2bce047a88886d35cb39064ad } from '@/admin/howTo'
@@ -72,6 +75,8 @@ export const importMap = {
   "@/components/DocumentUpload#default": default_bfdae604c09db20d4bdf506994411d82,
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@/admin/InviteGoogleStaff#default": default_cae42cf537d62bfabc98252b64b4029a,
+  "@/admin/ApproveAccessRequest#default": default_de6df9717de203ad4844d780b5edee35,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
@@ -80,6 +85,7 @@ export const importMap = {
   "@/admin/graphics/Icon#default": default_586723811577fcd570b153bacaa81664,
   "@/admin/graphics/Logo#default": default_fb41377240e79a3f427000f9c4717644,
   "@/admin/viewSite#default": default_6daf87a36a4c35d3b6fc4bd62719752e,
+  "@/admin/GoogleSignIn#default": default_81326abe97eae339cb67d771c1be1cad,
   "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
   "@/admin/dashboard#default": default_9b311d46516cfb4456fe0cd8d3560c84,
   "@/admin/howTo#default": default_25f044e2bce047a88886d35cb39064ad,

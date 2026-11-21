@@ -15,6 +15,7 @@ import * as migration_20261110_152826_last_edited_by from './20261110_152826_las
 import * as migration_20261117_053700_data_api_lockdown from './20261117_053700_data_api_lockdown'
 import * as migration_20261119_162009_draft_autosave_off from './20261119_162009_draft_autosave_off'
 import * as migration_20261121_051921_media_storage_fields from './20261121_051921_media_storage_fields'
+import * as migration_20261121_112130_staff_access_requests from './20261121_112130_staff_access_requests'
 
 export const migrations = [
   {
@@ -101,5 +102,10 @@ export const migrations = [
     up: migration_20261121_051921_media_storage_fields.up,
     down: migration_20261121_051921_media_storage_fields.down,
     name: '20261121_051921_media_storage_fields',
+  },
+  {
+    up: migration_20261121_112130_staff_access_requests.up,
+    down: migration_20261121_112130_staff_access_requests.down,
+    name: '20261121_112130_staff_access_requests',
   },
 ]
