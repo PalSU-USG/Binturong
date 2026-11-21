@@ -16,6 +16,26 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Codex continuation (21 Nov 2026).** Local `dev` integrated memo pages and cloud readiness at
+`b3a6809`. GitHub `dev` remains `b9d8465`. The [Claude handoff](codex-handoff-2026-11-21.md)
+records the starting point.
+
+- Memo branch `37fc8fe` and cloud branch `3751821` were independently reviewed. Memo checks
+  passed 39 integration and eight records browser tests. Cloud checks passed 18 integration
+  tests, including fresh and populated migration proofs. The combined production build against
+  the isolated test database returned 200 for both supported archive URLs and 404 for four
+  unsupported pairs. Full integration on port 45323 passed 640/645. The five account failures
+  involved a leftover synthetic super-admin. All 18 checks in those three specs passed on the
+  empty alternate test database on port 45322. Lint still reports the five inherited errors.
+- SSO branch `Hawksprey420/sso` is implemented at `83bb70c`. Eleven identity checks, two
+  migration proofs, three mocked Chromium flows, TypeScript and changed-file lint passed. It
+  retains Payload authorization and password fallback and adds access requests and invitations.
+  Next action is to regenerate its migration snapshot against the integrated Cloud schema.
+- The admin canvas source is backed up outside the repo under
+  `~/binturong-backups/admin-canvas-4yJ4zBaY85xEMtGq4v4VA2`. The redesign is awaiting the
+  owner's approval. Hosted buckets, the live Google callback, Preview smoke and rollout approval
+  remain open. The Vercel connector required reauthentication, so Fluid compute is unverified.
+
 **Phase 3 progress (21 Nov 2026; pushed to GitHub `dev` at `b9d8465`, owner: "hmm you can
 push it now").** Vercel Preview for `b9d8465` built (state success,
 `binturong-bcjnalrpm-pal-su-usg.vercel.app`, behind Vercel login; pages not yet checked). Merged: branding (`d43b519`),
