@@ -16,7 +16,9 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-**Phase 3 progress (21 Nov 2026, local `dev`, not pushed).** Merged: branding (`d43b519`),
+**Phase 3 progress (21 Nov 2026; pushed to GitHub `dev` at `b9d8465`, owner: "hmm you can
+push it now").** Vercel Preview for `b9d8465` built (state success,
+`binturong-bcjnalrpm-pal-su-usg.vercel.app`, behind Vercel login; pages not yet checked). Merged: branding (`d43b519`),
 production runbook (`73a2a86`, `docs/production-runbook.md`), draft autosave with guarded
 migration (`630dfc5`), admin slice 1 with review fixes (`980baec`), launch fixes B1–B5, B7
 (`3ac6098`), admin slice 2 C1–C4 with review fixes (Phase C merge), E2 waiting-list test fix.
@@ -25,7 +27,7 @@ full `test:e2e` after Phase C 66/72 in a 24.7 min memory-starved run, and all si
 files then passed alone (admin-usability + domain-transitions 10/10, domain + records +
 access 11/11). E1 (GraphQL) passes on every run; nothing to fix. `npm run lint` has 5
 pre-existing errors (Header, Card, Theme). Owed: `npm run payload -- migrate` on
-`binturong_domain` (G3); push (G12); G8/G9 for Phase D; Vercel/Supabase plan facts and
+`binturong_domain` (G3); V6 Preview smoke check; G8/G9 for Phase D; Vercel/Supabase plan facts and
 G11 for Phase V. Found: no hosted first-admin path exists (no accounts on hosted;
 `protectAccounts.ts:48` refuses anonymous creates; `bootstrap:super-admin` only promotes an
 existing account and only on local databases), proposed fix awaits owner approval; B6 heading
