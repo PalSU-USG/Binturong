@@ -125,7 +125,8 @@ describe('record queries', () => {
     const row = result.rows.find((r) => r.title === `Visible ${fx.tag}`)!
     expect(row).toMatchObject({
       href: `/issuances/${visible.slug}`,
-      identifier: `Executive order No. 1, s. Year ${fx.tag}`,
+      identifier: '1',
+      citation: `Executive order No. 1, s. Year ${fx.tag}`,
       organization: usg.name,
       fileHref: `/api/documents/${file}/file`,
     })

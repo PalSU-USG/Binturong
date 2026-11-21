@@ -14,5 +14,10 @@ export function citation({
   const number = documentNumber?.trim()
   const series = seriesLabel?.trim()
   if (!number || !series) return null
-  return `${typeLabel} No. ${number}, s. ${series}`
+  const label = /^no\.\s+/i.test(number)
+    ? `${typeLabel} ${number}`
+    : /\bno\.\s+/i.test(number)
+      ? number
+      : `${typeLabel} No. ${number}`
+  return `${label}, s. ${series}`
 }

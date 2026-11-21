@@ -7,6 +7,7 @@ import { formatLongDate } from './format'
 export function RecordRow({ row, headingLevel = 2 }: { row: RecordRowData; headingLevel?: 2 | 3 }) {
   const Heading = `h${headingLevel}` as const
   const date = formatLongDate(row.sourceDate)
+  const identifier = row.citation ?? row.identifier
   const meta = [row.organization, row.location, row.time].filter(Boolean)
   return (
     <li className="border-b border-border py-6">
@@ -18,7 +19,7 @@ export function RecordRow({ row, headingLevel = 2 }: { row: RecordRowData; headi
           </span>
         )}
       </p>
-      {row.identifier && <p className="tabular-nums [overflow-wrap:anywhere]">{row.identifier}</p>}
+      {identifier && <p className="tabular-nums [overflow-wrap:anywhere]">{identifier}</p>}
       <Heading className="mt-1 text-xl font-semibold [overflow-wrap:anywhere]">
         <Link className="underline" href={row.href}>
           {row.title}

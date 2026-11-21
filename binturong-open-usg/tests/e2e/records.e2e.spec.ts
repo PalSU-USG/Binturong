@@ -238,8 +238,8 @@ test.describe('record pages and sections', () => {
     await expect(page.getByText(`Draft memorandum ${fx.tag}`)).toHaveCount(0)
     await expect(page.getByText(`Issuance ${fx.tag}`, { exact: true })).toHaveCount(0)
     await expect(page.getByLabel('Type')).toHaveCount(0)
-    // The section crumb comes from the Header global, so only the branch crumb is asserted here.
     const crumbs = page.getByRole('navigation', { name: 'Breadcrumb' })
+    await expect(crumbs.getByRole('link', { name: 'Archives' })).toBeVisible()
     await expect(crumbs.getByRole('link', { name: 'Executive' })).toHaveAttribute(
       'href',
       '/archives/executive',

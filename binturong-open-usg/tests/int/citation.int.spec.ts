@@ -16,4 +16,12 @@ describe('citation', () => {
     for (const seriesLabel of [null, undefined, '', '  '])
       expect(citation({ typeLabel: 'Memorandum', documentNumber: '023', seriesLabel })).toBeNull()
   })
+  it.each([
+    ['No. 023', 'Memorandum No. 023, s. 2026-2027'],
+    ['Memo No. 023', 'Memo No. 023, s. 2026-2027'],
+  ])('keeps the number and avoids a duplicate prefix for %s', (documentNumber, expected) => {
+    expect(citation({ typeLabel: 'Memorandum', documentNumber, seriesLabel: '2026-2027' })).toBe(
+      expected,
+    )
+  })
 })

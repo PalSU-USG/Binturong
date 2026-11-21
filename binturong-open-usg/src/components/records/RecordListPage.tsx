@@ -64,7 +64,7 @@ export async function RecordListPage({
       branch={scope === 'legislative' || scope === 'judicial' ? scope : undefined}
       currentLabel={title}
       currentPath={basePath}
-      fallback={{ label: fallback.label }}
+      fallback={fixedType ? fallback : { label: fallback.label }}
       intro={intro}
       section={section}
       title={title}

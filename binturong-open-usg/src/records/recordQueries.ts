@@ -27,6 +27,7 @@ export type RecordRowData = {
   id: number
   typeLabel: string
   identifier: string | null
+  citation?: string
   title: string
   href: string
   sourceDate: string | null
@@ -316,7 +317,8 @@ async function toRows(
       collection: item.collection,
       id: item.id,
       typeLabel,
-      identifier: cited || raw,
+      identifier: raw,
+      citation: cited || undefined,
       title: item.title,
       href: `/${item.collection}/${encodeURIComponent(item.slug ?? '')}`,
       sourceDate: (isIssuance ? item.issuedDate : item.periodEndDate) ?? null,
