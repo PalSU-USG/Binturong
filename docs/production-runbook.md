@@ -178,53 +178,31 @@ and starts the first Production deploy. **AGENT** reads the build log to the end
 migrate` must list every migration as applied, then `next build` must succeed. A failed
 migration fails the deploy, which is the intended behaviour.
 
-### Step 5. First admin (unverified)
+### Step 5. First admin
 
-None of this has been tried on any hosted database. Read it as a plan to test on dev first.
+`npm run create:first-account` (owner approval 21 Nov 2026: "commit the one time local
+migration for the superadmin") creates one active super-admin, and only while the `users`
+table is empty. It counts accounts under the account lock `pg_advisory_xact_lock(20261020, 1)`,
+so the guard triggers accept the insert. Once any account exists it refuses with "Accounts
+already exist", so it cannot be reused to add accounts later. Tested only against the local test
+database (`tests/int/account-bootstrap.int.spec.ts`); not yet run on a hosted database.
 
-What the code says (read 21 Nov 2026):
+1. **OWNER.** From `binturong-open-usg`, point `DATABASE_URL` at the hosted database for this
+   shell only (session pooler, port 5432), then dry-run:
 
-- The plan and the 20 Nov handoff say "create via the `/admin` first-user screen". The code
-  suggests that screen will refuse. `docs/local-development.md` says "Public first-user
-  registration is disabled." In `src/collections/Users/hooks/protectAccounts.ts`, every user
-  create goes through `authorizeChange`, which throws 403 when there is no signed-in active
-  account, unless the request is marked as account provisioning. On an empty database there is
-  no signed-in account. This is from reading code, not from trying the screen.
-- Account provisioning (`src/collections/Users/accountProvisioning.ts`,
-  `assertLocalAccountDatabase`) and `npm run bootstrap:super-admin` only accept a local
-  database: host `127.0.0.1` or `localhost`, port 55322, 45322 or 45323, database
-  `binturong_domain` or `binturong_test`. They refuse any Supabase URL by design.
-- Database triggers from the account migrations refuse changes to `role`, `disabled`, `hash`
-  or `salt` unless the same backend holds the transaction advisory lock
-  `pg_advisory_xact_lock(20261020, 1)`, and they refuse any direct change to `auth_revision`.
-
-So there is currently no tested path to create the first hosted account. Procedure to try, on
-dev first:
-
-1. **OWNER.** Open `<preview-url>/admin` and see whether a first-user screen appears and
-   whether submitting it succeeds. Record the exact result. Expected from the code: refused.
-2. If it is refused, the owner decides how the first account is created (see open questions).
-   Any route that lets a hosted request create an account without a signed-in admin touches
-   login and permissions, so it needs the owner's approval and a reviewed code change.
-3. **OWNER, once one active account exists.** Promote it in the Supabase SQL editor inside one
-   transaction that takes the account lock first, so the guard trigger accepts it and bumps
-   `auth_revision` itself:
-
-   ```sql
-   begin;
-   select pg_advisory_xact_lock(20261020, 1);
-   update users set role = 'super_admin'
-     where id = <account-id> and disabled = false;
-   commit;
+   ```powershell
+   $env:DATABASE_URL = '<session-pooler-url>'
+   npm run create:first-account -- --email <address> --name "<name>"
    ```
 
-   Unverified: whether the SQL editor runs all of these statements in one session (the trigger
-   checks the lock on the current backend), and the exact effect of the trigger on this update.
-   Do not set `auth_revision` by hand. Check first that no other active super-admin exists
-   (`select id, role, disabled from users where role = 'super_admin';`), which matches the rule
-   in `src/collections/Users/bootstrap.ts`.
-4. **OWNER.** Sign in at `/admin` with the promoted account and confirm the Users screen opens.
-   Repeat the same steps on production only after they worked on dev.
+   The script prints the target host and asks you to type it, then asks for the password twice
+   (at least 12 characters, not echoed). A dry run saves nothing and ends with "Dry run".
+2. **OWNER.** Run the same command with `--apply`, then `Remove-Item Env:DATABASE_URL`.
+3. **OWNER.** Sign in at `/admin` and confirm the Accounts screen opens. Create every other
+   account from there. Do this on the dev database first, then on production.
+
+`npm run bootstrap:super-admin` (promote an existing account) still accepts only local
+databases by design.
 
 ### Step 6. Vercel Firewall rate-limit rule on downloads
 
@@ -485,8 +463,7 @@ unconfirmed were not established by an official source.
    Option B (redirect to a short-lived signed URL)? Why is 20 minutes needed?
 4. Media storage (G11): Supabase S3 adapter or Vercel Blob?
 5. Production domain (G5), which sets `NEXT_PUBLIC_SERVER_URL`.
-6. First admin: the code refuses account creation without a signed-in admin on hosted databases.
-   How should the first hosted account be created? This touches login and permissions.
+6. First admin: answered 21 Nov 2026 by `npm run create:first-account` (Step 5).
 7. Who is the first super-admin (which person and email)?
 8. Rate-limit numbers for `GET /api/documents/:id/file`: how many requests per IP per window?
 9. Approve the `MIGRATION_DATABASE_URL` change to `vercel-build`, tested on dev first?
