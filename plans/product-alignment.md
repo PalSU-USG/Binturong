@@ -16,6 +16,14 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Preview settings follow-up (23 Nov 2026).** The five `MEDIA_S3_*` variables now exist on
+Vercel with Production scope only. Retarget these dev-project settings to Preview and verify
+the variable metadata before requesting push, deployment and hosted migration approval.
+The latest Production redeploy failed because `main` at `ff2ef51` contains only `README.md`.
+The configured Root Directory, `binturong-open-usg`, exists on GitHub `dev` at `b9d8465`,
+whose latest Preview remains ready. These findings come from read-only Vercel deployment and
+variable metadata and `git ls-tree`. No application tests or storage operations were run.
+
 **Preview preflight (23 Nov 2026).** Started from local `dev` at `fb6eed6`. GitHub
 `dev` still pointed to `b9d8465` via `git ls-remote`. Restored the line-ending-only diff in
 `binturong-open-usg/src/payload-types.ts` and confirmed its Git diff was empty. Only the
