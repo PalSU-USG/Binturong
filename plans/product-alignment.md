@@ -16,25 +16,23 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
-**Google provider enabled (23 Nov 2026).** Hosted dev Auth now reports Google enabled.
-A sign-in initiation redirected to Google with the exact Supabase provider callback. The
-canceled flow returned to `https://binturong-pal-su-usg.vercel.app/` instead of the stable
-Preview callback, so the return path needs correction or confirmation in Supabase URL
-Configuration. Vercel's Preview `NEXT_PUBLIC_SERVER_URL` does not match the stable Preview
-alias, and the three SSO variables still target Production. Next action is to confirm the
-exact Supabase redirect, then get approval to align Vercel Preview's public origin and SSO
-scopes before pushing the candidate. No live Google account sign-in was attempted.
+**Google SSO on Preview (23 Nov 2026).** The owner's Supabase redirect correction was
+verified with a canceled Google flow returning to the exact Preview callback. With owner
+approval, moved the three staff SSO variables to Preview only and set Preview's
+`NEXT_PUBLIC_SERVER_URL` to `https://binturong-preview.vercel.app`. Integrated candidate
+`fadf15d` on `Hawksprey420/phase3-sso-integration` with an identical app tree, then
+fast-forwarded GitHub and local `dev` to `b53467c`. Vercel deployment
+`dpl_GY7g8pA1WGiQ7bZtaLif9cjtfufe` is READY on the stable Preview alias. The build log
+confirmed Payload applied `20261121_112130_staff_access_requests` to hosted dev.
 
-**Remaining Preview work (23 Nov 2026).** GitHub `dev` is still `d711d5c` and its ready
-deployment has the stable alias `binturong-preview.vercel.app`. Local changes since the
-SSO candidate's merge base are documentation only. A dry-run Git merge of local `dev`
-and SSO candidate `fadf15d` produced a merge tree without conflicts.
-
-- The three SSO settings exist in Vercel with Production scope. Their values match the
-  hosted dev Supabase project and the PSU Workspace domain, and the configured key has
-  publishable format. The hosted Auth settings endpoint reports Google disabled.
-  Next SSO action is to configure the Google provider and allow the exact Preview callback,
-  then verify those settings before any approved scope move, push, deploy or hosted migration.
+- Protected Preview smoke via Vercel CLI confirmed HTTP 200 for home and the admin
+  login page, the Google button, the app's 303 to Supabase with the exact Preview
+  callback, a cross-origin POST denied with 403, and a canceled callback returning
+  to login with retry status. A real campus Google sign-in and live password recovery
+  remain unverified on this deployment.
+- Next action is for the owner to try the campus Google button on
+  `https://binturong-preview.vercel.app/admin/login`. Confirm access with an existing
+  staff account and rehearse fallback admin recovery before inviting staff.
 - Prepared a one-page synthetic PDF and small PNG outside the repository for the storage
   smoke. Both opened with their respective parsers. The hosted upload and download checks
   still need an authenticated CMS session. No hosted test records were written or deleted.
@@ -42,10 +40,6 @@ and SSO candidate `fadf15d` produced a merge tree without conflicts.
 **Preview sign-in recovered (23 Nov 2026).** The owner found the existing CMS password and
 Vercel recorded HTTP 200 from `POST /api/users/login` at 03:03 Manila time. The recovery
 terminal exited before confirmation and reported no saved change. The password was not reset.
-Before inviting staff, verify campus Google SSO on Preview and rehearse recovery for the
-fallback admin account. The SSO candidate remains `fadf15d` on
-`Hawksprey420/phase3-sso-integration`. Its hosted rollout still requires approval.
-The next check on the current Preview is the Media and official PDF storage smoke.
 
 **Preview deployed (23 Nov 2026).** With owner approval, fast-forwarded GitHub `dev` from
 `b9d8465` to `d711d5c`. Vercel deployment `dpl_CzxuSig6FZmL6wPdpvjUSTDTwCLv` reached
