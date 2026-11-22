@@ -13,6 +13,12 @@ Superseded by Codex's checkpoint entries of 23 Nov (SSO on Preview at `b53467c`)
 owner's approval ("Go for 1"), Claude pushed the docs-only commit `1c1b992` to GitHub `dev`.
 Untracked `.claude/`, `.playwright-mcp/` and `tsconfig.tsbuildinfo` are tool output.
 
+## Next work after the Preview checks
+
+Owner asked on 23 Nov for plans for admin usability, the login screen and USG sample content:
+[2026-11-23 admin, login and seed plan](../docs/superpowers/plans/2026-11-23-admin-login-seed-plan.md).
+Its first action is the login screen (Track 1).
+
 ## Owner decisions, 23 Nov 2026 (answers to Claude's list of open owner items)
 
 - Dev database password rotated and Supabase redirect URLs added ("already done for 3",
