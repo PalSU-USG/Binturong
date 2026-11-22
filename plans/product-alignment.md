@@ -16,6 +16,13 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Media Preview scope corrected (23 Nov 2026).** With owner approval, updated the five
+existing `MEDIA_S3_*` variables in place on `pal-su-usg/binturong` using Vercel's scope-only
+API edit. A fresh listing confirmed that all five now target Preview only and both access
+keys remain sensitive. GitHub `dev` still points to `b9d8465`. Next action is to obtain
+explicit approval for the `dev` push, automatic Preview deployment, and the Media migration
+against Preview's configured database. Bucket access and uploads await the Preview check.
+
 **Preview settings follow-up (23 Nov 2026).** The five `MEDIA_S3_*` variables now exist on
 Vercel with Production scope only. Retarget these dev-project settings to Preview and verify
 the variable metadata before requesting push, deployment and hosted migration approval.
