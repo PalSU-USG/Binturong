@@ -76,6 +76,23 @@ copy local accounts, sessions and IDs, and its image rows would point at local f
     two PSU photos are uploaded through Payload so they land in the Media bucket on hosted.
     Keep the image source and credit with each image. The Palawan Daily News post stays
     text-only.
+  - Two more public posts found online on 23 Nov (owner: "Find online"). Write our own short
+    summaries with a source link and the same "Sample post" line:
+    - "Newly Elected USG Officers of PalawanSU Take Oath",
+      https://psu.palawan.edu.ph/news/newly-elected-usg-officers-of-palawansu-take-oath/ .
+      Oath on November 30 at the amphitheater, administered by CHED Commissioner Jo Mark M.
+      Libre; Val Cymon Molina named USG President. The page prints no year; its images sit
+      under `/uploads/2023/12/`, so the year is probably 2023 but is unconfirmed. Store the
+      date as unknown or ask the owner. Photo: `…/2023/12/pic01.jpg` (PSU's own).
+    - "Palawan State University to celebrate its 'golden' anniversary" (Palawan Daily News,
+      Sheen Cubilan),
+      https://palawandailynews.com/youth-campus/palawan-state-university-to-celebrate-its-golden-anniversary/ .
+      The PSU Student Government's Binturungan 2022 contests for the 50th anniversary;
+      Mac Kirby Lumakang, President. The byline says 22 Mar 2022 but the body says "today,
+      February 17": keep both dates out of the summary and record the conflict. Contest
+      posters are credited "PSU Student Government"; use one only with that credit, or none.
+  - Not found online: any PSU USG memorandum, resolution or Student Tribunal decision. The
+    archive sample stays a generated "SAMPLE" document; do not present it as real.
   - Optional, if cheap: one sample memorandum per archive page, with a generated one-page PDF
     stamped "SAMPLE – not an official issuance", so the archive pages and the citation
     "Memorandum No. 023, s. 2026-2027" render.
