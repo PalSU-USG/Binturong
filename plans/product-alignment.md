@@ -16,6 +16,14 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Preview sign-in recovered (23 Nov 2026).** The owner found the existing CMS password and
+Vercel recorded HTTP 200 from `POST /api/users/login` at 03:03 Manila time. The recovery
+terminal exited before confirmation and reported no saved change. The password was not reset.
+Before inviting staff, verify campus Google SSO on Preview and rehearse recovery for the
+fallback admin account. The SSO candidate remains `fadf15d` on
+`Hawksprey420/phase3-sso-integration`. Its hosted rollout still requires approval.
+The next check on the current Preview is the Media and official PDF storage smoke.
+
 **Preview deployed (23 Nov 2026).** With owner approval, fast-forwarded GitHub `dev` from
 `b9d8465` to `d711d5c`. Vercel deployment `dpl_CzxuSig6FZmL6wPdpvjUSTDTwCLv` reached
 READY for that exact commit. The build log confirmed Payload applied
