@@ -16,6 +16,20 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Remaining Preview work (23 Nov 2026).** GitHub `dev` is still `d711d5c` and its ready
+deployment has the stable alias `binturong-preview.vercel.app`. Local changes since the
+SSO candidate's merge base are documentation only. A dry-run Git merge of local `dev`
+and SSO candidate `fadf15d` produced a merge tree without conflicts.
+
+- The three SSO settings exist in Vercel with Production scope. Their values match the
+  hosted dev Supabase project and the PSU Workspace domain, and the configured key has
+  publishable format. The hosted Auth settings endpoint reports Google disabled.
+  Next SSO action is to configure the Google provider and allow the exact Preview callback,
+  then verify those settings before any approved scope move, push, deploy or hosted migration.
+- Prepared a one-page synthetic PDF and small PNG outside the repository for the storage
+  smoke. Both opened with their respective parsers. The hosted upload and download checks
+  still need an authenticated CMS session. No hosted test records were written or deleted.
+
 **Preview sign-in recovered (23 Nov 2026).** The owner found the existing CMS password and
 Vercel recorded HTTP 200 from `POST /api/users/login` at 03:03 Manila time. The recovery
 terminal exited before confirmation and reported no saved change. The password was not reset.
