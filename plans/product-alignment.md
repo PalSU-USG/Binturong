@@ -16,6 +16,19 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Preview deployed (23 Nov 2026).** With owner approval, fast-forwarded GitHub `dev` from
+`b9d8465` to `d711d5c`. Vercel deployment `dpl_CzxuSig6FZmL6wPdpvjUSTDTwCLv` reached
+READY for that exact commit. The build log confirmed Payload applied
+`20261121_051921_media_storage_fields` and Next.js completed the build.
+
+- Protected Preview smoke via Vercel CLI returned HTTP 200 for home, Executive Memoranda,
+  Legislative Resolutions and the CMS login page. The unsupported Executive Resolutions
+  route returned 404. The anonymous Media list returned zero rows.
+- Next action is the hosted storage smoke from the [runbook](../docs/production-runbook.md#step-9-preview-smoke-checklist-task-v6)
+  with an authorized CMS admin. Verify Media upload and retrieval, PDF upload and public
+  download, and refusal of draft PDF access. CMS sign-in, bucket access and uploads have
+  not yet been verified. No smoke-test records were written or deleted.
+
 **Media Preview scope corrected (23 Nov 2026).** With owner approval, updated the five
 existing `MEDIA_S3_*` variables in place on `pal-su-usg/binturong` using Vercel's scope-only
 API edit. A fresh listing confirmed that all five now target Preview only and both access
