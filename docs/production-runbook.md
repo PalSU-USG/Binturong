@@ -343,6 +343,10 @@ first deploy (on production, use the production admin and clearly fake test cont
    and the function's maximum duration shows 300 s where the dashboard lists it).
 2. Home returns 200.
 3. `/admin` login works with the hosted admin.
+   Before inviting staff, verify campus Google SSO on Preview and rehearse recovery for the
+   fallback admin account. Verify email delivery before relying on Payload's Forgot Password
+   form. Follow the [SSO plan](superpowers/plans/2026-11-21-sso-plan.md) for provider and callback
+   setup.
 4. Upload an image under 4.5 MB, redeploy, and check it still shows on a public page and in
    the bucket. That proves it is not on local disk. Server uploads over 4.5 MB are refused by
    Vercel (413) because the adapter's `clientUploads` is off; that is expected for now.

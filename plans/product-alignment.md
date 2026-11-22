@@ -16,25 +16,109 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Google provider enabled (23 Nov 2026).** Hosted dev Auth now reports Google enabled.
+A sign-in initiation redirected to Google with the exact Supabase provider callback. The
+canceled flow returned to `https://binturong-pal-su-usg.vercel.app/` instead of the stable
+Preview callback, so the return path needs correction or confirmation in Supabase URL
+Configuration. Vercel's Preview `NEXT_PUBLIC_SERVER_URL` does not match the stable Preview
+alias, and the three SSO variables still target Production. Next action is to confirm the
+exact Supabase redirect, then get approval to align Vercel Preview's public origin and SSO
+scopes before pushing the candidate. No live Google account sign-in was attempted.
+
+**Remaining Preview work (23 Nov 2026).** GitHub `dev` is still `d711d5c` and its ready
+deployment has the stable alias `binturong-preview.vercel.app`. Local changes since the
+SSO candidate's merge base are documentation only. A dry-run Git merge of local `dev`
+and SSO candidate `fadf15d` produced a merge tree without conflicts.
+
+- The three SSO settings exist in Vercel with Production scope. Their values match the
+  hosted dev Supabase project and the PSU Workspace domain, and the configured key has
+  publishable format. The hosted Auth settings endpoint reports Google disabled.
+  Next SSO action is to configure the Google provider and allow the exact Preview callback,
+  then verify those settings before any approved scope move, push, deploy or hosted migration.
+- Prepared a one-page synthetic PDF and small PNG outside the repository for the storage
+  smoke. Both opened with their respective parsers. The hosted upload and download checks
+  still need an authenticated CMS session. No hosted test records were written or deleted.
+
+**Preview sign-in recovered (23 Nov 2026).** The owner found the existing CMS password and
+Vercel recorded HTTP 200 from `POST /api/users/login` at 03:03 Manila time. The recovery
+terminal exited before confirmation and reported no saved change. The password was not reset.
+Before inviting staff, verify campus Google SSO on Preview and rehearse recovery for the
+fallback admin account. The SSO candidate remains `fadf15d` on
+`Hawksprey420/phase3-sso-integration`. Its hosted rollout still requires approval.
+The next check on the current Preview is the Media and official PDF storage smoke.
+
+**Preview deployed (23 Nov 2026).** With owner approval, fast-forwarded GitHub `dev` from
+`b9d8465` to `d711d5c`. Vercel deployment `dpl_CzxuSig6FZmL6wPdpvjUSTDTwCLv` reached
+READY for that exact commit. The build log confirmed Payload applied
+`20261121_051921_media_storage_fields` and Next.js completed the build.
+
+- Protected Preview smoke via Vercel CLI returned HTTP 200 for home, Executive Memoranda,
+  Legislative Resolutions and the CMS login page. The unsupported Executive Resolutions
+  route returned 404. The anonymous Media list returned zero rows.
+- Next action is the hosted storage smoke from the [runbook](../docs/production-runbook.md#step-9-preview-smoke-checklist-task-v6)
+  with an authorized CMS admin. Verify Media upload and retrieval, PDF upload and public
+  download, and refusal of draft PDF access. CMS sign-in, bucket access and uploads have
+  not yet been verified. No smoke-test records were written or deleted.
+
+**Media Preview scope corrected (23 Nov 2026).** With owner approval, updated the five
+existing `MEDIA_S3_*` variables in place on `pal-su-usg/binturong` using Vercel's scope-only
+API edit. A fresh listing confirmed that all five now target Preview only and both access
+keys remain sensitive. GitHub `dev` still points to `b9d8465`. Next action is to obtain
+explicit approval for the `dev` push, automatic Preview deployment, and the Media migration
+against Preview's configured database. Bucket access and uploads await the Preview check.
+
+**Preview settings follow-up (23 Nov 2026).** The five `MEDIA_S3_*` variables now exist on
+Vercel with Production scope only. Retarget these dev-project settings to Preview and verify
+the variable metadata before requesting push, deployment and hosted migration approval.
+The latest Production redeploy failed because `main` at `ff2ef51` contains only `README.md`.
+The configured Root Directory, `binturong-open-usg`, exists on GitHub `dev` at `b9d8465`,
+whose latest Preview remains ready. These findings come from read-only Vercel deployment and
+variable metadata and `git ls-tree`. No application tests or storage operations were run.
+
+**Preview preflight (23 Nov 2026).** Started from local `dev` at `fb6eed6`. GitHub
+`dev` still pointed to `b9d8465` via `git ls-remote`. Restored the line-ending-only diff in
+`binturong-open-usg/src/payload-types.ts` and confirmed its Git diff was empty. Only the
+previously reported untracked tool output remained before this checkpoint edit.
+
+- Read-only Vercel CLI checks on `pal-su-usg/binturong` reported `resourceConfig.fluid: true`
+  and production branch `main`. Preview has all three `OFFICIAL_STORAGE_*` variable names and
+  `DATABASE_URL`. The project environment listing showed none of the five `MEDIA_S3_*` names.
+  This verifies variable presence only. Bucket access and uploads remain untested.
+- The ready Preview for `b9d8465` ran `vercel-build`, Payload migrations and the Next.js
+  build, as confirmed by its build log. The outgoing code adds the hosted Media migration
+  `20261121_051921_media_storage_fields`. Application tests were not rerun for this preflight.
+- Next action is to configure the five Media variables for Preview as described in the
+  [runbook](../docs/production-runbook.md#step-3-vercel-production-environment-variables),
+  recheck them, and obtain the owner's approval for the `dev` push, Preview deployment and
+  automatic migration against Preview's configured database.
+
 **Codex continuation (21 Nov 2026).** Local `dev` integrated memo pages and cloud readiness at
 `b3a6809`. GitHub `dev` remains `b9d8465`. The [Claude handoff](codex-handoff-2026-11-21.md)
 records the starting point.
 
 - Memo branch `37fc8fe` and cloud branch `3751821` were independently reviewed. Memo checks
-  passed 39 integration and eight records browser tests. Cloud checks passed 18 integration
-  tests, including fresh and populated migration proofs. The combined production build against
-  the isolated test database returned 200 for both supported archive URLs and 404 for four
-  unsupported pairs. Full integration on port 45323 passed 640/645. The five account failures
+  passed 39 integration, eight records browser and 26 navigation browser tests. Cloud checks
+  passed 18 integration tests, including fresh and populated migration proofs. The production
+  build against the isolated test database returned 200 for both supported archive URLs and 404
+  for four unsupported pairs. Full integration on port 45323 passed 640/645. The five account failures
   involved a leftover synthetic super-admin. All 18 checks in those three specs passed on the
   empty alternate test database on port 45322. Lint still reports the five inherited errors.
-- SSO branch `Hawksprey420/sso` is implemented at `83bb70c`. Eleven identity checks, two
-  migration proofs, three mocked Chromium flows, TypeScript and changed-file lint passed. It
-  retains Payload authorization and password fallback and adds access requests and invitations.
-  Next action is to regenerate its migration snapshot against the integrated Cloud schema.
+- With owner approval, Codex backed up `binturong_domain` to
+  `~/binturong-backups/binturong_domain-pre-media-20261121-195825.dump`, verified the archive
+  and copied checksum, and applied only `20261121_051921_media_storage_fields`. The history
+  records the migration once. Both Media columns exist and the table still has three rows.
+- SSO branch `Hawksprey420/sso` is implemented at `83bb70c`. Its integration candidate
+  `Hawksprey420/phase3-sso-integration` at `fadf15d` combines both migration histories and
+  regenerates the Payload schema snapshot against Cloud. Its production build, 42 focused
+  integration checks and three mocked Chromium workflows passed. SSO stays on the candidate
+  branch pending the hosted rollout. Payload retains role checks and the password fallback.
 - The admin canvas source is backed up outside the repo under
   `~/binturong-backups/admin-canvas-4yJ4zBaY85xEMtGq4v4VA2`. The redesign is awaiting the
   owner's approval. Hosted buckets, the live Google callback, Preview smoke and rollout approval
   remain open. The Vercel connector required reauthentication, so Fluid compute is unverified.
+- Next action is to confirm Preview's storage and Fluid settings, then obtain approval for the
+  `dev` push that triggers the Preview build. Use the candidate's SSO plan for the Google OAuth
+  and Supabase callback settings before its separate Preview check.
 
 **Phase 3 progress (21 Nov 2026; pushed to GitHub `dev` at `b9d8465`, owner: "hmm you can
 push it now").** Vercel Preview for `b9d8465` built (state success,
