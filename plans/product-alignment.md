@@ -16,6 +16,15 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Google provider enabled (23 Nov 2026).** Hosted dev Auth now reports Google enabled.
+A sign-in initiation redirected to Google with the exact Supabase provider callback. The
+canceled flow returned to `https://binturong-pal-su-usg.vercel.app/` instead of the stable
+Preview callback, so the return path needs correction or confirmation in Supabase URL
+Configuration. Vercel's Preview `NEXT_PUBLIC_SERVER_URL` does not match the stable Preview
+alias, and the three SSO variables still target Production. Next action is to confirm the
+exact Supabase redirect, then get approval to align Vercel Preview's public origin and SSO
+scopes before pushing the candidate. No live Google account sign-in was attempted.
+
 **Remaining Preview work (23 Nov 2026).** GitHub `dev` is still `d711d5c` and its ready
 deployment has the stable alias `binturong-preview.vercel.app`. Local changes since the
 SSO candidate's merge base are documentation only. A dry-run Git merge of local `dev`
