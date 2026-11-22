@@ -26,6 +26,12 @@ Untracked `.claude/`, `.playwright-mcp/` and `tsconfig.tsbuildinfo` are tool out
   Access requests both open as a centered dialog, not a side panel ("This!", "model sana
   to"). This replaces the side-panel direction in the 21 Nov handoff. Boards titled
   "(chosen)" and "(not chosen)" on the canvas mark the choice.
+- PDF pre-fill: "Regex + smart ass lightweight AI thing, pwede na." Docling is ruled out:
+  it needs Python and PyTorch, which a Vercel Node function can't run. Read the text layer in
+  Node and match header lines with patterns first. Call a small vision/text model (Haiku
+  class) on the server only when patterns leave a field empty or the PDF is a scan. Every
+  filled-in value stays marked as a suggestion until a person confirms it. The model key stays
+  server-only. Timing is unchanged: after the trial unless the owner moves it.
 - The owner sent the three branch emblems (USG, Student Senate, Student Tribunal). Copies
   without text already exist in `binturong-open-usg/public/brand/`, but only `usg-emblem.png`
   is used. The owner's new versions are higher resolution, and the Tribunal one has no
