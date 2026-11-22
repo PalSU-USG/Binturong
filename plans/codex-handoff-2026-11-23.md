@@ -7,19 +7,29 @@ adds nothing to the plan itself. The plan and its next action are the
 standing rules (ask before push, deploy, hosted migrations, data deletion and login changes;
 tests only on `binturong_test` through the shared lock; PowerShell only; no AI credit).
 
-## State on 23 Nov
+## State
 
-- Local `dev` = `fb32c73`, not pushed. GitHub `dev` = `b9d8465`.
-- Dirty: `binturong-open-usg/src/payload-types.ts` differs only in line endings
-  (`git diff --ignore-cr-at-eol` is empty); restore it rather than commit it. Untracked
-  `.claude/`, `.playwright-mcp/` and `tsconfig.tsbuildinfo` are tool output.
-- No Binturong code changed since `fb32c73`. No tests were run for this note.
+Superseded by Codex's checkpoint entries of 23 Nov (SSO on Preview at `b53467c`). With the
+owner's approval ("Go for 1"), Claude pushed the docs-only commit `1c1b992` to GitHub `dev`.
+Untracked `.claude/`, `.playwright-mcp/` and `tsconfig.tsbuildinfo` are tool output.
 
-## Next action
+## Owner decisions, 23 Nov 2026 (answers to Claude's list of open owner items)
 
-Unchanged from the checkpoint: confirm Preview's storage variables and Fluid compute setting
-in Vercel (the connector needs reauthentication), then ask the owner to approve the `dev`
-push that triggers the Preview build.
+- Dev database password rotated and Supabase redirect URLs added ("already done for 3",
+  "for 4, yes done"). Fluid compute confirmed ("7. Yes").
+- SSO in the same Preview push "as long its safe". Codex had already shipped it to Preview.
+- Copy local content (menu, pages, sample posts) to the hosted dev database: "Hmm, for now
+  yes". Approves the copy into hosted dev only, not production. The method is not chosen yet:
+  propose one to the owner first, and include the sample-post images, which must go to the
+  Media bucket.
+- Admin redesign: "The comments will guide u". From the canvas comments, Add an issuance and
+  Access requests both open as a centered dialog, not a side panel ("This!", "model sana
+  to"). This replaces the side-panel direction in the 21 Nov handoff. Boards titled
+  "(chosen)" and "(not chosen)" on the canvas mark the choice.
+- The owner sent the three branch emblems (USG, Student Senate, Student Tribunal). Copies
+  without text already exist in `binturong-open-usg/public/brand/`, but only `usg-emblem.png`
+  is used. The owner's new versions are higher resolution, and the Tribunal one has no
+  orange; they are not in the repo yet. Where each emblem appears has not been decided.
 
 ## Parked: Codex-App inventory review (owner: "you can tack that on next time")
 
