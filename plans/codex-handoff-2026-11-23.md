@@ -26,12 +26,22 @@ Untracked `.claude/`, `.playwright-mcp/` and `tsconfig.tsbuildinfo` are tool out
   Access requests both open as a centered dialog, not a side panel ("This!", "model sana
   to"). This replaces the side-panel direction in the 21 Nov handoff. Boards titled
   "(chosen)" and "(not chosen)" on the canvas mark the choice.
-- PDF pre-fill: "Regex + smart ass lightweight AI thing, pwede na." Docling is ruled out:
-  it needs Python and PyTorch, which a Vercel Node function can't run. Read the text layer in
-  Node and match header lines with patterns first. Call a small vision/text model (Haiku
-  class) on the server only when patterns leave a field empty or the PDF is a scan. Every
-  filled-in value stays marked as a suggestion until a person confirms it. The model key stays
-  server-only. Timing is unchanged: after the trial unless the owner moves it.
+- PDF pre-fill ("Regex + smart ass lightweight AI thing, pwede na", then LlamaParse chosen
+  from Bintanong's options: "sure go for it"). Docling is ruled out because it needs Python
+  and PyTorch, which a Vercel Node function can't run.
+  1. Sort pages as Bintanong's `document_ingest/inspection.py` does: count text-layer
+     characters and images per page (at least 100 characters means native, under 20 with an
+     image means scanned).
+  2. Read the text layer in Node and match header lines (number, `s. YYYY-YYYY`, date,
+     subject) with patterns.
+  3. Only for a scan or a field still empty, send the PDF to LlamaParse, reusing the pattern
+     in Bintanong's `knowledge_update/llamaparse.py` (REST v2, upload then poll, bounded
+     polling, failure means manual entry). Run the same patterns on its output.
+  4. Every filled-in value stays a suggestion until a person confirms it; never guess a
+     missing value.
+  `LLAMA_CLOUD_API_KEY` stays on the server only. The whole PDF is uploaded to LlamaIndex,
+  so drafts leave our servers. Bintanong never ran LlamaParse live; test it on two or three
+  real scanned memos and check current pricing before building. After the trial.
 - The owner sent the three branch emblems (USG, Student Senate, Student Tribunal). Copies
   without text already exist in `binturong-open-usg/public/brand/`, but only `usg-emblem.png`
   is used. The owner's new versions are higher resolution, and the Tribunal one has no
