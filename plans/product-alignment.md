@@ -16,6 +16,23 @@ changed. The current checkpoint below records subsequent approved execution.
 
 ## Current checkpoint
 
+**Preview preflight (23 Nov 2026).** Started from local `dev` at `fb6eed6`. GitHub
+`dev` still pointed to `b9d8465` via `git ls-remote`. Restored the line-ending-only diff in
+`binturong-open-usg/src/payload-types.ts` and confirmed its Git diff was empty. Only the
+previously reported untracked tool output remained before this checkpoint edit.
+
+- Read-only Vercel CLI checks on `pal-su-usg/binturong` reported `resourceConfig.fluid: true`
+  and production branch `main`. Preview has all three `OFFICIAL_STORAGE_*` variable names and
+  `DATABASE_URL`. The project environment listing showed none of the five `MEDIA_S3_*` names.
+  This verifies variable presence only. Bucket access and uploads remain untested.
+- The ready Preview for `b9d8465` ran `vercel-build`, Payload migrations and the Next.js
+  build, as confirmed by its build log. The outgoing code adds the hosted Media migration
+  `20261121_051921_media_storage_fields`. Application tests were not rerun for this preflight.
+- Next action is to configure the five Media variables for Preview as described in the
+  [runbook](../docs/production-runbook.md#step-3-vercel-production-environment-variables),
+  recheck them, and obtain the owner's approval for the `dev` push, Preview deployment and
+  automatic migration against Preview's configured database.
+
 **Codex continuation (21 Nov 2026).** Local `dev` integrated memo pages and cloud readiness at
 `b3a6809`. GitHub `dev` remains `b9d8465`. The [Claude handoff](codex-handoff-2026-11-21.md)
 records the starting point.
